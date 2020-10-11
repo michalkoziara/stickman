@@ -192,9 +192,9 @@ public abstract class VisionProcessorBase<T> implements VisionImageProcessor {
               }
 
               graphicOverlay.clear();
-              if (originalCameraImage != null) {
-                graphicOverlay.add(new CameraImageGraphic(graphicOverlay, originalCameraImage));
-              }
+//              if (originalCameraImage != null) {
+//                graphicOverlay.add(new CameraImageGraphic(graphicOverlay, originalCameraImage));
+//              }
               graphicOverlay.add(
                   new InferenceInfoGraphic(
                       graphicOverlay, currentLatencyMs, shouldShowFps ? framesPerSecond : null));
