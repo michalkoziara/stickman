@@ -170,9 +170,6 @@ public abstract class VisionProcessorBase<T> implements VisionImageProcessor {
       boolean shouldShowFps) {
     final long startMs = SystemClock.elapsedRealtime();
 
-    Bitmap backgroundImage = Bitmap.createBitmap(1000, 2000, Bitmap.Config.ARGB_8888);
-    backgroundImage.eraseColor(Color.parseColor("#FFFFFF"));
-
     return detectInImage(image)
         .addOnSuccessListener(
             executor,
@@ -197,10 +194,7 @@ public abstract class VisionProcessorBase<T> implements VisionImageProcessor {
               }
 
               graphicOverlay.clear();
-//              if (originalCameraImage != null) {
-//                graphicOverlay.add(new CameraImageGraphic(graphicOverlay, originalCameraImage));
-//              }
-              graphicOverlay.add(new CameraImageGraphic(graphicOverlay, backgroundImage));
+
               graphicOverlay.add(
                   new InferenceInfoGraphic(
                       graphicOverlay, currentLatencyMs, shouldShowFps ? framesPerSecond : null));

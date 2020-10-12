@@ -4,6 +4,8 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
+import android.graphics.Bitmap;
+import android.graphics.Color;
 import android.os.Build.VERSION;
 import android.os.Build.VERSION_CODES;
 import android.os.Bundle;
@@ -53,6 +55,7 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
 
     private static final String STATE_LENS_FACING = "lens_facing";
 
+    private Bitmap backgroundImage;
     private PreviewView previewView;
     private GraphicOverlay graphicOverlay;
 
@@ -88,6 +91,9 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
             lensFacing = savedInstanceState.getInt(STATE_LENS_FACING, CameraSelector.LENS_FACING_BACK);
         }
         cameraSelector = new CameraSelector.Builder().requireLensFacing(lensFacing).build();
+
+        backgroundImage = Bitmap.createBitmap(1000, 2000, Bitmap.Config.ARGB_8888);
+        backgroundImage.eraseColor(Color.parseColor("#00FF00"));
 
         setContentView(R.layout.activity_vision_camerax_live_preview);
         previewView = findViewById(R.id.preview_view);
@@ -244,7 +250,7 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
             boolean shouldShowInFrameLikelihood =
                     PreferenceUtils.shouldShowPoseDetectionInFrameLikelihoodLivePreview(this);
             imageProcessor =
-                    new PoseDetectorProcessor(this, poseDetectorOptions, shouldShowInFrameLikelihood);
+                    new PoseDetectorProcessor(this, poseDetectorOptions, shouldShowInFrameLikelihood, backgroundImage);
         } catch (Exception e) {
             Toast.makeText(
                     getApplicationContext(),
