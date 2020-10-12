@@ -43,7 +43,7 @@ public class PoseDetectorProcessor extends VisionProcessorBase<Pose> {
 
   @Override
   protected void onSuccess(@NonNull Pose pose, @NonNull GraphicOverlay graphicOverlay) {
-    graphicOverlay.add(new PoseGraphic(graphicOverlay, pose, showInFrameLikelihood));
+    graphicOverlay.add(new SimpleStickmanGraphic(graphicOverlay, pose, showInFrameLikelihood));
   }
 
   @Override

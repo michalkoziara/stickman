@@ -4,6 +4,7 @@ import android.app.ActivityManager;
 import android.app.ActivityManager.MemoryInfo;
 import android.content.Context;
 import android.graphics.Bitmap;
+import android.graphics.Color;
 import android.os.Build.VERSION_CODES;
 import android.os.SystemClock;
 import android.util.Log;
@@ -168,6 +169,10 @@ public abstract class VisionProcessorBase<T> implements VisionImageProcessor {
       @Nullable final Bitmap originalCameraImage,
       boolean shouldShowFps) {
     final long startMs = SystemClock.elapsedRealtime();
+
+    Bitmap backgroundImage = Bitmap.createBitmap(1000, 2000, Bitmap.Config.ARGB_8888);
+    backgroundImage.eraseColor(Color.parseColor("#FFFFFF"));
+
     return detectInImage(image)
         .addOnSuccessListener(
             executor,
@@ -195,6 +200,7 @@ public abstract class VisionProcessorBase<T> implements VisionImageProcessor {
 //              if (originalCameraImage != null) {
 //                graphicOverlay.add(new CameraImageGraphic(graphicOverlay, originalCameraImage));
 //              }
+              graphicOverlay.add(new CameraImageGraphic(graphicOverlay, backgroundImage));
               graphicOverlay.add(
                   new InferenceInfoGraphic(
                       graphicOverlay, currentLatencyMs, shouldShowFps ? framesPerSecond : null));
