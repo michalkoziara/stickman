@@ -13,7 +13,6 @@ import com.google.mlkit.vision.pose.Pose;
 import com.google.mlkit.vision.pose.PoseDetection;
 import com.google.mlkit.vision.pose.PoseDetector;
 import com.google.mlkit.vision.pose.PoseDetectorOptionsBase;
-import com.litkaps.stickman.CameraImageGraphic;
 import com.litkaps.stickman.GraphicOverlay;
 import com.litkaps.stickman.VisionProcessorBase;
 
@@ -51,8 +50,8 @@ public class PoseDetectorProcessor extends VisionProcessorBase<Pose> {
 
     @Override
     protected void onSuccess(@NonNull Pose pose, @NonNull GraphicOverlay graphicOverlay) {
-        graphicOverlay.add(new CameraImageGraphic(graphicOverlay, backgroundImage));
-        graphicOverlay.add(new SimpleStickmanGraphic(graphicOverlay, pose, showInFrameLikelihood));
+        //graphicOverlay.add(new CameraImageGraphic(graphicOverlay, backgroundImage));
+        graphicOverlay.add(new MoustacheStickmanGraphic(graphicOverlay, pose, showInFrameLikelihood));
     }
 
     @Override

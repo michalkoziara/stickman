@@ -13,6 +13,7 @@ import android.util.Log;
 import android.util.Size;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.CompoundButton;
 import android.widget.Toast;
 import android.widget.ToggleButton;
@@ -96,6 +97,14 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
         backgroundImage.eraseColor(Color.parseColor("#00FF00"));
 
         setContentView(R.layout.activity_vision_camerax_live_preview);
+
+        findViewById(R.id.save_button).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                graphicOverlay.saveBitmap();
+            }
+        });
+
         previewView = findViewById(R.id.preview_view);
         if (previewView == null) {
             Log.d(TAG, "previewView is null");
