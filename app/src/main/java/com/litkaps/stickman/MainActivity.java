@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
+import android.content.res.ColorStateList;
 import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.os.Build.VERSION;
@@ -11,9 +12,14 @@ import android.os.Build.VERSION_CODES;
 import android.os.Bundle;
 import android.util.Log;
 import android.util.Size;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+import android.view.ViewGroup;
 import android.widget.CompoundButton;
+import android.widget.ImageButton;
+import android.widget.LinearLayout;
 import android.widget.Toast;
 import android.widget.ToggleButton;
 
@@ -29,8 +35,12 @@ import androidx.camera.lifecycle.ProcessCameraProvider;
 import androidx.camera.view.PreviewView;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
+import androidx.core.widget.ImageViewCompat;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.lifecycle.ViewModelProvider.AndroidViewModelFactory;
+import androidx.recyclerview.widget.DefaultItemAnimator;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.gms.common.annotation.KeepName;
 import com.google.mlkit.common.MlKitException;
@@ -55,9 +65,12 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
 
     private static final String STATE_LENS_FACING = "lens_facing";
 
-    private Bitmap backgroundImage;
+    static private Bitmap backgroundImage;
     private PreviewView previewView;
     private GraphicOverlay graphicOverlay;
+
+    private LinearLayout mainControl;
+    private LinearLayout secondLevelControl;
 
     @Nullable
     private ProcessCameraProvider cameraProvider;
@@ -71,11 +84,132 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
 
     private int lensFacing = CameraSelector.LENS_FACING_BACK;
     private CameraSelector cameraSelector;
+    private OptionsAdapter optionsAdapter;
+
+    View.OnClickListener unrollOptionsListener = view -> {
+        if(secondLevelControl.getVisibility() == View.VISIBLE) {
+            secondLevelControl.setVisibility(View.GONE);
+            return;
+        }
+
+        ArrayList<OptionModel> options = null;
+        int viewId = view.getId();
+        if(viewId == R.id.change_figure_button)
+            options = figureOptions;
+        else if(viewId == R.id.change_color_button)
+            options = backgroundColorOptions;
+        else if(viewId == R.id.change_background_image_button)
+            options = backgroundImageOptions;
+
+        secondLevelControl.setVisibility(View.VISIBLE);
+        optionsAdapter.setOptions(options);
+        optionsAdapter.notifyDataSetChanged();
+    };
+
+    /** change background image options */
+    static ArrayList<OptionModel> backgroundImageOptions = new ArrayList<>();
+    static {
+        backgroundImageOptions.add(new MainActivity.OptionModel("none", R.drawable.ic_baseline_close_24));
+        backgroundImageOptions.add(new MainActivity.OptionModel("custom_graphic", R.drawable.ic_baseline_add_photo_alternate_24));
+    }
+
+    /** change background color options */
+    static ArrayList<OptionModel> backgroundColorOptions = new ArrayList<>();
+    static {
+        backgroundColorOptions.add(new MainActivity.OptionModel("none", R.drawable.ic_baseline_close_24)); // clear background icon
+        backgroundColorOptions.add(new MainActivity.OptionModel(Color.parseColor("#277E8A")));
+        backgroundColorOptions.add(new MainActivity.OptionModel(Color.parseColor("#38BEA3")));
+        backgroundColorOptions.add(new MainActivity.OptionModel(Color.parseColor("#F7B536")));
+        backgroundColorOptions.add(new MainActivity.OptionModel(Color.parseColor("#22201E")));
+        backgroundColorOptions.add(new MainActivity.OptionModel(Color.parseColor("#F6532D")));
+    }
+
+    /** change figure options */
+    static ArrayList<OptionModel> figureOptions = new ArrayList<>();
+
+    /** change figure style options */
+    static ArrayList<OptionModel> figureStyleOptions = new ArrayList<>();
+
+    static class OptionModel {
+        String name;
+        int imageResourceID;
+        int tint = -1;
+
+        OptionModel(String name, int iconResourceID) {
+            this.name = name;
+            this.imageResourceID = iconResourceID;
+        }
+
+        OptionModel(int tint) {
+            imageResourceID = R.drawable.ic_baseline_paint_24;
+            this.tint = tint;
+        }
+    }
+
+    class OptionsAdapter extends RecyclerView.Adapter<OptionsAdapter.OptionViewHolder> {
+        ArrayList<OptionModel> options;
+
+        OptionsAdapter() {
+            super();
+        }
+
+        void setOptions(ArrayList<OptionModel> options) {
+            this.options = options;
+        }
+
+        @NonNull
+        @Override
+        public OptionViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+            View itemView = LayoutInflater.from(parent.getContext()).inflate(R.layout.option_item, parent, false);
+
+            return new OptionViewHolder(itemView);
+        }
+
+        @Override
+        public void onBindViewHolder(@NonNull OptionViewHolder holder, int position) {
+            MainActivity.OptionModel option = options.get(position);
+            holder.optionButton.setImageResource(option.imageResourceID);
+            if(option.tint != -1)
+                ImageViewCompat.setImageTintList(holder.optionButton, ColorStateList.valueOf(option.tint));
+        }
+
+        @Override
+        public int getItemCount() {
+            return options.size();
+        }
+
+        class OptionViewHolder extends RecyclerView.ViewHolder {
+            ImageButton optionButton;
+
+            OptionViewHolder(View view) {
+                super(view);
+                optionButton = view.findViewById(R.id.option_button);
+                optionButton.setOnClickListener(v -> {
+                    if(options == backgroundColorOptions) {
+                        int position = getAdapterPosition();
+                        if(position == 0)
+                            removeBackground();
+                        else
+                            setBackgroundColor(options.get(getAdapterPosition()).tint);
+                    }
+
+                    if(options == backgroundImageOptions) {
+                        int position = getAdapterPosition();
+                        if(position == 0)
+                            removeBackground();
+                        //else
+                            // TODO: set background image from device storage
+                    }
+
+                });
+            }
+        }
+    }
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        Log.d(TAG, "onCreate");
 
         if (VERSION.SDK_INT < VERSION_CODES.LOLLIPOP) {
             Toast.makeText(
@@ -92,10 +226,15 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
         }
         cameraSelector = new CameraSelector.Builder().requireLensFacing(lensFacing).build();
 
-        backgroundImage = Bitmap.createBitmap(1000, 2000, Bitmap.Config.ARGB_8888);
-        backgroundImage.eraseColor(Color.parseColor("#00FF00"));
-
         setContentView(R.layout.activity_vision_camerax_live_preview);
+
+        mainControl = findViewById(R.id.control_level0);
+        secondLevelControl = findViewById(R.id.control_level1);
+
+        findViewById(R.id.change_figure_button).setOnClickListener(unrollOptionsListener);
+        findViewById(R.id.change_color_button).setOnClickListener(unrollOptionsListener);
+        findViewById(R.id.change_background_image_button).setOnClickListener(unrollOptionsListener);
+
         previewView = findViewById(R.id.preview_view);
         if (previewView == null) {
             Log.d(TAG, "previewView is null");
@@ -125,6 +264,21 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
         }
 
         bindAnalysisUseCase();
+
+
+        RecyclerView recyclerView = findViewById(R.id.recycler_view);
+
+        optionsAdapter = new OptionsAdapter();
+
+        LinearLayoutManager mLayoutManager = new LinearLayoutManager(getApplicationContext());
+        mLayoutManager.setOrientation(LinearLayoutManager.HORIZONTAL);
+        recyclerView.setLayoutManager(mLayoutManager);
+        recyclerView.setItemAnimator(new DefaultItemAnimator());
+        recyclerView.setAdapter(optionsAdapter);
+
+
+        optionsAdapter.notifyDataSetChanged();
+
     }
 
     @Override
@@ -250,7 +404,8 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
             boolean shouldShowInFrameLikelihood =
                     PreferenceUtils.shouldShowPoseDetectionInFrameLikelihoodLivePreview(this);
             imageProcessor =
-                    new PoseDetectorProcessor(this, poseDetectorOptions, shouldShowInFrameLikelihood, backgroundImage);
+                    new PoseDetectorProcessor(this, poseDetectorOptions, shouldShowInFrameLikelihood);
+
         } catch (Exception e) {
             Toast.makeText(
                     getApplicationContext(),
@@ -354,5 +509,15 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
         }
         Log.i(TAG, "Permission NOT granted: " + permission);
         return false;
+    }
+
+    public void setBackgroundColor(int tint) {
+        backgroundImage = Bitmap.createBitmap(1000, 2000, Bitmap.Config.ARGB_8888);
+        backgroundImage.eraseColor(tint);
+        ((PoseDetectorProcessor)imageProcessor).setBackgroundImage(backgroundImage);
+    }
+
+    public void removeBackground() {
+        ((PoseDetectorProcessor)imageProcessor).setBackgroundImage(null);
     }
 }

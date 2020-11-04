@@ -3,13 +3,14 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:keepScreenOn="true">
+    android:keepScreenOn="true"
+    android:animateLayoutChanges="true">
 
     <androidx.camera.view.PreviewView
         android:id="@+id/preview_view"
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        app:layout_constraintBottom_toTopOf="@+id/control"
+        app:layout_constraintBottom_toTopOf="@+id/control_level0"
         app:layout_constraintTop_toTopOf="parent" />
 
     <com.litkaps.stickman.GraphicOverlay
@@ -21,11 +22,12 @@
         app:layout_constraintRight_toRightOf="@id/preview_view"
         app:layout_constraintTop_toTopOf="@id/preview_view" />
 
+
     <LinearLayout
-        android:id="@id/control"
+        android:id="@id/control_level0"
         android:layout_width="match_parent"
         android:layout_height="60dp"
-        android:background="#000"
+        android:background="@android:color/white"
         android:orientation="horizontal"
         app:layout_constraintBottom_toBottomOf="parent">
 
@@ -33,11 +35,62 @@
             android:id="@+id/facing_switch"
             android:layout_width="48dp"
             android:layout_height="48dp"
+            android:layout_margin="10dp"
             android:layout_gravity="center_vertical"
-            android:background="@layout/toggle_style"
+            android:background="@drawable/ic_baseline_switch_camera_24"
             android:checked="false"
             android:textOff=""
             android:textOn="" />
+
+        <Button
+            android:id="@+id/change_figure_button"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:layout_gravity="center_vertical"
+            android:layout_margin="10dp"
+            android:background="@drawable/ic_baseline_emoji_people_24"
+            android:checked="false"
+            android:textOff=""
+            android:textOn="" />
+
+        <Button
+            android:id="@+id/change_color_button"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:layout_gravity="center_vertical"
+            android:layout_margin="10dp"
+            android:background="@drawable/ic_baseline_color_lens_24"
+            android:checked="false"
+            android:textOff=""
+            android:textOn="" />
+
+        <Button
+            android:id="@+id/change_background_image_button"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:layout_gravity="center_vertical"
+            android:layout_margin="10dp"
+            android:background="@drawable/ic_baseline_image_24"
+            android:checked="false"
+            android:textOff=""
+            android:textOn="" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/control_level1"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/light_grey_400"
+        android:orientation="horizontal"
+        android:visibility="gone"
+        app:layout_constraintBottom_toTopOf="@+id/control_level0">
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/recycler_view"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal" />
+
     </LinearLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

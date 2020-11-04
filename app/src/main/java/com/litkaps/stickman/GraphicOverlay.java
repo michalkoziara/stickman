@@ -1,15 +1,25 @@
 package com.litkaps.stickman;
 
 import android.content.Context;
+import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Matrix;
+import android.os.Environment;
+import android.provider.MediaStore;
 import android.util.AttributeSet;
 import android.view.View;
 
 import com.google.common.base.Preconditions;
 
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.List;
+
+import static android.graphics.Bitmap.Config.ARGB_8888;
 
 /**
  * A view which renders a series of custom graphics to be overlayed on top of an associated preview
@@ -49,6 +59,8 @@ public class GraphicOverlay extends View {
   private float postScaleHeightOffset;
   private boolean isImageFlipped;
   private boolean needUpdateTransformation = true;
+
+  Bitmap bitmap; // bitmap for saving current view
 
   /**
    * Base class for a custom graphics object to be rendered within the graphic overlay. Subclass
@@ -168,6 +180,8 @@ public class GraphicOverlay extends View {
       this.imageHeight = imageHeight;
       this.isImageFlipped = isFlipped;
       needUpdateTransformation = true;
+
+      bitmap = Bitmap.createBitmap(imageWidth, imageHeight, ARGB_8888);
     }
     postInvalidate();
   }
@@ -213,13 +227,32 @@ public class GraphicOverlay extends View {
   @Override
   protected void onDraw(Canvas canvas) {
     super.onDraw(canvas);
+    Canvas canvas2 = new Canvas();
+    canvas2.setBitmap(bitmap);
 
     synchronized (lock) {
       updateTransformationIfNeeded();
 
       for (Graphic graphic : graphics) {
         graphic.draw(canvas);
+        graphic.draw(canvas2);
       }
+    }
+  }
+
+  void saveBitmap() {
+    String path = Environment.getExternalStorageDirectory().toString();
+    OutputStream fOut = null;
+    File file = new File(path, "stickman.jpg");
+    try {
+      fOut = new FileOutputStream(file);
+      bitmap.compress(Bitmap.CompressFormat.JPEG, 85, fOut); // saving the Bitmap to a file compressed as a JPEG with 85% compression rate
+      fOut.close();
+
+    } catch (FileNotFoundException e) {
+      e.printStackTrace();
+    } catch (IOException e) {
+      e.printStackTrace();
     }
   }
 }

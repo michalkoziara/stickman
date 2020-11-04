@@ -196,9 +196,12 @@ public abstract class VisionProcessorBase<T> implements VisionImageProcessor {
               graphicOverlay.clear();
 
               graphicOverlay.add(
-                  new InferenceInfoGraphic(
-                      graphicOverlay, currentLatencyMs, shouldShowFps ? framesPerSecond : null));
-              VisionProcessorBase.this.onSuccess(results, graphicOverlay);
+                      new InferenceInfoGraphic(
+                              graphicOverlay, currentLatencyMs, shouldShowFps ? framesPerSecond : null));
+
+
+                VisionProcessorBase.this.onSuccess(results, graphicOverlay, originalCameraImage);
+
               graphicOverlay.postInvalidate();
             })
         .addOnFailureListener(
@@ -229,7 +232,7 @@ public abstract class VisionProcessorBase<T> implements VisionImageProcessor {
 
   protected abstract Task<T> detectInImage(InputImage image);
 
-  protected abstract void onSuccess(@NonNull T results, @NonNull GraphicOverlay graphicOverlay);
+  protected abstract void onSuccess(@NonNull T results, @NonNull GraphicOverlay graphicOverlay, Bitmap cameraImage);
 
   protected abstract void onFailure(@NonNull Exception e);
 }

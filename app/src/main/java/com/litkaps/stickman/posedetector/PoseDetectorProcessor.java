@@ -28,14 +28,13 @@ public class PoseDetectorProcessor extends VisionProcessorBase<Pose> {
 
     private final boolean showInFrameLikelihood;
 
-    private final Bitmap backgroundImage;
+    private Bitmap backgroundImage;
 
     public PoseDetectorProcessor(
-            Context context, PoseDetectorOptionsBase options, boolean showInFrameLikelihood, Bitmap backgroundImage) {
+            Context context, PoseDetectorOptionsBase options, boolean showInFrameLikelihood) {
         super(context);
         this.showInFrameLikelihood = showInFrameLikelihood;
         detector = PoseDetection.getClient(options);
-        this.backgroundImage = backgroundImage;
     }
 
     @Override
@@ -50,13 +49,25 @@ public class PoseDetectorProcessor extends VisionProcessorBase<Pose> {
     }
 
     @Override
-    protected void onSuccess(@NonNull Pose pose, @NonNull GraphicOverlay graphicOverlay) {
-        graphicOverlay.add(new CameraImageGraphic(graphicOverlay, backgroundImage));
+    protected void onSuccess(@NonNull Pose pose, @NonNull GraphicOverlay graphicOverlay, Bitmap cameraImage) {
+        if(backgroundImage != null)
+            graphicOverlay.add(new CameraImageGraphic(graphicOverlay, backgroundImage));
+        else
+            graphicOverlay.add(new CameraImageGraphic(graphicOverlay, cameraImage));
+
         graphicOverlay.add(new SimpleStickmanGraphic(graphicOverlay, pose, showInFrameLikelihood));
     }
 
     @Override
     protected void onFailure(@NonNull Exception e) {
         Log.e(TAG, "Pose detection failed!", e);
+    }
+
+    public void setBackgroundImage(Bitmap bitmap) {
+        backgroundImage = bitmap;
+    }
+
+    public Bitmap getBackgroundImage() {
+        return backgroundImage;
     }
 }
