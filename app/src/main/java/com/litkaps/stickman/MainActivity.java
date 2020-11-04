@@ -7,6 +7,7 @@ import android.content.pm.PackageManager;
 import android.content.res.ColorStateList;
 import android.graphics.Bitmap;
 import android.graphics.Color;
+import android.net.Uri;
 import android.os.Build.VERSION;
 import android.os.Build.VERSION_CODES;
 import android.os.Bundle;
@@ -50,6 +51,7 @@ import com.litkaps.stickman.preference.PreferenceUtils;
 import com.litkaps.stickman.preference.SettingsActivity;
 import com.litkaps.stickman.preference.SettingsActivity.LaunchSource;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -62,12 +64,15 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
         CompoundButton.OnCheckedChangeListener {
     private static final String TAG = "MainActivity";
     private static final int PERMISSION_REQUESTS = 1;
+    private static final int REQUEST_CHOOSE_IMAGE = 1002;
 
     private static final String STATE_LENS_FACING = "lens_facing";
 
-    static private Bitmap backgroundImage;
     private PreviewView previewView;
     private GraphicOverlay graphicOverlay;
+
+    private Uri imageUri;
+    private int colorValue;
 
     private LinearLayout mainControl;
     private LinearLayout secondLevelControl;
@@ -87,18 +92,18 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
     private OptionsAdapter optionsAdapter;
 
     View.OnClickListener unrollOptionsListener = view -> {
-        if(secondLevelControl.getVisibility() == View.VISIBLE) {
+        if (secondLevelControl.getVisibility() == View.VISIBLE) {
             secondLevelControl.setVisibility(View.GONE);
             return;
         }
 
         ArrayList<OptionModel> options = null;
         int viewId = view.getId();
-        if(viewId == R.id.change_figure_button)
+        if (viewId == R.id.change_figure_button)
             options = figureOptions;
-        else if(viewId == R.id.change_color_button)
+        else if (viewId == R.id.change_color_button)
             options = backgroundColorOptions;
-        else if(viewId == R.id.change_background_image_button)
+        else if (viewId == R.id.change_background_image_button)
             options = backgroundImageOptions;
 
         secondLevelControl.setVisibility(View.VISIBLE);
@@ -106,15 +111,21 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
         optionsAdapter.notifyDataSetChanged();
     };
 
-    /** change background image options */
+    /**
+     * change background image options
+     */
     static ArrayList<OptionModel> backgroundImageOptions = new ArrayList<>();
+
     static {
         backgroundImageOptions.add(new MainActivity.OptionModel("none", R.drawable.ic_baseline_close_24));
         backgroundImageOptions.add(new MainActivity.OptionModel("custom_graphic", R.drawable.ic_baseline_add_photo_alternate_24));
     }
 
-    /** change background color options */
+    /**
+     * change background color options
+     */
     static ArrayList<OptionModel> backgroundColorOptions = new ArrayList<>();
+
     static {
         backgroundColorOptions.add(new MainActivity.OptionModel("none", R.drawable.ic_baseline_close_24)); // clear background icon
         backgroundColorOptions.add(new MainActivity.OptionModel(Color.parseColor("#277E8A")));
@@ -124,10 +135,14 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
         backgroundColorOptions.add(new MainActivity.OptionModel(Color.parseColor("#F6532D")));
     }
 
-    /** change figure options */
+    /**
+     * change figure options
+     */
     static ArrayList<OptionModel> figureOptions = new ArrayList<>();
 
-    /** change figure style options */
+    /**
+     * change figure style options
+     */
     static ArrayList<OptionModel> figureStyleOptions = new ArrayList<>();
 
     static class OptionModel {
@@ -169,7 +184,7 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
         public void onBindViewHolder(@NonNull OptionViewHolder holder, int position) {
             MainActivity.OptionModel option = options.get(position);
             holder.optionButton.setImageResource(option.imageResourceID);
-            if(option.tint != -1)
+            if (option.tint != -1)
                 ImageViewCompat.setImageTintList(holder.optionButton, ColorStateList.valueOf(option.tint));
         }
 
@@ -185,27 +200,39 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
                 super(view);
                 optionButton = view.findViewById(R.id.option_button);
                 optionButton.setOnClickListener(v -> {
-                    if(options == backgroundColorOptions) {
+                    if (options == backgroundColorOptions) {
                         int position = getAdapterPosition();
-                        if(position == 0)
+                        if (position == 0) {
                             removeBackground();
-                        else
+                        } else {
                             setBackgroundColor(options.get(getAdapterPosition()).tint);
-                    }
-
-                    if(options == backgroundImageOptions) {
+                            colorValue = options.get(getAdapterPosition()).tint;
+                        }
+                    } else if (options == backgroundImageOptions) {
                         int position = getAdapterPosition();
-                        if(position == 0)
+                        if (position == 0) {
                             removeBackground();
-                        //else
-                            // TODO: set background image from device storage
+                        } else {
+                            startChooseImageIntentForResult();
+                        }
                     }
 
                 });
             }
+
+
         }
     }
 
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (requestCode == REQUEST_CHOOSE_IMAGE && resultCode == RESULT_OK) {
+            imageUri = data.getData();
+            tryReloadAndDetectInImage();
+        } else {
+            super.onActivityResult(requestCode, resultCode, data);
+        }
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -265,7 +292,6 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
 
         bindAnalysisUseCase();
 
-
         RecyclerView recyclerView = findViewById(R.id.recycler_view);
 
         optionsAdapter = new OptionsAdapter();
@@ -275,10 +301,6 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
         recyclerView.setLayoutManager(mLayoutManager);
         recyclerView.setItemAnimator(new DefaultItemAnimator());
         recyclerView.setAdapter(optionsAdapter);
-
-
-        optionsAdapter.notifyDataSetChanged();
-
     }
 
     @Override
@@ -339,6 +361,12 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
     public void onResume() {
         super.onResume();
         bindAllCameraUseCases();
+
+        if (optionsAdapter.options == backgroundColorOptions) {
+            setBackgroundColor(colorValue);
+        } else if (optionsAdapter.options == backgroundImageOptions) {
+            tryReloadAndDetectInImage();
+        }
     }
 
     @Override
@@ -354,6 +382,25 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
         super.onDestroy();
         if (imageProcessor != null) {
             imageProcessor.stop();
+        }
+    }
+
+    private void tryReloadAndDetectInImage() {
+        Log.d(TAG, "Try reload and detect image");
+        try {
+            if (imageUri == null) {
+                return;
+            }
+
+            Bitmap imageBitmap = BitmapUtils.getBitmapFromContentUri(getContentResolver(), imageUri);
+            if (imageBitmap == null) {
+                return;
+            }
+
+            setBackgroundImage(imageBitmap);
+        } catch (IOException e) {
+            Log.e(TAG, "Error retrieving saved image");
+            imageUri = null;
         }
     }
 
@@ -511,13 +558,29 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
         return false;
     }
 
-    public void setBackgroundColor(int tint) {
-        backgroundImage = Bitmap.createBitmap(1000, 2000, Bitmap.Config.ARGB_8888);
-        backgroundImage.eraseColor(tint);
-        ((PoseDetectorProcessor)imageProcessor).setBackgroundImage(backgroundImage);
+    private void setBackgroundColor(int colorValue) {
+        Bitmap backgroundImage = Bitmap.createBitmap(1, 1, Bitmap.Config.ARGB_8888);
+        backgroundImage.eraseColor(colorValue);
+
+        setBackgroundImage(backgroundImage);
     }
 
-    public void removeBackground() {
-        ((PoseDetectorProcessor)imageProcessor).setBackgroundImage(null);
+    private void removeBackground() {
+        imageUri = null;
+        setBackgroundImage(null);
+    }
+
+    private void setBackgroundImage(Bitmap backgroundImage) {
+        if (imageProcessor != null) {
+            ((PoseDetectorProcessor) imageProcessor).setBackgroundImage(backgroundImage);
+
+        }
+    }
+
+    private void startChooseImageIntentForResult() {
+        Intent intent = new Intent();
+        intent.setType("image/*");
+        intent.setAction(Intent.ACTION_GET_CONTENT);
+        startActivityForResult(Intent.createChooser(intent, "Select Picture"), REQUEST_CHOOSE_IMAGE);
     }
 }

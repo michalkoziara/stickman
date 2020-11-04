@@ -25,10 +25,11 @@ public class PoseDetectorProcessor extends VisionProcessorBase<Pose> {
     private static final String TAG = "PoseDetectorProcessor";
 
     private final PoseDetector detector;
-
     private final boolean showInFrameLikelihood;
 
     private Bitmap backgroundImage;
+    private Bitmap scaledBackgroundImage;
+    private boolean isUpdated;
 
     public PoseDetectorProcessor(
             Context context, PoseDetectorOptionsBase options, boolean showInFrameLikelihood) {
@@ -50,10 +51,22 @@ public class PoseDetectorProcessor extends VisionProcessorBase<Pose> {
 
     @Override
     protected void onSuccess(@NonNull Pose pose, @NonNull GraphicOverlay graphicOverlay, Bitmap cameraImage) {
-        if(backgroundImage != null)
-            graphicOverlay.add(new CameraImageGraphic(graphicOverlay, backgroundImage));
-        else
+        if (backgroundImage != null) {
+            if (isUpdated) {
+                scaledBackgroundImage = Bitmap.createScaledBitmap(
+                        backgroundImage,
+                        cameraImage.getWidth(),
+                        cameraImage.getHeight(),
+                        true);
+
+                isUpdated = false;
+            }
+
+            graphicOverlay.add(new CameraImageGraphic(graphicOverlay, scaledBackgroundImage));
+        } else {
+            scaledBackgroundImage = null;
             graphicOverlay.add(new CameraImageGraphic(graphicOverlay, cameraImage));
+        }
 
         graphicOverlay.add(new SimpleStickmanGraphic(graphicOverlay, pose, showInFrameLikelihood));
     }
@@ -65,9 +78,6 @@ public class PoseDetectorProcessor extends VisionProcessorBase<Pose> {
 
     public void setBackgroundImage(Bitmap bitmap) {
         backgroundImage = bitmap;
-    }
-
-    public Bitmap getBackgroundImage() {
-        return backgroundImage;
+        isUpdated = true;
     }
 }

@@ -60,7 +60,7 @@ public class GraphicOverlay extends View {
   private boolean isImageFlipped;
   private boolean needUpdateTransformation = true;
 
-  Bitmap bitmap; // bitmap for saving current view
+//  Bitmap bitmap; // bitmap for saving current view
 
   /**
    * Base class for a custom graphics object to be rendered within the graphic overlay. Subclass
@@ -180,8 +180,7 @@ public class GraphicOverlay extends View {
       this.imageHeight = imageHeight;
       this.isImageFlipped = isFlipped;
       needUpdateTransformation = true;
-
-      bitmap = Bitmap.createBitmap(imageWidth, imageHeight, ARGB_8888);
+//      bitmap = Bitmap.createBitmap(imageWidth, imageHeight, ARGB_8888);
     }
     postInvalidate();
   }
@@ -227,32 +226,32 @@ public class GraphicOverlay extends View {
   @Override
   protected void onDraw(Canvas canvas) {
     super.onDraw(canvas);
-    Canvas canvas2 = new Canvas();
-    canvas2.setBitmap(bitmap);
+//    Canvas canvas2 = new Canvas();
+//    canvas2.setBitmap(bitmap);
 
     synchronized (lock) {
       updateTransformationIfNeeded();
 
       for (Graphic graphic : graphics) {
         graphic.draw(canvas);
-        graphic.draw(canvas2);
+//        graphic.draw(canvas2);
       }
     }
   }
-
-  void saveBitmap() {
-    String path = Environment.getExternalStorageDirectory().toString();
-    OutputStream fOut = null;
-    File file = new File(path, "stickman.jpg");
-    try {
-      fOut = new FileOutputStream(file);
-      bitmap.compress(Bitmap.CompressFormat.JPEG, 85, fOut); // saving the Bitmap to a file compressed as a JPEG with 85% compression rate
-      fOut.close();
-
-    } catch (FileNotFoundException e) {
-      e.printStackTrace();
-    } catch (IOException e) {
-      e.printStackTrace();
-    }
-  }
+//
+//  void saveBitmap() {
+//    String path = Environment.getExternalStorageDirectory().toString();
+//    OutputStream fOut = null;
+//    File file = new File(path, "stickman.jpg");
+//    try {
+//      fOut = new FileOutputStream(file);
+//      bitmap.compress(Bitmap.CompressFormat.JPEG, 85, fOut); // saving the Bitmap to a file compressed as a JPEG with 85% compression rate
+//      fOut.close();
+//
+//    } catch (FileNotFoundException e) {
+//      e.printStackTrace();
+//    } catch (IOException e) {
+//      e.printStackTrace();
+//    }
+//  }
 }
