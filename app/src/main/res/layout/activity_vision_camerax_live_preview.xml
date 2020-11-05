@@ -49,10 +49,7 @@
             android:layout_height="48dp"
             android:layout_gravity="center_vertical"
             android:layout_margin="10dp"
-            android:background="@drawable/ic_baseline_emoji_people_24"
-            android:checked="false"
-            android:textOff=""
-            android:textOn="" />
+            android:background="@drawable/ic_baseline_emoji_people_24" />
 
         <Button
             android:id="@+id/change_color_button"
@@ -60,10 +57,7 @@
             android:layout_height="48dp"
             android:layout_gravity="center_vertical"
             android:layout_margin="10dp"
-            android:background="@drawable/ic_baseline_color_lens_24"
-            android:checked="false"
-            android:textOff=""
-            android:textOn="" />
+            android:background="@drawable/ic_baseline_color_lens_24" />
 
         <Button
             android:id="@+id/change_background_image_button"
@@ -71,10 +65,8 @@
             android:layout_height="48dp"
             android:layout_gravity="center_vertical"
             android:layout_margin="10dp"
-            android:background="@drawable/ic_baseline_image_24"
-            android:checked="false"
-            android:textOff=""
-            android:textOn="" />
+            android:background="@drawable/ic_baseline_image_24" />
+
     </LinearLayout>
 
     <LinearLayout

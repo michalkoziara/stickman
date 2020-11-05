@@ -4,12 +4,16 @@ import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Matrix;
+import android.graphics.Paint;
+import android.graphics.Path;
+import android.graphics.PointF;
 import android.os.Environment;
 import android.provider.MediaStore;
 import android.util.AttributeSet;
 import android.view.View;
 
 import com.google.common.base.Preconditions;
+import com.google.mlkit.vision.pose.PoseLandmark;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -18,6 +22,8 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.List;
+
+import androidx.annotation.Nullable;
 
 import static android.graphics.Bitmap.Config.ARGB_8888;
 
@@ -68,6 +74,7 @@ public class GraphicOverlay extends View {
    * instances to the overlay using {@link GraphicOverlay#add(Graphic)}.
    */
   public abstract static class Graphic {
+    private static final float DOT_RADIUS = 1.0f;
     private GraphicOverlay overlay;
 
     public Graphic(GraphicOverlay overlay) {
@@ -131,6 +138,83 @@ public class GraphicOverlay extends View {
     public void postInvalidate() {
       overlay.postInvalidate();
     }
+
+    public void drawCircle(Canvas canvas, @Nullable PointF point, float radius, Paint paint, boolean fill) {
+      if (point == null) {
+        return;
+      }
+      if (fill) {
+        paint.setStyle(Paint.Style.FILL);
+      }
+      canvas.drawCircle(translateX(point.x), translateY(point.y), radius, paint);
+    }
+
+    public void drawPoint(Canvas canvas, @Nullable PointF point, Paint paint) {
+      drawCircle(canvas, point, DOT_RADIUS, paint, true);
+    }
+
+    public void drawLine(Canvas canvas, @Nullable PointF start, @Nullable PointF end, Paint paint) {
+      if (start == null || end == null) {
+        return;
+      }
+      canvas.drawLine(
+              translateX(start.x), translateY(start.y), translateX(end.x), translateY(end.y), paint);
+    }
+
+    public void drawCurvedLine(Canvas canvas, float x1, float y1, float x2, float y2, int curveRadius, Paint paint) {
+      paint.setAntiAlias(true);
+      paint.setStyle(Paint.Style.STROKE);
+
+      final Path path = new Path();
+      float midX = x1 + ((x2 - x1) / 2);
+      float midY = y1 + ((y2 - y1) / 2);
+      float xDiff = midX - x1;
+      float yDiff = midY - y1;
+      double angle = (Math.atan2(yDiff, xDiff) * (180 / Math.PI)) - 90;
+      double angleRadians = Math.toRadians(angle);
+      float pointX = (float) (midX + curveRadius * Math.cos(angleRadians));
+      float pointY = (float) (midY + curveRadius * Math.sin(angleRadians));
+
+      path.moveTo(translateX(x1), translateY(y1));
+      path.cubicTo(translateX(x1), translateY(y1), translateX(pointX), translateY(pointY), translateX(x2), translateY(y2));
+
+      canvas.drawPath(path, paint);
+    }
+
+    public void drawEyes(
+            Canvas canvas,
+            PoseLandmark eyeInner,
+            PoseLandmark eyeOuter,
+            PoseLandmark eye,
+            int lowerEyelidRadius,
+            int upperEyelidRadius,
+            Paint paint) {
+      float leftEyeInnerX = eyeInner.getPosition().x;
+      float leftEyeInnerY = eyeInner.getPosition().y;
+      float leftEyeOuterX = eyeOuter.getPosition().x;
+      float leftEyeOuterY = eyeOuter.getPosition().y;
+
+      drawPoint(canvas, eye.getPosition(), paint);
+      drawCurvedLine(canvas,
+              leftEyeInnerX, leftEyeInnerY,
+              leftEyeOuterX, leftEyeOuterY,
+              upperEyelidRadius,
+              paint);
+      drawCurvedLine(canvas,
+              leftEyeInnerX, leftEyeInnerY,
+              leftEyeOuterX, leftEyeOuterY,
+              lowerEyelidRadius,
+              paint);
+    }
+
+    public PointF getPointBetween(PointF a, PointF b) {
+      return new PointF((a.x + b.x) / 2, (a.y + b.y) / 2);
+    }
+
+    public float getDistance(PointF a, PointF b) {
+      return (float) Math.sqrt((a.x - b.x) * (a.x - b.x) + (a.y - b.y) * (a.y - b.y));
+    }
+
   }
 
   public GraphicOverlay(Context context, AttributeSet attrs) {

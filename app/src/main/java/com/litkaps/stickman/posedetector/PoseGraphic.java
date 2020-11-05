@@ -111,18 +111,4 @@ public class PoseGraphic extends Graphic {
     drawLine(canvas, rightHeel.getPosition(), rightFootIndex.getPosition(), rightPaint);
   }
 
-  void drawPoint(Canvas canvas, @Nullable PointF point, Paint paint) {
-    if (point == null) {
-      return;
-    }
-    canvas.drawCircle(translateX(point.x), translateY(point.y), DOT_RADIUS, paint);
-  }
-
-  void drawLine(Canvas canvas, @Nullable PointF start, @Nullable PointF end, Paint paint) {
-    if (start == null || end == null) {
-      return;
-    }
-    canvas.drawLine(
-        translateX(start.x), translateY(start.y), translateX(end.x), translateY(end.y), paint);
-  }
 }

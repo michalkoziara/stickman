@@ -21,6 +21,7 @@ import com.litkaps.stickman.VisionProcessorBase;
  * A processor to run pose detector.
  */
 public class PoseDetectorProcessor extends VisionProcessorBase<Pose> {
+    private int figureID;
 
     private static final String TAG = "PoseDetectorProcessor";
 
@@ -68,7 +69,12 @@ public class PoseDetectorProcessor extends VisionProcessorBase<Pose> {
             graphicOverlay.add(new CameraImageGraphic(graphicOverlay, cameraImage));
         }
 
-        graphicOverlay.add(new SimpleStickmanGraphic(graphicOverlay, pose, showInFrameLikelihood));
+        if(figureID == 0)
+            graphicOverlay.add(new ClassicStickmanGraphic(graphicOverlay, pose, showInFrameLikelihood));
+        else if(figureID == 1)
+            graphicOverlay.add(new ComicStickmanGraphic(graphicOverlay, pose, showInFrameLikelihood));
+        else if(figureID == 2)
+            graphicOverlay.add(new FlexibleComicStickmanGraphic(graphicOverlay, pose, showInFrameLikelihood));
     }
 
     @Override
@@ -79,5 +85,9 @@ public class PoseDetectorProcessor extends VisionProcessorBase<Pose> {
     public void setBackgroundImage(Bitmap bitmap) {
         backgroundImage = bitmap;
         isUpdated = true;
+    }
+
+    public void setFigureID(int figureID) {
+        this.figureID = figureID;
     }
 }
