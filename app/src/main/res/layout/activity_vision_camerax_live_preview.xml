@@ -48,7 +48,7 @@
             android:layout_width="48dp"
             android:layout_height="48dp"
             android:layout_gravity="center_vertical"
-            android:layout_margin="10dp"
+            android:layout_margin="5dp"
             android:background="@drawable/ic_baseline_emoji_people_24" />
 
         <Button
@@ -56,7 +56,7 @@
             android:layout_width="48dp"
             android:layout_height="48dp"
             android:layout_gravity="center_vertical"
-            android:layout_margin="10dp"
+            android:layout_margin="5dp"
             android:background="@drawable/ic_baseline_color_lens_24" />
 
         <Button
@@ -64,8 +64,24 @@
             android:layout_width="48dp"
             android:layout_height="48dp"
             android:layout_gravity="center_vertical"
-            android:layout_margin="10dp"
+            android:layout_margin="5dp"
             android:background="@drawable/ic_baseline_image_24" />
+
+        <Button
+            android:id="@+id/change_accessory_button"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:layout_gravity="center_vertical"
+            android:layout_margin="5dp"
+            android:background="@drawable/ic_hat" />
+
+        <Button
+            android:id="@+id/change_style_button"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:layout_gravity="center_vertical"
+            android:layout_margin="5dp"
+            android:background="@drawable/ic_width" />
 
     </LinearLayout>
 
@@ -85,5 +101,22 @@
             android:orientation="horizontal" />
 
     </LinearLayout>
+
+    <SeekBar
+        android:id="@+id/line_width_seekbar"
+        android:layout_width="141dp"
+        android:layout_height="33dp"
+        android:max="36"
+        android:progress="16"
+        android:progressTint="@color/colorPrimary"
+        android:rotation="-90"
+        android:scaleX="1.6"
+        android:scaleY="1.6"
+        android:thumbTint="@color/colorPrimaryDark"
+        android:translationX="40dp"
+        android:translationY="-100dp"
+        android:visibility="gone"
+        app:layout_constraintBottom_toTopOf="@id/control_level1"
+        app:layout_constraintEnd_toEndOf="parent" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

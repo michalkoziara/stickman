@@ -7,9 +7,11 @@ import android.graphics.Matrix;
 import android.graphics.Paint;
 import android.graphics.Path;
 import android.graphics.PointF;
+import android.graphics.RectF;
 import android.os.Environment;
 import android.provider.MediaStore;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.View;
 
 import com.google.common.base.Preconditions;
@@ -74,7 +76,7 @@ public class GraphicOverlay extends View {
    * instances to the overlay using {@link GraphicOverlay#add(Graphic)}.
    */
   public abstract static class Graphic {
-    private static final float DOT_RADIUS = 1.0f;
+    private static final float DOT_RADIUS = 20.0f;
     private GraphicOverlay overlay;
 
     public Graphic(GraphicOverlay overlay) {
@@ -213,6 +215,49 @@ public class GraphicOverlay extends View {
 
     public float getDistance(PointF a, PointF b) {
       return (float) Math.sqrt((a.x - b.x) * (a.x - b.x) + (a.y - b.y) * (a.y - b.y));
+    }
+
+    public Matrix calculateTransformMatrix (
+            float x1, float y1, float x2, float y2, float objectWidth, float objectHeight) {
+
+      Matrix matrix = new Matrix();
+
+      float width = x2 - x1;
+
+      float deltaX = x2 - x1;
+      float deltaY =  y2 - y1;
+      float thetaRadians = (float)Math.atan2(deltaY, deltaX);
+      matrix.setRotate((float)Math.toDegrees(thetaRadians) / 5f);
+
+      float sx = (width / objectWidth) * 8;
+      matrix.postScale(sx, sx);
+      matrix.postTranslate(x1 + width/2 - objectWidth * sx/2, y1 - objectHeight * sx);
+
+      return matrix;
+    }
+
+    // calculate rotation between x1,y1 and x2,y2, but translate to x3, y3, and apply additional rotation
+    public Matrix calculateTransformMatrix (
+            float x1, float y1, float x2, float y2, float x3, float y3, float objectWidth, float objectHeight, float sx, float rotation) {
+
+      Matrix matrix = new Matrix();
+
+      float deltaX = x2 - x1;
+      float deltaY =  y2 - y1;
+      float thetaRadians = (float)Math.atan2(deltaY, deltaX);
+
+      //matrix.postTranslate(x3 + (x2 - x1), y3 - objectHight * sx);
+      matrix.setRotate((float)Math.toDegrees(thetaRadians) + rotation, objectWidth/2, objectHeight/2);
+      matrix.postScale(sx, sx, objectWidth/2, objectHeight/2);
+
+      //matrix.postTranslate(x3 - objectWidth/2, y3 - objectHeight/2);
+      matrix.postTranslate(x3 - objectWidth/2, y3 - objectHeight/2);
+
+      //matrix.postTranslate(x3 + objectWidth * sx/2, y3 - objectHight * sx/2);
+
+      //matrix.postRotate((float)Math.toDegrees(thetaRadians) -45f, objectWidth * sx/2, objectHight * sx/2);
+
+      return matrix;
     }
 
   }

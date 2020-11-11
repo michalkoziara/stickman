@@ -1,6 +1,8 @@
 package com.litkaps.stickman.posedetector;
 
 import android.content.Context;
+import android.graphics.Color;
+import android.graphics.Paint;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
@@ -15,13 +17,17 @@ import com.google.mlkit.vision.pose.PoseDetector;
 import com.google.mlkit.vision.pose.PoseDetectorOptionsBase;
 import com.litkaps.stickman.CameraImageGraphic;
 import com.litkaps.stickman.GraphicOverlay;
+import com.litkaps.stickman.R;
 import com.litkaps.stickman.VisionProcessorBase;
 
 /**
  * A processor to run pose detector.
  */
 public class PoseDetectorProcessor extends VisionProcessorBase<Pose> {
+    private Paint stickmanPaint = new Paint(Color.BLACK);
     private int figureID;
+    private int accessoryID;
+    private int accessoryType = -1;
 
     private static final String TAG = "PoseDetectorProcessor";
 
@@ -37,6 +43,7 @@ public class PoseDetectorProcessor extends VisionProcessorBase<Pose> {
         super(context);
         this.showInFrameLikelihood = showInFrameLikelihood;
         detector = PoseDetection.getClient(options);
+        stickmanPaint.setStrokeWidth(16);
     }
 
     @Override
@@ -70,11 +77,11 @@ public class PoseDetectorProcessor extends VisionProcessorBase<Pose> {
         }
 
         if(figureID == 0)
-            graphicOverlay.add(new ClassicStickmanGraphic(graphicOverlay, pose, showInFrameLikelihood));
+            graphicOverlay.add(new ClassicStickmanGraphic(graphicOverlay, pose, showInFrameLikelihood, accessoryID, accessoryType, stickmanPaint));
         else if(figureID == 1)
-            graphicOverlay.add(new ComicStickmanGraphic(graphicOverlay, pose, showInFrameLikelihood));
+            graphicOverlay.add(new ComicStickmanGraphic(graphicOverlay, pose, showInFrameLikelihood, accessoryID, accessoryType, stickmanPaint));
         else if(figureID == 2)
-            graphicOverlay.add(new FlexibleComicStickmanGraphic(graphicOverlay, pose, showInFrameLikelihood));
+            graphicOverlay.add(new FlexibleComicStickmanGraphic(graphicOverlay, pose, showInFrameLikelihood, accessoryID, accessoryType, stickmanPaint));
     }
 
     @Override
@@ -89,5 +96,18 @@ public class PoseDetectorProcessor extends VisionProcessorBase<Pose> {
 
     public void setFigureID(int figureID) {
         this.figureID = figureID;
+    }
+
+    public void setFigureColor(int color) {
+        stickmanPaint.setColor(color);
+    }
+
+    public void setFigureLineWidth(int width) {
+        stickmanPaint.setStrokeWidth(width);
+    }
+
+    public void setFigureAccessory(int accessoryID, int accessoryType) {
+        this.accessoryID = accessoryID;
+        this.accessoryType = accessoryType;
     }
 }

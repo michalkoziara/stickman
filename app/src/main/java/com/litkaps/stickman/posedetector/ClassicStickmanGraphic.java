@@ -1,7 +1,10 @@
 package com.litkaps.stickman.posedetector;
 
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Color;
+import android.graphics.Matrix;
 import android.graphics.Paint;
 import android.graphics.Path;
 import android.graphics.PointF;
@@ -13,6 +16,7 @@ import com.google.mlkit.vision.pose.Pose;
 import com.google.mlkit.vision.pose.PoseLandmark;
 import com.litkaps.stickman.GraphicOverlay;
 import com.litkaps.stickman.GraphicOverlay.Graphic;
+import com.litkaps.stickman.R;
 
 import java.util.List;
 import java.util.Locale;
@@ -20,32 +24,10 @@ import java.util.Locale;
 /**
  * Draw a stickman
  */
-public class ClassicStickmanGraphic extends Graphic {
+public class ClassicStickmanGraphic extends StickmanGraphic {
 
-    private static final float DOT_RADIUS = 1.0f;
-    private final Pose pose;
-    private final Paint blackPaint;
-    private final Paint whitePaint;
-    private final Paint facePaint;
-    boolean showInFrameLikelihood;
-
-    ClassicStickmanGraphic(GraphicOverlay overlay, Pose pose, boolean showInFrameLikelihood) {
-        super(overlay);
-
-        this.pose = pose;
-        blackPaint = new Paint();
-        blackPaint.setStrokeWidth(13);
-        blackPaint.setColor(Color.BLACK);
-        blackPaint.setTextSize((float) (50));
-
-        whitePaint = new Paint();
-        whitePaint.setColor(Color.WHITE);
-        blackPaint.setStrokeWidth(16);
-
-        facePaint = new Paint();
-        facePaint.setStrokeWidth(5);
-        facePaint.setColor(Color.BLACK);
-        this.showInFrameLikelihood = showInFrameLikelihood;
+    ClassicStickmanGraphic(GraphicOverlay overlay, Pose pose, boolean showInFrameLikelihood, int accessoryID, int accessoryType, Paint stickmanPaint) {
+        super(overlay, pose, showInFrameLikelihood, accessoryID, accessoryType, stickmanPaint);
     }
 
     @Override
@@ -80,77 +62,37 @@ public class ClassicStickmanGraphic extends Graphic {
         PoseLandmark leftMouth = pose.getPoseLandmark(PoseLandmark.LEFT_MOUTH);
         PoseLandmark rightMouth = pose.getPoseLandmark(PoseLandmark.RIGHT_MOUTH);
 
-        drawLine(canvas, leftAnkle.getPosition(), leftKnee.getPosition(), blackPaint);
-        drawLine(canvas, rightAnkle.getPosition(), rightKnee.getPosition(), blackPaint);
+        drawLine(canvas, leftAnkle.getPosition(), leftKnee.getPosition(), stickmanPaint);
+        drawLine(canvas, rightAnkle.getPosition(), rightKnee.getPosition(), stickmanPaint);
 
         PointF waistPoint = getPointBetween(rightHip.getPosition(), leftHip.getPosition());
-        drawLine(canvas, leftKnee.getPosition(), waistPoint, blackPaint);
-        drawLine(canvas, rightKnee.getPosition(), waistPoint, blackPaint);
+        drawLine(canvas, leftKnee.getPosition(), waistPoint, stickmanPaint);
+        drawLine(canvas, rightKnee.getPosition(), waistPoint, stickmanPaint);
 
         PointF neckPoint = getPointBetween(rightShoulder.getPosition(), leftShoulder.getPosition());
-        drawLine(canvas, waistPoint, neckPoint, blackPaint);
+        drawLine(canvas, waistPoint, neckPoint, stickmanPaint);
 
-        drawLine(canvas, neckPoint, leftElbow.getPosition(), blackPaint);
-        drawLine(canvas, neckPoint, rightElbow.getPosition(), blackPaint);
+        drawLine(canvas, neckPoint, leftElbow.getPosition(), stickmanPaint);
+        drawLine(canvas, neckPoint, rightElbow.getPosition(), stickmanPaint);
 
-        drawLine(canvas, leftElbow.getPosition(), leftWrist.getPosition(), blackPaint);
-        drawLine(canvas, rightElbow.getPosition(), rightWrist.getPosition(), blackPaint);
+        drawLine(canvas, leftElbow.getPosition(), leftWrist.getPosition(), stickmanPaint);
+        drawLine(canvas, rightElbow.getPosition(), rightWrist.getPosition(), stickmanPaint);
 
         PointF pointBetweenEyes = getPointBetween(rightEye.getPosition(), leftEye.getPosition());
         PointF pointBetweenMouthCorners = getPointBetween(leftMouth.getPosition(), rightMouth.getPosition());
         PointF headCenterPoint = getPointBetween(pointBetweenEyes, pointBetweenMouthCorners);
 
         // neck
-        drawLine(canvas, neckPoint, headCenterPoint, blackPaint);
+        drawLine(canvas, neckPoint, headCenterPoint, stickmanPaint);
 
         float headRadius = 1.1f * getDistance(pointBetweenEyes, pointBetweenMouthCorners);
 
-        drawCircle(canvas, headCenterPoint, (headRadius * 3) + 10, blackPaint, false);
-        drawCircle(canvas, headCenterPoint, (headRadius * 3), whitePaint, true);
+        //drawCircle(canvas, headCenterPoint, (headRadius * 3) + 10, stickmanPaint, false);
+        //drawCircle(canvas, headCenterPoint, (headRadius * 3), whitePaint, true);
 
-        float leftMouthX = leftMouth.getPosition().x;
-        float leftMouthY = leftMouth.getPosition().y;
-        float rightMouthX = rightMouth.getPosition().x;
-        float rightMouthY = rightMouth.getPosition().y;
-
-        drawLine(canvas, leftMouth.getPosition(), rightMouth.getPosition(), facePaint);
-        drawCurvedLine(canvas, leftMouthX, leftMouthY, rightMouthX, rightMouthY, 15, facePaint);
-
-        //drawEyes(canvas, leftEyeInner, leftEyeOuter, leftEye, 10, -13, facePaint);
-        //drawEyes(canvas, rightEyeInner, rightEyeOuter, rightEye, 10, -13, facePaint);
-
-        float eyeWidth = rightEye.getPosition().x - leftEye.getPosition().x;
-
-//        Rect leftEyeRect = new Rect(
-//                translateX(leftEye.getPosition().x) - eyeWidth/2,
-//                translateX(leftEye.getPosition().y),
-//                translateX(leftEye.getPosition().x) + eyeWidth/2,
-//                translateX(leftEye.getPosition().y + 5)
-//        );
-
-        canvas.drawRect(
-                translateX(leftEye.getPosition().x) - eyeWidth/2,
-                translateX(leftEye.getPosition().y - eyeWidth/3),
-                translateX(leftEye.getPosition().x) + eyeWidth/2,
-                translateX(leftEye.getPosition().y + eyeWidth/3), blackPaint
-        );
-
-        canvas.drawRect(
-                translateX(rightEye.getPosition().x) - eyeWidth/2,
-                translateX(rightEye.getPosition().y - eyeWidth/3),
-                translateX(rightEye.getPosition().x) + eyeWidth/2,
-                translateX(rightEye.getPosition().y + eyeWidth/3), blackPaint
-        );
-
-
-//        for (PoseLandmark landmark : landmarks) {
-//            drawPoint(canvas, landmark.getPosition(), whitePaint);
-//            canvas.drawText(
-//                    String.format(Locale.US, "%.2f", landmark.getInFrameLikelihood()),
-//                    translateX(landmark.getPosition().x),
-//                    translateY(landmark.getPosition().y),
-//                    blackPaint);
-//        }
-
+        drawHead(canvas);
+        drawSmile(canvas);
+        drawRectangularEyes(canvas);
+        drawAccessory(canvas);
     }
 }

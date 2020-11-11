@@ -14,32 +14,12 @@ import com.litkaps.stickman.GraphicOverlay.Graphic;
 import java.util.List;
 
 /**
- * Draw a stickman
+ * Draw a "cyanide and happiness" style stickman
  */
-public class FlexibleComicStickmanGraphic extends Graphic {
-    private final Pose pose;
-    private final Paint blackPaint;
-    private final Paint whitePaint;
-    private final Paint facePaint;
-    boolean showInFrameLikelihood;
+public class FlexibleComicStickmanGraphic extends StickmanGraphic {
 
-    FlexibleComicStickmanGraphic(GraphicOverlay overlay, Pose pose, boolean showInFrameLikelihood) {
-        super(overlay);
-
-        this.pose = pose;
-        blackPaint = new Paint();
-        blackPaint.setStrokeWidth(13);
-        blackPaint.setColor(Color.BLACK);
-        blackPaint.setTextSize((float) (50));
-
-        whitePaint = new Paint();
-        whitePaint.setColor(Color.WHITE);
-        blackPaint.setStrokeWidth(16);
-
-        facePaint = new Paint();
-        facePaint.setStrokeWidth(5);
-        facePaint.setColor(Color.BLACK);
-        this.showInFrameLikelihood = showInFrameLikelihood;
+    FlexibleComicStickmanGraphic(GraphicOverlay overlay, Pose pose, boolean showInFrameLikelihood, int accessoryID, int accessoryType, Paint stickmanPaint) {
+        super(overlay, pose, showInFrameLikelihood, accessoryID, accessoryType, stickmanPaint);
     }
 
     @Override
@@ -81,81 +61,43 @@ public class FlexibleComicStickmanGraphic extends Graphic {
         PointF headCenterPoint = getPointBetween(pointBetweenEyes, pointBetweenMouthCorners);
 
         // neck
-        drawLine(canvas, neckPoint, headCenterPoint, blackPaint);
-
-        float headRadius = 1.1f * getDistance(pointBetweenEyes, pointBetweenMouthCorners);
-
-        // head
-        drawCircle(canvas, headCenterPoint, (headRadius * 3) + 10, blackPaint, false);
-        drawCircle(canvas, headCenterPoint, (headRadius * 3), whitePaint, true);
-
-        float leftMouthX = leftMouth.getPosition().x;
-        float leftMouthY = leftMouth.getPosition().y;
-        float rightMouthX = rightMouth.getPosition().x;
-        float rightMouthY = rightMouth.getPosition().y;
-
-        // smile
-        drawLine(canvas, leftMouth.getPosition(), rightMouth.getPosition(), facePaint);
-        drawCurvedLine(canvas, leftMouthX, leftMouthY, rightMouthX, rightMouthY, 15, facePaint);
-
-        //drawEyes(canvas, leftEyeInner, leftEyeOuter, leftEye, 10, -13, facePaint);
-        //drawEyes(canvas, rightEyeInner, rightEyeOuter, rightEye, 10, -13, facePaint);
-        Path path = new Path();
-        path.setFillType(Path.FillType.WINDING);
-
+        drawLine(canvas, neckPoint, headCenterPoint, stickmanPaint);
 
         // Left body
-        drawLine(canvas, leftShoulder.getPosition(), leftElbow.getPosition(), blackPaint);
-        drawLine(canvas, leftElbow.getPosition(), leftWrist.getPosition(), blackPaint);
-        drawLine(canvas, leftShoulder.getPosition(), leftHip.getPosition(), blackPaint);
-        //drawLine(canvas, leftHip.getPosition(), leftKnee.getPosition(), blackPaint);
-        //drawLine(canvas, leftKnee.getPosition(), leftAnkle.getPosition(), blackPaint);
-
-        path.moveTo(translateX(leftAnkle.getPosition().x), translateY(leftAnkle.getPosition().y));
-        path.quadTo( translateX(leftKnee.getPosition().x), translateY(leftKnee.getPosition().y), translateX(leftHip.getPosition().x), translateY(leftHip.getPosition().y));
-
+        drawLine(canvas, leftShoulder.getPosition(), leftHip.getPosition(), stickmanPaint);
         // Right body
-        drawLine(canvas, rightShoulder.getPosition(), rightElbow.getPosition(), blackPaint);
-        drawLine(canvas, rightElbow.getPosition(), rightWrist.getPosition(), blackPaint);
-        drawLine(canvas, rightShoulder.getPosition(), rightHip.getPosition(), blackPaint);
-        drawLine(canvas, rightHip.getPosition(), rightKnee.getPosition(), blackPaint);
-        drawLine(canvas, rightKnee.getPosition(), rightAnkle.getPosition(), blackPaint);
-
-        canvas.drawPath(path, blackPaint);
+        drawLine(canvas, rightShoulder.getPosition(), rightHip.getPosition(), stickmanPaint);
 
         // shoulder line
-        drawLine(canvas, leftShoulder.getPosition(), rightShoulder.getPosition(), blackPaint);
+        drawLine(canvas, leftShoulder.getPosition(), rightShoulder.getPosition(), stickmanPaint);
         // waist line
-        drawLine(canvas, leftHip.getPosition(), rightHip.getPosition(), blackPaint);
-
-        float eyeWidth = rightEye.getPosition().x - leftEye.getPosition().x;
-
-        // left eye
-        canvas.drawRect(
-                translateX(leftEye.getPosition().x) - eyeWidth/2,
-                translateX(leftEye.getPosition().y - eyeWidth/3),
-                translateX(leftEye.getPosition().x) + eyeWidth/2,
-                translateX(leftEye.getPosition().y + eyeWidth/3), blackPaint
-        );
-
-        // right eye
-        canvas.drawRect(
-                translateX(rightEye.getPosition().x) - eyeWidth/2,
-                translateX(rightEye.getPosition().y - eyeWidth/3),
-                translateX(rightEye.getPosition().x) + eyeWidth/2,
-                translateX(rightEye.getPosition().y + eyeWidth/3), blackPaint
-        );
+        drawLine(canvas, leftHip.getPosition(), rightHip.getPosition(), stickmanPaint);
 
 
-//        for (PoseLandmark landmark : landmarks) {
-//            drawPoint(canvas, landmark.getPosition(), whitePaint);
-//            canvas.drawText(
-//                    String.format(Locale.US, "%.2f", landmark.getInFrameLikelihood()),
-//                    translateX(landmark.getPosition().x),
-//                    translateY(landmark.getPosition().y),
-//                    blackPaint);
-//        }
+        Path path = new Path();
+        stickmanPaint.setStyle(Paint.Style.STROKE);
 
+        // legs
+        path.moveTo(translateX(leftAnkle.getPosition().x), translateY(leftAnkle.getPosition().y));
+        path.quadTo(translateX(leftKnee.getPosition().x), translateY(leftKnee.getPosition().y), translateX(leftHip.getPosition().x), translateY(leftHip.getPosition().y));
+        path.moveTo(translateX(rightAnkle.getPosition().x), translateY(rightAnkle.getPosition().y));
+        path.quadTo(translateX(rightKnee.getPosition().x), translateY(rightKnee.getPosition().y), translateX(rightHip.getPosition().x), translateY(rightHip.getPosition().y));
+        canvas.drawPath(path, stickmanPaint);
+
+        // arms
+        path.moveTo(translateX(leftWrist.getPosition().x), translateY(leftWrist.getPosition().y));
+        path.quadTo(translateX(leftElbow.getPosition().x), translateY(leftElbow.getPosition().y), translateX(leftShoulder.getPosition().x), translateY(leftShoulder.getPosition().y));
+        path.moveTo(translateX(rightWrist.getPosition().x), translateY(rightWrist.getPosition().y));
+        path.quadTo(translateX(rightElbow.getPosition().x), translateY(rightElbow.getPosition().y), translateX(rightShoulder.getPosition().x), translateY(rightShoulder.getPosition().y));
+
+        canvas.drawPath(path, stickmanPaint);
+
+        stickmanPaint.setStyle(Paint.Style.FILL);
+
+        drawHead(canvas);
+        drawSmile(canvas);
+        drawRectangularEyes(canvas);
+        drawAccessory(canvas);
     }
 
 }

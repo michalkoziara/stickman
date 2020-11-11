@@ -21,6 +21,7 @@ import android.view.ViewGroup;
 import android.widget.CompoundButton;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
+import android.widget.SeekBar;
 import android.widget.Toast;
 import android.widget.ToggleButton;
 
@@ -77,6 +78,7 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
     private int colorValue;
 
     private LinearLayout secondLevelControl;
+    private SeekBar lineWidthBar;
 
     @Nullable
     private ProcessCameraProvider cameraProvider;
@@ -117,7 +119,7 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
     final ArrayList<OptionModel> backgroundColorOptions = new ArrayList<>(Arrays.asList(backgroundColorOptionsArray));
 
     /**
-     * change figure options
+     * change figure(stickman type) options
      */
     final OptionModel[] figureOptionsArray = {
             new OptionModel("classic_stickman", R.drawable.classic_stickman, Color.DKGRAY),
@@ -128,42 +130,90 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
 
     final ArrayList<OptionModel> figureOptions = new ArrayList<>(Arrays.asList(figureOptionsArray));
 
+    /**
+     * change figure color options
+     */
+    final OptionModel[] figureColorOptionsArray = {
+            new OptionModel("none", R.drawable.ic_baseline_close_24, Color.parseColor("#277E8A")),
+            new OptionModel(Color.parseColor("#000000")),
+            new OptionModel(Color.parseColor("#0E5475")),
+            new OptionModel(Color.parseColor("#66C3BE")),
+            new OptionModel(Color.parseColor("#AFB582")),
+            new OptionModel(Color.parseColor("#DB8D37"))
+    };
+
+    final ArrayList<OptionModel> figureColorOptions = new ArrayList<>(Arrays.asList(figureColorOptionsArray));
 
     /**
-     * change figure style options
+     * change accessory
      */
-    final ArrayList<OptionModel> figureStyleOptions = new ArrayList<>();
+    final OptionModel[] accessoryOptionsArray = {
+            new OptionModel("none", R.drawable.ic_baseline_close_24, Color.parseColor("#277E8A")),
+            new OptionModel("glasses", R.drawable.icon_glasses, -1, "glasses"),
+            new OptionModel("graduation_hat", R.drawable.icon_graduation_hat, R.drawable.accessory_graduation_hat, "hat"),
+            new OptionModel("helmet", R.drawable.icon_helmet, -1, "helmet"),
+            new OptionModel("indiana_jones", R.drawable.icon_indiana_jones, R.drawable.accessory_indiana_jones, "hat"),
+            new OptionModel("shield", R.drawable.icon_shield,  -1, "handheld"),
+            new OptionModel("sword", R.drawable.icon_sword, R.drawable.accessory_sword, "handheld"),
+            new OptionModel("witch_hat", R.drawable.icon_witch_hat, R.drawable.accessory_witch_hat, "hat"),
+    };
 
+    final ArrayList<OptionModel> accessoryOptions = new ArrayList<>(Arrays.asList(accessoryOptionsArray));
+    
 
     View.OnClickListener unrollOptionsListener = view -> {
+        lineWidthBar.setVisibility(View.GONE);
 
         ArrayList<OptionModel> options = null;
         int viewId = view.getId();
-        if (viewId == R.id.change_figure_button)
+
+        if (viewId == R.id.change_figure_button) {
             options = figureOptions;
-        else if (viewId == R.id.change_color_button)
+        }
+        else if (viewId == R.id.change_color_button) {
             options = backgroundColorOptions;
-        else if (viewId == R.id.change_background_image_button)
+        }
+        else if (viewId == R.id.change_background_image_button) {
             options = backgroundImageOptions;
+        }
+        else if (viewId == R.id.change_accessory_button) {
+            options = accessoryOptions;
+        }
+        else if (viewId == R.id.change_style_button) {
+            options = figureColorOptions;
+        }
 
         if(options == optionsAdapter.options && secondLevelControl.getVisibility() == View.VISIBLE) {
             // hide the panel if the same option was clicked again
             secondLevelControl.setVisibility(View.GONE);
+            lineWidthBar.setVisibility(View.GONE);
         } else {
             optionsAdapter.setOptions(options);
             optionsAdapter.notifyDataSetChanged();
             secondLevelControl.setVisibility(View.VISIBLE);
+            if(options == figureColorOptions)
+                lineWidthBar.setVisibility(View.VISIBLE);
         }
     };
 
     static class OptionModel {
         String name;
         int imageResourceID;
+        String accessoryType;
+        int accessoryID;
         int tint = -1;
 
         OptionModel(String name, int iconResourceID) {
             this.name = name;
             this.imageResourceID = iconResourceID;
+        }
+
+        // for figure accessory
+        OptionModel(String name, int iconResourceID, int accessoryID, String accessoryType) {
+            this.name = name;
+            this.imageResourceID = iconResourceID;
+            this.accessoryType = accessoryType;
+            this.accessoryID = accessoryID;
         }
 
         OptionModel(String name, int iconResourceID, int tint) {
@@ -181,8 +231,9 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
     class OptionsAdapter extends RecyclerView.Adapter<OptionsAdapter.OptionViewHolder> {
         ArrayList<OptionModel> options;
 
-        OptionsAdapter() {
+        OptionsAdapter(ArrayList<OptionModel> options) {
             super();
+            this.options = options;
         }
 
         void setOptions(ArrayList<OptionModel> options) {
@@ -238,7 +289,17 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
                             startChooseImageIntentForResult();
                         }
                     } else if (options == figureOptions) {
-                            setFigure(options.get(position).name);
+                        setFigure(options.get(position).name);
+                    } else if (options == figureColorOptions) {
+                        setFigureColor(options.get(position).tint);
+                    } else if(options == accessoryOptions) {
+                        if(position == 0)
+                            removeAccessory();
+                        else
+                            setFigureAccessory(
+                                    options.get(position).accessoryID == -1 ? options.get(position).imageResourceID : options.get(position).accessoryID,
+                                    options.get(position).accessoryType
+                            );
                     }
 
                 });
@@ -278,10 +339,33 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
         setContentView(R.layout.activity_vision_camerax_live_preview);
 
         secondLevelControl = findViewById(R.id.control_level1);
+        lineWidthBar = findViewById(R.id.line_width_seekbar);
 
         findViewById(R.id.change_figure_button).setOnClickListener(unrollOptionsListener);
         findViewById(R.id.change_color_button).setOnClickListener(unrollOptionsListener);
         findViewById(R.id.change_background_image_button).setOnClickListener(unrollOptionsListener);
+        findViewById(R.id.change_accessory_button).setOnClickListener(unrollOptionsListener);
+        findViewById(R.id.change_style_button).setOnClickListener(unrollOptionsListener);
+
+        lineWidthBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+            @Override
+            public void onProgressChanged(SeekBar seekBar, int i, boolean b) {
+                if(i < 1)
+                    return;
+
+                ((PoseDetectorProcessor) imageProcessor).setFigureLineWidth(i);
+            }
+
+            @Override
+            public void onStartTrackingTouch(SeekBar seekBar) {
+
+            }
+
+            @Override
+            public void onStopTrackingTouch(SeekBar seekBar) {
+
+            }
+        });
 
         previewView = findViewById(R.id.preview_view);
         if (previewView == null) {
@@ -315,7 +399,7 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
 
         RecyclerView recyclerView = findViewById(R.id.recycler_view);
 
-        optionsAdapter = new OptionsAdapter();
+        optionsAdapter = new OptionsAdapter(figureOptions);
 
         LinearLayoutManager mLayoutManager = new LinearLayoutManager(getApplicationContext());
         mLayoutManager.setOrientation(LinearLayoutManager.HORIZONTAL);
@@ -614,4 +698,33 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
         ((PoseDetectorProcessor) imageProcessor).setFigureID(2);
         }
     }
+
+    private void setFigureColor(int colorValue) {
+        ((PoseDetectorProcessor) imageProcessor).setFigureColor(colorValue);
+    }
+
+    private void setFigureAccessory(int accessoryID, String accessoryType) {
+        int type;
+        switch (accessoryType) {
+            case "handheld":
+                type = 1;
+                break;
+            case "helmet":
+                type = 2;
+                break;
+            case "glasses":
+                type = 3;
+                break;
+            case "hat":
+            default:
+                type = 0;
+        }
+
+        ((PoseDetectorProcessor) imageProcessor).setFigureAccessory(accessoryID, type);
+    }
+
+    private void removeAccessory() {
+        ((PoseDetectorProcessor) imageProcessor).setFigureAccessory(0, -1);
+    }
+
 }
