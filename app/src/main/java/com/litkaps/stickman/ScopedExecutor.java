@@ -1,9 +1,9 @@
 package com.litkaps.stickman;
 
-import androidx.annotation.NonNull;
-
 import java.util.concurrent.Executor;
 import java.util.concurrent.atomic.AtomicBoolean;
+
+import androidx.annotation.NonNull;
 
 /**
  * Wraps an existing executor to provide a {@link #shutdown} method that allows subsequent

@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/root"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
@@ -11,8 +12,8 @@
         android:id="@+id/preview_view"
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        app:layout_constraintBottom_toTopOf="@+id/control_level0"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/control_level0" />
 
     <com.litkaps.stickman.GraphicOverlay
         android:id="@+id/graphic_overlay"
@@ -25,63 +26,110 @@
 
 
     <LinearLayout
-        android:id="@id/control_level0"
+        android:id="@+id/control_level0"
         android:layout_width="match_parent"
         android:layout_height="60dp"
         android:background="@android:color/white"
         android:orientation="horizontal"
-        app:layout_constraintBottom_toBottomOf="parent">
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
 
-        <ToggleButton
-            android:id="@+id/facing_switch"
-            android:layout_width="48dp"
-            android:layout_height="48dp"
-            android:layout_gravity="center_vertical"
-            android:layout_margin="10dp"
-            android:background="@drawable/ic_baseline_switch_camera_24"
-            android:checked="false"
-            android:textOff=""
-            android:textOn="" />
+        <Space
+            android:layout_width="0dp"
+            android:layout_height="1dp"
+            android:layout_weight="1" >
+        </Space>
 
         <Button
             android:id="@+id/change_figure_button"
             android:layout_width="48dp"
             android:layout_height="48dp"
             android:layout_gravity="center_vertical"
+            android:backgroundTint="@color/colorPrimary"
             android:layout_margin="5dp"
             android:background="@drawable/ic_baseline_emoji_people_24" />
+
+        <Space
+            android:layout_width="0dp"
+            android:layout_height="1dp"
+            android:layout_weight="1" >
+        </Space>
 
         <Button
             android:id="@+id/change_color_button"
             android:layout_width="48dp"
             android:layout_height="48dp"
             android:layout_gravity="center_vertical"
+            android:backgroundTint="@color/colorPrimary"
             android:layout_margin="5dp"
             android:background="@drawable/ic_baseline_color_lens_24" />
+
+        <Space
+            android:layout_width="0dp"
+            android:layout_height="1dp"
+            android:layout_weight="1" >
+        </Space>
 
         <Button
             android:id="@+id/change_background_image_button"
             android:layout_width="48dp"
             android:layout_height="48dp"
             android:layout_gravity="center_vertical"
+            android:backgroundTint="@color/colorPrimary"
             android:layout_margin="5dp"
             android:background="@drawable/ic_baseline_image_24" />
+
+        <Space
+            android:layout_width="0dp"
+            android:layout_height="1dp"
+            android:layout_weight="1" >
+        </Space>
 
         <Button
             android:id="@+id/change_accessory_button"
             android:layout_width="40dp"
             android:layout_height="40dp"
             android:layout_gravity="center_vertical"
+            android:backgroundTint="@color/colorPrimary"
             android:layout_margin="5dp"
             android:background="@drawable/ic_hat" />
+
+        <Space
+            android:layout_width="0dp"
+            android:layout_height="1dp"
+            android:layout_weight="1" >
+        </Space>
 
         <Button
             android:id="@+id/change_style_button"
             android:layout_width="40dp"
             android:layout_height="40dp"
             android:layout_gravity="center_vertical"
+            android:backgroundTint="@color/colorPrimary"
             android:layout_margin="5dp"
             android:background="@drawable/ic_width" />
+
+        <Space
+            android:layout_width="0dp"
+            android:layout_height="1dp"
+            android:layout_weight="1" >
+        </Space>
+
+        <Button
+            android:id="@+id/settings"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:layout_gravity="center_vertical"
+            android:backgroundTint="@color/colorPrimary"
+            android:layout_margin="5dp"
+            android:background="@drawable/ic_settings_white_24dp" />
+
+        <Space
+            android:layout_width="0dp"
+            android:layout_height="1dp"
+            android:layout_weight="1" >
+        </Space>
 
     </LinearLayout>
 
@@ -92,13 +140,16 @@
         android:background="@color/light_grey_400"
         android:orientation="horizontal"
         android:visibility="gone"
-        app:layout_constraintBottom_toTopOf="@+id/control_level0">
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/control_level0">
 
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/recycler_view"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="horizontal" />
+            android:orientation="horizontal"
+            android:visibility="visible" />
 
     </LinearLayout>
 
@@ -106,6 +157,7 @@
         android:id="@+id/line_width_seekbar"
         android:layout_width="141dp"
         android:layout_height="33dp"
+        android:layout_marginTop="190dp"
         android:max="36"
         android:progress="16"
         android:progressTint="@color/colorPrimary"
@@ -116,7 +168,36 @@
         android:translationX="40dp"
         android:translationY="-100dp"
         android:visibility="gone"
-        app:layout_constraintBottom_toTopOf="@id/control_level1"
-        app:layout_constraintEnd_toEndOf="parent" />
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/control_level1" />
+
+    <ToggleButton
+        android:id="@+id/record_button"
+        android:layout_width="60dp"
+        android:layout_height="60dp"
+        android:layout_gravity="center_vertical"
+        android:layout_marginBottom="16dp"
+        android:background="@drawable/take_photo_button"
+        android:checked="false"
+        android:textOff=""
+        android:textOn=""
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
+
+    <ToggleButton
+        android:id="@+id/facing_switch"
+        android:layout_width="48dp"
+        android:layout_height="48dp"
+        android:layout_gravity="center_vertical"
+        android:layout_margin="10dp"
+        android:background="@drawable/ic_baseline_flip_camera_ios_24"
+        android:checked="false"
+        android:textOff=""
+        android:textOn=""
+        app:layout_constraintBaseline_toBaselineOf="@+id/record_button"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/record_button" />
+
 
 </androidx.constraintlayout.widget.ConstraintLayout>

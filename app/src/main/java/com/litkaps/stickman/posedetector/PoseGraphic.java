@@ -3,9 +3,6 @@ package com.litkaps.stickman.posedetector;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
-import android.graphics.PointF;
-
-import androidx.annotation.Nullable;
 
 import com.google.mlkit.vision.pose.Pose;
 import com.google.mlkit.vision.pose.PoseLandmark;

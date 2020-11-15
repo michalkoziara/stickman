@@ -13,9 +13,6 @@ import android.view.Surface;
 import android.view.SurfaceHolder;
 import android.view.WindowManager;
 
-import androidx.annotation.Nullable;
-import androidx.annotation.RequiresPermission;
-
 import com.google.android.gms.common.images.Size;
 import com.litkaps.stickman.preference.PreferenceUtils;
 
@@ -25,6 +22,9 @@ import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.IdentityHashMap;
 import java.util.List;
+
+import androidx.annotation.Nullable;
+import androidx.annotation.RequiresPermission;
 
 /**
  * Manages the camera and allows UI updates on top of it (e.g. overlaying extra Graphics or

@@ -1,13 +1,10 @@
 package com.litkaps.stickman.posedetector;
 
 import android.content.Context;
+import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.util.Log;
-
-import androidx.annotation.NonNull;
-
-import android.graphics.Bitmap;
 
 import com.google.android.gms.tasks.Task;
 import com.google.mlkit.vision.common.InputImage;
@@ -17,8 +14,9 @@ import com.google.mlkit.vision.pose.PoseDetector;
 import com.google.mlkit.vision.pose.PoseDetectorOptionsBase;
 import com.litkaps.stickman.CameraImageGraphic;
 import com.litkaps.stickman.GraphicOverlay;
-import com.litkaps.stickman.R;
 import com.litkaps.stickman.VisionProcessorBase;
+
+import androidx.annotation.NonNull;
 
 /**
  * A processor to run pose detector.

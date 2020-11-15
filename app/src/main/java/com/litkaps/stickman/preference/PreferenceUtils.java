@@ -5,10 +5,6 @@ import android.content.SharedPreferences;
 import android.os.Build.VERSION_CODES;
 import android.preference.PreferenceManager;
 
-import androidx.annotation.Nullable;
-import androidx.annotation.RequiresApi;
-import androidx.annotation.StringRes;
-
 import com.google.android.gms.common.images.Size;
 import com.google.common.base.Preconditions;
 import com.google.mlkit.common.model.LocalModel;
@@ -22,6 +18,10 @@ import com.google.mlkit.vision.pose.defaults.PoseDetectorOptions;
 import com.litkaps.stickman.CameraSource;
 import com.litkaps.stickman.CameraSource.SizePair;
 import com.litkaps.stickman.R;
+
+import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
+import androidx.annotation.StringRes;
 
 /** Utility class to retrieve shared preferences. */
 public class PreferenceUtils {

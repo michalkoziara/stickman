@@ -1,25 +1,14 @@
 package com.litkaps.stickman.posedetector;
 
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
-import android.graphics.Color;
-import android.graphics.Matrix;
 import android.graphics.Paint;
-import android.graphics.Path;
 import android.graphics.PointF;
-import android.graphics.Rect;
-
-import androidx.annotation.Nullable;
 
 import com.google.mlkit.vision.pose.Pose;
 import com.google.mlkit.vision.pose.PoseLandmark;
 import com.litkaps.stickman.GraphicOverlay;
-import com.litkaps.stickman.GraphicOverlay.Graphic;
-import com.litkaps.stickman.R;
 
 import java.util.List;
-import java.util.Locale;
 
 /**
  * Draw a stickman

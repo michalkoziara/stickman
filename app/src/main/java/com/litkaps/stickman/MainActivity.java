@@ -25,6 +25,19 @@ import android.widget.SeekBar;
 import android.widget.Toast;
 import android.widget.ToggleButton;
 
+import com.google.android.gms.common.annotation.KeepName;
+import com.google.mlkit.common.MlKitException;
+import com.google.mlkit.vision.pose.PoseDetectorOptionsBase;
+import com.litkaps.stickman.posedetector.PoseDetectorProcessor;
+import com.litkaps.stickman.preference.PreferenceUtils;
+import com.litkaps.stickman.preference.SettingsActivity;
+import com.litkaps.stickman.preference.SettingsActivity.LaunchSource;
+
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
@@ -44,23 +57,6 @@ import androidx.recyclerview.widget.DefaultItemAnimator;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.google.android.gms.common.annotation.KeepName;
-import com.google.mlkit.common.MlKitException;
-import com.google.mlkit.vision.pose.PoseDetectorOptionsBase;
-import com.litkaps.stickman.posedetector.ClassicStickmanGraphic;
-import com.litkaps.stickman.posedetector.PoseDetectorProcessor;
-import com.litkaps.stickman.preference.PreferenceUtils;
-import com.litkaps.stickman.preference.SettingsActivity;
-import com.litkaps.stickman.preference.SettingsActivity.LaunchSource;
-
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-
-/**
- * Live preview demo app for ML Kit APIs using CameraX.
- */
 @KeepName
 @RequiresApi(VERSION_CODES.LOLLIPOP)
 public class MainActivity extends AppCompatActivity implements ActivityCompat.OnRequestPermissionsResultCallback,
@@ -347,6 +343,17 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
         findViewById(R.id.change_accessory_button).setOnClickListener(unrollOptionsListener);
         findViewById(R.id.change_style_button).setOnClickListener(unrollOptionsListener);
 
+        // display settings fragment
+        findViewById(R.id.settings).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(getApplicationContext(), SettingsActivity.class);
+                intent.putExtra(SettingsActivity.EXTRA_LAUNCH_SOURCE, LaunchSource.CAMERA_LIVE_PREVIEW);
+                startActivity(intent);
+            }
+        });
+
+
         lineWidthBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
             public void onProgressChanged(SeekBar seekBar, int i, boolean b) {
@@ -442,24 +449,6 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
                 "This device does not have lens with facing: " + newLensFacing,
                 Toast.LENGTH_SHORT)
                 .show();
-    }
-
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.live_preview_menu, menu);
-        return true;
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        if (item.getItemId() == R.id.settings) {
-            Intent intent = new Intent(this, SettingsActivity.class);
-            intent.putExtra(SettingsActivity.EXTRA_LAUNCH_SOURCE, LaunchSource.CAMERA_LIVE_PREVIEW);
-            startActivity(intent);
-            return true;
-        }
-
-        return super.onOptionsItemSelected(item);
     }
 
     @Override
@@ -676,10 +665,8 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
     }
 
     private void setBackgroundImage(Bitmap backgroundImage) {
-        if (imageProcessor != null) {
+        if (imageProcessor != null)
             ((PoseDetectorProcessor) imageProcessor).setBackgroundImage(backgroundImage);
-
-        }
     }
 
     private void startChooseImageIntentForResult() {

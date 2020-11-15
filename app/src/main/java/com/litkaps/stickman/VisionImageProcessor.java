@@ -3,12 +3,12 @@ package com.litkaps.stickman;
 import android.graphics.Bitmap;
 import android.os.Build.VERSION_CODES;
 
-import androidx.annotation.RequiresApi;
-import androidx.camera.core.ImageProxy;
-
 import com.google.mlkit.common.MlKitException;
 
 import java.nio.ByteBuffer;
+
+import androidx.annotation.RequiresApi;
+import androidx.camera.core.ImageProxy;
 
 /** An interface to process the images with different vision detectors and custom image models. */
 public interface VisionImageProcessor {

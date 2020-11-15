@@ -4,18 +4,10 @@ import android.app.ActivityManager;
 import android.app.ActivityManager.MemoryInfo;
 import android.content.Context;
 import android.graphics.Bitmap;
-import android.graphics.Color;
 import android.os.Build.VERSION_CODES;
 import android.os.SystemClock;
 import android.util.Log;
 import android.widget.Toast;
-
-import androidx.annotation.GuardedBy;
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.annotation.RequiresApi;
-import androidx.camera.core.ExperimentalGetImage;
-import androidx.camera.core.ImageProxy;
 
 import com.google.android.gms.tasks.Task;
 import com.google.android.gms.tasks.TaskExecutors;
@@ -25,6 +17,13 @@ import com.litkaps.stickman.preference.PreferenceUtils;
 import java.nio.ByteBuffer;
 import java.util.Timer;
 import java.util.TimerTask;
+
+import androidx.annotation.GuardedBy;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
+import androidx.camera.core.ExperimentalGetImage;
+import androidx.camera.core.ImageProxy;
 
 /**
  * Abstract base class for vision frame processors. Subclasses need to implement {@link

@@ -1,7 +1,6 @@
 package com.litkaps.stickman.posedetector;
 
 import android.graphics.Canvas;
-import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Path;
 import android.graphics.PointF;
@@ -9,7 +8,6 @@ import android.graphics.PointF;
 import com.google.mlkit.vision.pose.Pose;
 import com.google.mlkit.vision.pose.PoseLandmark;
 import com.litkaps.stickman.GraphicOverlay;
-import com.litkaps.stickman.GraphicOverlay.Graphic;
 
 import java.util.List;
 
