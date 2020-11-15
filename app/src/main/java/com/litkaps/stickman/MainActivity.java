@@ -18,6 +18,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.CompoundButton;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
@@ -75,6 +76,7 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
 
     private LinearLayout secondLevelControl;
     private SeekBar lineWidthBar;
+    private Button recordButton;
 
     @Nullable
     private ProcessCameraProvider cameraProvider;
@@ -155,7 +157,6 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
     };
 
     final ArrayList<OptionModel> accessoryOptions = new ArrayList<>(Arrays.asList(accessoryOptionsArray));
-    
 
     View.OnClickListener unrollOptionsListener = view -> {
         lineWidthBar.setVisibility(View.GONE);
@@ -189,6 +190,13 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
             secondLevelControl.setVisibility(View.VISIBLE);
             if(options == figureColorOptions)
                 lineWidthBar.setVisibility(View.VISIBLE);
+        }
+    };
+
+    View.OnClickListener recordListener = new View.OnClickListener() {
+        @Override
+        public void onClick(View view) {
+            // TODO: take screenshot
         }
     };
 
@@ -297,7 +305,6 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
                                     options.get(position).accessoryType
                             );
                     }
-
                 });
             }
         }
@@ -342,6 +349,8 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
         findViewById(R.id.change_background_image_button).setOnClickListener(unrollOptionsListener);
         findViewById(R.id.change_accessory_button).setOnClickListener(unrollOptionsListener);
         findViewById(R.id.change_style_button).setOnClickListener(unrollOptionsListener);
+        recordButton = findViewById(R.id.record_button);
+        recordButton.setOnClickListener(recordListener);
 
         // display settings fragment
         findViewById(R.id.settings).setOnClickListener(new View.OnClickListener() {
@@ -364,14 +373,11 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
             }
 
             @Override
-            public void onStartTrackingTouch(SeekBar seekBar) {
-
-            }
+            public void onStartTrackingTouch(SeekBar seekBar) { }
 
             @Override
-            public void onStopTrackingTouch(SeekBar seekBar) {
+            public void onStopTrackingTouch(SeekBar seekBar) { }
 
-            }
         });
 
         previewView = findViewById(R.id.preview_view);
