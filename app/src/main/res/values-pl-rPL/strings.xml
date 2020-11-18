@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Stickman</string>
+    <string name="pref_title_pose_detector_performance_mode">Poziom wydajności</string>
+    <string name="pref_entries_pose_detector_performance_mode_fast">Szybki</string>
+    <string name="pref_entries_pose_detector_performance_mode_accurate">Dokładny</string>
+    <string name="pref_title_camera_target_resolution_default">Domyślny</string>
+    <string name="pref_title_camera_target_resolution">Docelowa rozdzielczość kamery</string>
+    <string name="pref_category_pose_detection">Detekcja pozy</string>
+    <string name="pref_screen_title_camera_live_preview">Ustawienia kamery</string>
+    <string name="select_image">Wybierz zdjęcie</string>
+    <string name="menu_item_settings">Ustawienia</string>
+    <string name="pref_category_title_camera">Kamera</string>
+</resources>

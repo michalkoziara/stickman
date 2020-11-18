@@ -16,7 +16,7 @@ import java.util.List;
 import java.util.Locale;
 
 /**
- *  generic class for stickman drawing
+ * generic class for stickman drawing
  */
 class StickmanGraphic extends GraphicOverlay.Graphic {
     int accessoryID;
@@ -26,9 +26,8 @@ class StickmanGraphic extends GraphicOverlay.Graphic {
     Paint stickmanPaint;
     Paint whitePaint;
     Paint facePaint;
-    boolean showInFrameLikelihood;
 
-    StickmanGraphic(GraphicOverlay overlay, Pose pose, boolean showInFrameLikelihood, int accessoryID, int accessoryType, Paint stickmanPaint) {
+    StickmanGraphic(GraphicOverlay overlay, Pose pose, int accessoryID, int accessoryType, Paint stickmanPaint) {
         super(overlay);
 
         whitePaint = new Paint();
@@ -39,7 +38,6 @@ class StickmanGraphic extends GraphicOverlay.Graphic {
         facePaint.setColor(Color.BLACK);
 
         this.pose = pose;
-        this.showInFrameLikelihood = showInFrameLikelihood;
         this.accessoryID = accessoryID;
         this.accessoryType = accessoryType;
         this.stickmanPaint = stickmanPaint;
@@ -104,87 +102,43 @@ class StickmanGraphic extends GraphicOverlay.Graphic {
         drawSmile(canvas);
         drawRectangularEyes(canvas);
         drawAccessory(canvas);
-
-
-    }
-
-    void drawInFrameLikelihood(Canvas canvas) {
-        List<PoseLandmark> landmarks = pose.getAllPoseLandmarks();
-        Paint paint = new Paint(Color.RED);
-        for (PoseLandmark landmark : landmarks) {
-            drawPoint(canvas, landmark.getPosition(), paint);
-            canvas.drawText(
-                    String.format(Locale.US, "%.2f", landmark.getInFrameLikelihood()),
-                    translateX(landmark.getPosition().x),
-                    translateY(landmark.getPosition().y),
-                    stickmanPaint
-            );
-        }
     }
 
     void drawAccessory(Canvas canvas) {
-        if(accessoryType == -1)
+        if (accessoryType == -1)
             return;
         Bitmap accessory = BitmapFactory.decodeResource(getApplicationContext().getResources(), accessoryID);
 
-//        float mouthWidth =  pose.getPoseLandmark(PoseLandmark.LEFT_MOUTH).getPosition().x - pose.getPoseLandmark(PoseLandmark.RIGHT_MOUTH).getPosition().x;
-//
-//        float deltaX = pose.getPoseLandmark(PoseLandmark.RIGHT_MOUTH).getPosition().x - pose.getPoseLandmark(PoseLandmark.LEFT_MOUTH).getPosition().x;
-//        float deltaY =  pose.getPoseLandmark(PoseLandmark.RIGHT_MOUTH).getPosition().y - pose.getPoseLandmark(PoseLandmark.LEFT_MOUTH).getPosition().y;
-//        float thetaRadians = (float)Math.atan2(deltaY, deltaX);
-        PointF pointBetweenEyes = getPointBetween(pose.getPoseLandmark(PoseLandmark.RIGHT_EYE_OUTER).getPosition(), pose.getPoseLandmark(PoseLandmark.LEFT_EYE).getPosition());
-        PointF pointBetweenMouthCorners = getPointBetween(pose.getPoseLandmark(PoseLandmark.LEFT_MOUTH).getPosition(), pose.getPoseLandmark(PoseLandmark.RIGHT_MOUTH).getPosition());
+        PointF pointBetweenEyes = getPointBetween(translatePoint(pose.getPoseLandmark(PoseLandmark.RIGHT_EYE_OUTER).getPosition()), translatePoint(pose.getPoseLandmark(PoseLandmark.LEFT_EYE).getPosition()));
+        PointF pointBetweenMouthCorners = getPointBetween(translatePoint(pose.getPoseLandmark(PoseLandmark.LEFT_MOUTH).getPosition()), translatePoint(pose.getPoseLandmark(PoseLandmark.RIGHT_MOUTH).getPosition()));
         PointF headCenterPoint = getPointBetween(pointBetweenEyes, pointBetweenMouthCorners);
 
-        float headRadius = 1.3f * getDistance(pointBetweenEyes, pointBetweenMouthCorners);
+        float headRadius = scale(0.3f) * getDistance(pointBetweenEyes, pointBetweenMouthCorners);
 
         Matrix matrix = null;
         switch (accessoryType) {
             case 0: // hat
-//                matrix = calculateTransformMatrix(
-//                        translateX(pose.getPoseLandmark(PoseLandmark.RIGHT_EYE_INNER).getPosition().x),
-//                        translateY(pose.getPoseLandmark(PoseLandmark.RIGHT_EYE_INNER).getPosition().y),
-//                        translateX(pose.getPoseLandmark(PoseLandmark.LEFT_EYE_INNER).getPosition().x),
-//                        translateY(pose.getPoseLandmark(PoseLandmark.LEFT_EYE_INNER).getPosition().y),
-//                        accessory.getWidth(),
-//                        accessory.getHeight()
-//                );
-
                 matrix = calculateTransformMatrix(
                         translateX(pose.getPoseLandmark(PoseLandmark.RIGHT_EYE_INNER).getPosition().x),
                         translateY(pose.getPoseLandmark(PoseLandmark.RIGHT_EYE_INNER).getPosition().y),
                         translateX(pose.getPoseLandmark(PoseLandmark.LEFT_EYE_INNER).getPosition().x),
                         translateY(pose.getPoseLandmark(PoseLandmark.LEFT_EYE_INNER).getPosition().y),
-                        translateX(headCenterPoint.x),
-                        translateY(headCenterPoint.y - headRadius),
+                        headCenterPoint.x,
+                        headCenterPoint.y - headRadius,
                         accessory.getWidth(),
                         accessory.getHeight(),
-                        headRadius/accessory.getWidth() * 14,
+                        headRadius / accessory.getWidth() * scale(7),
                         0
                 );
 
                 break;
             case 1: // handheld
-                PoseLandmark leftPinky = pose.getPoseLandmark(PoseLandmark.LEFT_PINKY);
-                PoseLandmark rightPinky = pose.getPoseLandmark(PoseLandmark.RIGHT_PINKY);
-                PoseLandmark leftIndex = pose.getPoseLandmark(PoseLandmark.LEFT_INDEX);
-                PoseLandmark rightIndex = pose.getPoseLandmark(PoseLandmark.RIGHT_INDEX);
-                PoseLandmark leftThumb = pose.getPoseLandmark(PoseLandmark.LEFT_THUMB);
-                PoseLandmark rightThumb = pose.getPoseLandmark(PoseLandmark.RIGHT_THUMB);
-                PoseLandmark leftHeel = pose.getPoseLandmark(PoseLandmark.LEFT_HEEL);
-                PoseLandmark rightHeel = pose.getPoseLandmark(PoseLandmark.RIGHT_HEEL);
-                PoseLandmark leftFootIndex = pose.getPoseLandmark(PoseLandmark.LEFT_FOOT_INDEX);
-                PoseLandmark rightFootIndex = pose.getPoseLandmark(PoseLandmark.RIGHT_FOOT_INDEX);
-
-
-//                drawPoint(canvas, rightPinky.getPosition(), p);
-//                p.setColor(Color.BLUE);
-//                drawPoint(canvas, rightThumb.getPosition(), p);
-//                p.setColor(Color.GREEN);
-//                drawPoint(canvas, rightIndex.getPosition(), p);
-
                 float scaleX =
-                        (getDistance(pose.getPoseLandmark(PoseLandmark.RIGHT_HIP).getPosition(), pose.getPoseLandmark(PoseLandmark.RIGHT_SHOULDER).getPosition()) / accessory.getWidth()) * 6;
+                        (getDistance(
+                                pose.getPoseLandmark(PoseLandmark.RIGHT_HIP).getPosition(),
+                                pose.getPoseLandmark(PoseLandmark.RIGHT_SHOULDER).getPosition()
+                        ) / accessory.getWidth()
+                        ) * scale(2);
 
                 matrix = calculateTransformMatrix(
                         translateX(pose.getPoseLandmark(PoseLandmark.RIGHT_WRIST).getPosition().x),
@@ -202,33 +156,31 @@ class StickmanGraphic extends GraphicOverlay.Graphic {
                 break;
 
             case 2: // helmet
-
                 matrix = calculateTransformMatrix(
                         translateX(pose.getPoseLandmark(PoseLandmark.RIGHT_EYE_INNER).getPosition().x),
                         translateY(pose.getPoseLandmark(PoseLandmark.RIGHT_EYE_INNER).getPosition().y),
                         translateX(pose.getPoseLandmark(PoseLandmark.LEFT_EYE_INNER).getPosition().x),
                         translateY(pose.getPoseLandmark(PoseLandmark.LEFT_EYE_INNER).getPosition().y),
-                        translateX(headCenterPoint.x),
-                        translateY(headCenterPoint.y) - headRadius * 2,
+                        headCenterPoint.x,
+                        headCenterPoint.y - headRadius * scale(0.5f),
                         accessory.getWidth(),
                         accessory.getHeight(),
-                        headRadius/accessory.getWidth() * 14,
+                        headRadius / accessory.getWidth() * scale(7),
                         0
                 );
                 break;
 
             case 3: // glasses
-                float eyesDistance = getDistance(pose.getPoseLandmark(PoseLandmark.LEFT_EYE_INNER).getPosition(), pose.getPoseLandmark(PoseLandmark.RIGHT_EYE_INNER).getPosition());
                 matrix = calculateTransformMatrix(
                         translateX(pose.getPoseLandmark(PoseLandmark.RIGHT_EYE_INNER).getPosition().x),
                         translateY(pose.getPoseLandmark(PoseLandmark.RIGHT_EYE_INNER).getPosition().y),
                         translateX(pose.getPoseLandmark(PoseLandmark.LEFT_EYE_INNER).getPosition().x),
                         translateY(pose.getPoseLandmark(PoseLandmark.LEFT_EYE_INNER).getPosition().y),
-                        translateX(headCenterPoint.x),
-                        translateY(headCenterPoint.y) - headRadius,
+                        headCenterPoint.x,
+                        headCenterPoint.y - headRadius,
                         accessory.getWidth(),
                         accessory.getHeight(),
-                        headRadius/accessory.getWidth() * 5,
+                        headRadius / accessory.getWidth() * scale(2),
                         0
                 );
 
@@ -246,28 +198,28 @@ class StickmanGraphic extends GraphicOverlay.Graphic {
         PoseLandmark rightEye = pose.getPoseLandmark(PoseLandmark.RIGHT_EYE);
 
         // pupillary distance
-        float pd = leftEye.getPosition().x - rightEye.getPosition().x;
+        float pd = translateX(leftEye.getPosition().x) - translateX(rightEye.getPosition().x);
 
         Matrix matrix = new Matrix();
         float deltaX = leftEye.getPosition().x - rightEye.getPosition().x;
-        float deltaY =  leftEye.getPosition().y - rightEye.getPosition().y;
-        float thetaRadians = (float)Math.atan2(deltaY, deltaX);
-        matrix.setRotate((float)Math.toDegrees(thetaRadians) / 5f);
+        float deltaY = leftEye.getPosition().y - rightEye.getPosition().y;
+        float thetaRadians = (float) Math.atan2(deltaY, deltaX);
+        matrix.setRotate((float) Math.toDegrees(thetaRadians) / 5f);
 
         // draw left eye
         canvas.drawRect(
-                translateX(rightEye.getPosition().x) - pd/1.6f,
+                translateX(rightEye.getPosition().x) - pd * scale(0.2f),
                 translateY(rightEye.getPosition().y) - pd,
-                translateX(rightEye.getPosition().x) + pd/2,
+                translateX(rightEye.getPosition().x) + pd * scale(1),
                 translateY(rightEye.getPosition().y) + pd,
                 paint
         );
 
         // draw right eye
         canvas.drawRect(
-                translateX(leftEye.getPosition().x) - pd/1.6f,
+                translateX(leftEye.getPosition().x) - pd * scale(0.2f),
                 translateY(leftEye.getPosition().y) - pd,
-                translateX(leftEye.getPosition().x) + pd/2,
+                translateX(leftEye.getPosition().x) + pd * scale(1),
                 translateY(leftEye.getPosition().y) + pd,
                 paint
         );
@@ -294,24 +246,23 @@ class StickmanGraphic extends GraphicOverlay.Graphic {
                 pose.getPoseLandmark(PoseLandmark.LEFT_MOUTH).getPosition().y,
                 pose.getPoseLandmark(PoseLandmark.RIGHT_MOUTH).getPosition().x,
                 pose.getPoseLandmark(PoseLandmark.RIGHT_MOUTH).getPosition().y,
-                15,
+                scale(3),
                 paint
         );
     }
 
     public void drawHead(Canvas canvas) {
-        PointF pointBetweenEyes = getPointBetween(pose.getPoseLandmark(PoseLandmark.RIGHT_EYE_OUTER).getPosition(), pose.getPoseLandmark(PoseLandmark.LEFT_EYE).getPosition());
-        PointF pointBetweenMouthCorners = getPointBetween(pose.getPoseLandmark(PoseLandmark.LEFT_MOUTH).getPosition(), pose.getPoseLandmark(PoseLandmark.RIGHT_MOUTH).getPosition());
+        PointF pointBetweenEyes = getPointBetween(translatePoint(pose.getPoseLandmark(PoseLandmark.RIGHT_EYE_OUTER).getPosition()), translatePoint(pose.getPoseLandmark(PoseLandmark.LEFT_EYE).getPosition()));
+        PointF pointBetweenMouthCorners = getPointBetween(translatePoint(pose.getPoseLandmark(PoseLandmark.LEFT_MOUTH).getPosition()), translatePoint(pose.getPoseLandmark(PoseLandmark.RIGHT_MOUTH).getPosition()));
         PointF headCenterPoint = getPointBetween(pointBetweenEyes, pointBetweenMouthCorners);
 
-        float headRadius = 1.3f * getDistance(pointBetweenEyes, pointBetweenMouthCorners);
+        float headRadius = getDistance(pointBetweenEyes, pointBetweenMouthCorners);
 
         Paint paint = new Paint();
         paint.setColor(Color.WHITE);
         paint.setStyle(Paint.Style.FILL);
-        canvas.drawCircle(translateX(headCenterPoint.x), translateY(headCenterPoint.y), (headRadius * 3) + stickmanPaint.getStrokeWidth(), stickmanPaint);
-        canvas.drawCircle(translateX(headCenterPoint.x), translateY(headCenterPoint.y), (headRadius * 3), paint);
-
+        canvas.drawCircle(headCenterPoint.x, headCenterPoint.y, (headRadius * scale(0.3f)) + stickmanPaint.getStrokeWidth(), stickmanPaint);
+        canvas.drawCircle(headCenterPoint.x, headCenterPoint.y, (headRadius * scale(0.3f)), paint);
     }
 
 }

@@ -15,8 +15,8 @@ import java.util.List;
  */
 public class ComicStickmanGraphic extends StickmanGraphic{
 
-    ComicStickmanGraphic(GraphicOverlay overlay, Pose pose, boolean showInFrameLikelihood, int accessoryID, int accessoryType, Paint stickmanPaint) {
-        super(overlay, pose, showInFrameLikelihood, accessoryID, accessoryType, stickmanPaint);
+    ComicStickmanGraphic(GraphicOverlay overlay, Pose pose, int accessoryID, int accessoryType, Paint stickmanPaint) {
+        super(overlay, pose, accessoryID, accessoryType, stickmanPaint);
     }
 
     @Override

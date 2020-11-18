@@ -1,6 +1,7 @@
 package com.litkaps.stickman;
 
 import android.content.Context;
+import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Matrix;
 import android.graphics.Paint;
@@ -9,13 +10,13 @@ import android.graphics.PointF;
 import android.util.AttributeSet;
 import android.view.View;
 
+import androidx.annotation.Nullable;
+
 import com.google.common.base.Preconditions;
 import com.google.mlkit.vision.pose.PoseLandmark;
 
 import java.util.ArrayList;
 import java.util.List;
-
-import androidx.annotation.Nullable;
 
 /**
  * A view which renders a series of custom graphics to be overlayed on top of an associated preview
@@ -119,6 +120,13 @@ public class GraphicOverlay extends View {
     }
 
     /**
+     * Adjusts the point coordinate from the image's coordinate system to the view coordinate system.
+     */
+    public PointF translatePoint(PointF point) {
+      return new PointF(translateX(point.x), translateY(point.y));
+    }
+
+    /**
      * Returns a {@link Matrix} for transforming from image coordinates to overlay view coordinates.
      */
     public Matrix getTransformationMatrix() {
@@ -151,7 +159,7 @@ public class GraphicOverlay extends View {
               translateX(start.x), translateY(start.y), translateX(end.x), translateY(end.y), paint);
     }
 
-    public void drawCurvedLine(Canvas canvas, float x1, float y1, float x2, float y2, int curveRadius, Paint paint) {
+    public void drawCurvedLine(Canvas canvas, float x1, float y1, float x2, float y2, float curveRadius, Paint paint) {
       paint.setAntiAlias(true);
       paint.setStyle(Paint.Style.STROKE);
 
@@ -205,28 +213,14 @@ public class GraphicOverlay extends View {
       return (float) Math.sqrt((a.x - b.x) * (a.x - b.x) + (a.y - b.y) * (a.y - b.y));
     }
 
+
+    /**
+     * Calculates rotation between point (x1, y1) and point (x2, y2), then translates it
+     * to point (x3, y3) and applies additional rotation.
+     */
     public Matrix calculateTransformMatrix (
-            float x1, float y1, float x2, float y2, float objectWidth, float objectHeight) {
-
-      Matrix matrix = new Matrix();
-
-      float width = x2 - x1;
-
-      float deltaX = x2 - x1;
-      float deltaY =  y2 - y1;
-      float thetaRadians = (float)Math.atan2(deltaY, deltaX);
-      matrix.setRotate((float)Math.toDegrees(thetaRadians) / 5f);
-
-      float sx = (width / objectWidth) * 8;
-      matrix.postScale(sx, sx);
-      matrix.postTranslate(x1 + width/2 - objectWidth * sx/2, y1 - objectHeight * sx);
-
-      return matrix;
-    }
-
-    // calculate rotation between x1,y1 and x2,y2, but translate to x3, y3, and apply additional rotation
-    public Matrix calculateTransformMatrix (
-            float x1, float y1, float x2, float y2, float x3, float y3, float objectWidth, float objectHeight, float sx, float rotation) {
+            float x1, float y1, float x2, float y2, float x3, float y3, float objectWidth,
+            float objectHeight, float sx, float rotation) {
 
       Matrix matrix = new Matrix();
 
@@ -234,16 +228,10 @@ public class GraphicOverlay extends View {
       float deltaY =  y2 - y1;
       float thetaRadians = (float)Math.atan2(deltaY, deltaX);
 
-      //matrix.postTranslate(x3 + (x2 - x1), y3 - objectHight * sx);
       matrix.setRotate((float)Math.toDegrees(thetaRadians) + rotation, objectWidth/2, objectHeight/2);
       matrix.postScale(sx, sx, objectWidth/2, objectHeight/2);
 
-      //matrix.postTranslate(x3 - objectWidth/2, y3 - objectHeight/2);
       matrix.postTranslate(x3 - objectWidth/2, y3 - objectHeight/2);
-
-      //matrix.postTranslate(x3 + objectWidth * sx/2, y3 - objectHight * sx/2);
-
-      //matrix.postRotate((float)Math.toDegrees(thetaRadians) -45f, objectWidth * sx/2, objectHight * sx/2);
 
       return matrix;
     }
@@ -297,7 +285,6 @@ public class GraphicOverlay extends View {
       this.imageHeight = imageHeight;
       this.isImageFlipped = isFlipped;
       needUpdateTransformation = true;
-//      bitmap = Bitmap.createBitmap(imageWidth, imageHeight, ARGB_8888);
     }
     postInvalidate();
   }
@@ -343,16 +330,28 @@ public class GraphicOverlay extends View {
   @Override
   protected void onDraw(Canvas canvas) {
     super.onDraw(canvas);
-//    Canvas canvas2 = new Canvas();
-//    canvas2.setBitmap(bitmap);
 
     synchronized (lock) {
       updateTransformationIfNeeded();
 
       for (Graphic graphic : graphics) {
         graphic.draw(canvas);
-//        graphic.draw(canvas2);
       }
+    }
+  }
+
+  Bitmap getGraphicBitmap() {
+    Bitmap bitmap = Bitmap.createBitmap( getWidth(), getHeight(), Bitmap.Config.ARGB_8888);
+    Canvas canvas = new Canvas();
+    canvas.setBitmap(bitmap);
+
+    synchronized (lock) {
+      updateTransformationIfNeeded();
+
+      for (GraphicOverlay.Graphic graphic : graphics) {
+        graphic.draw(canvas);
+      }
+      return bitmap;
     }
   }
 //

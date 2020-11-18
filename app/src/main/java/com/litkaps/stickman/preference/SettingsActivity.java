@@ -3,10 +3,10 @@ package com.litkaps.stickman.preference;
 import android.os.Bundle;
 import android.preference.PreferenceFragment;
 
-import com.litkaps.stickman.R;
-
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
+
+import com.litkaps.stickman.R;
 
 /**
  * Hosts the preference fragment to configure settings for a demo activity that specified by the

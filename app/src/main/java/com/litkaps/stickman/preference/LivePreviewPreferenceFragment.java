@@ -24,19 +24,27 @@ public class LivePreviewPreferenceFragment extends PreferenceFragment {
                 (ListPreference) findPreference(getString(R.string.pref_key_camera_target_resolution));
         String[] entries =
                 new String[]{
-                        "2000x2000",
-                        "1600x1600",
-                        "1200x1200",
-                        "1000x1000",
+                        "1080x1920",
+                        "1080x1440",
+                        "960x1280",
+                        "720x1280",
+                        "480x1280",
+                        "400x1280",
+                        "480x864",
                         "800x800",
-                        "600x600",
-                        "400x400",
-                        "200x200",
-                        "100x100",
+                        "320x480",
+                        "160x240",
+                        "120x160"
                 };
+
         pref.setEntries(entries);
         pref.setEntryValues(entries);
-        pref.setSummary(pref.getEntry() == null ? "Default" : pref.getEntry());
+
+        pref.setSummary(
+                pref.getEntry() == null
+                        ? getString(R.string.pref_title_camera_target_resolution_default)
+                        : pref.getEntry()
+        );
         pref.setOnPreferenceChangeListener(
                 (preference, newValue) -> {
                     String newStringValue = (String) newValue;

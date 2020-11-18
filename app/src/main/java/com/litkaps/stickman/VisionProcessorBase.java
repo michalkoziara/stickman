@@ -9,21 +9,20 @@ import android.os.SystemClock;
 import android.util.Log;
 import android.widget.Toast;
 
-import com.google.android.gms.tasks.Task;
-import com.google.android.gms.tasks.TaskExecutors;
-import com.google.mlkit.vision.common.InputImage;
-import com.litkaps.stickman.preference.PreferenceUtils;
-
-import java.nio.ByteBuffer;
-import java.util.Timer;
-import java.util.TimerTask;
-
 import androidx.annotation.GuardedBy;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.camera.core.ExperimentalGetImage;
 import androidx.camera.core.ImageProxy;
+
+import com.google.android.gms.tasks.Task;
+import com.google.android.gms.tasks.TaskExecutors;
+import com.google.mlkit.vision.common.InputImage;
+
+import java.nio.ByteBuffer;
+import java.util.Timer;
+import java.util.TimerTask;
 
 /**
  * Abstract base class for vision frame processors. Subclasses need to implement {@link
@@ -82,60 +81,6 @@ public abstract class VisionProcessorBase<T> implements VisionImageProcessor {
         /* period= */ 1000);
   }
 
-  // -----------------Code for processing single still image----------------------------------------
-  @Override
-  public void processBitmap(Bitmap bitmap, final GraphicOverlay graphicOverlay) {
-    requestDetectInImage(
-        InputImage.fromBitmap(bitmap, 0),
-        graphicOverlay,
-        /* originalCameraImage= */ null,
-        /* shouldShowFps= */ false);
-  }
-
-  // -----------------Code for processing live preview frame from Camera1 API-----------------------
-  @Override
-  public synchronized void processByteBuffer(
-          ByteBuffer data, final FrameMetadata frameMetadata, final GraphicOverlay graphicOverlay) {
-    latestImage = data;
-    latestImageMetaData = frameMetadata;
-    if (processingImage == null && processingMetaData == null) {
-      processLatestImage(graphicOverlay);
-    }
-  }
-
-  private synchronized void processLatestImage(final GraphicOverlay graphicOverlay) {
-    processingImage = latestImage;
-    processingMetaData = latestImageMetaData;
-    latestImage = null;
-    latestImageMetaData = null;
-    if (processingImage != null && processingMetaData != null && !isShutdown) {
-      processImage(processingImage, processingMetaData, graphicOverlay);
-    }
-  }
-
-  private void processImage(
-          ByteBuffer data, final FrameMetadata frameMetadata, final GraphicOverlay graphicOverlay) {
-    // If live viewport is on (that is the underneath surface view takes care of the camera preview
-    // drawing), skip the unnecessary bitmap creation that used for the manual preview drawing.
-    Bitmap bitmap =
-        PreferenceUtils.isCameraLiveViewportEnabled(graphicOverlay.getContext())
-            ? null
-            : BitmapUtils.getBitmap(data, frameMetadata);
-
-    requestDetectInImage(
-            InputImage.fromByteBuffer(
-                data,
-                frameMetadata.getWidth(),
-                frameMetadata.getHeight(),
-                frameMetadata.getRotation(),
-                InputImage.IMAGE_FORMAT_NV21),
-            graphicOverlay,
-            bitmap,
-            /* shouldShowFps= */ true)
-        .addOnSuccessListener(executor, results -> processLatestImage(graphicOverlay));
-  }
-
-  // -----------------Code for processing live preview frame from CameraX API-----------------------
   @Override
   @RequiresApi(VERSION_CODES.KITKAT)
   @ExperimentalGetImage
@@ -145,16 +90,10 @@ public abstract class VisionProcessorBase<T> implements VisionImageProcessor {
       return;
     }
 
-    Bitmap bitmap = null;
-    if (!PreferenceUtils.isCameraLiveViewportEnabled(graphicOverlay.getContext())) {
-      bitmap = BitmapUtils.getBitmap(image);
-    }
-
     requestDetectInImage(
             InputImage.fromMediaImage(image.getImage(), image.getImageInfo().getRotationDegrees()),
             graphicOverlay,
-            /* originalCameraImage= */ bitmap,
-            /* shouldShowFps= */ true)
+            /* originalCameraImage= */ BitmapUtils.getBitmap(image))
         // When the image is from CameraX analysis use case, must call image.close() on received
         // images when finished using them. Otherwise, new images may not be received or the camera
         // may stall.
@@ -165,8 +104,7 @@ public abstract class VisionProcessorBase<T> implements VisionImageProcessor {
   private Task<T> requestDetectInImage(
       final InputImage image,
       final GraphicOverlay graphicOverlay,
-      @Nullable final Bitmap originalCameraImage,
-      boolean shouldShowFps) {
+      @Nullable final Bitmap originalCameraImage) {
     final long startMs = SystemClock.elapsedRealtime();
 
     return detectInImage(image)
@@ -193,10 +131,6 @@ public abstract class VisionProcessorBase<T> implements VisionImageProcessor {
               }
 
               graphicOverlay.clear();
-
-              graphicOverlay.add(
-                      new InferenceInfoGraphic(
-                              graphicOverlay, currentLatencyMs, shouldShowFps ? framesPerSecond : null));
 
               VisionProcessorBase.this.onSuccess(results, graphicOverlay, originalCameraImage);
 

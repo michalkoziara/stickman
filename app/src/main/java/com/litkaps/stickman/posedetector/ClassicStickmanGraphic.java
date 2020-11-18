@@ -15,8 +15,8 @@ import java.util.List;
  */
 public class ClassicStickmanGraphic extends StickmanGraphic {
 
-    ClassicStickmanGraphic(GraphicOverlay overlay, Pose pose, boolean showInFrameLikelihood, int accessoryID, int accessoryType, Paint stickmanPaint) {
-        super(overlay, pose, showInFrameLikelihood, accessoryID, accessoryType, stickmanPaint);
+    ClassicStickmanGraphic(GraphicOverlay overlay, Pose pose, int accessoryID, int accessoryType, Paint stickmanPaint) {
+        super(overlay, pose, accessoryID, accessoryType, stickmanPaint);
     }
 
     @Override
@@ -71,13 +71,8 @@ public class ClassicStickmanGraphic extends StickmanGraphic {
         PointF pointBetweenMouthCorners = getPointBetween(leftMouth.getPosition(), rightMouth.getPosition());
         PointF headCenterPoint = getPointBetween(pointBetweenEyes, pointBetweenMouthCorners);
 
-        // neck
+        // Adds neck.
         drawLine(canvas, neckPoint, headCenterPoint, stickmanPaint);
-
-        float headRadius = 1.1f * getDistance(pointBetweenEyes, pointBetweenMouthCorners);
-
-        //drawCircle(canvas, headCenterPoint, (headRadius * 3) + 10, stickmanPaint, false);
-        //drawCircle(canvas, headCenterPoint, (headRadius * 3), whitePaint, true);
 
         drawHead(canvas);
         drawSmile(canvas);

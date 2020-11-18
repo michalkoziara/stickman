@@ -14,8 +14,6 @@ import android.os.Bundle;
 import android.util.Log;
 import android.util.Size;
 import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
@@ -25,19 +23,6 @@ import android.widget.LinearLayout;
 import android.widget.SeekBar;
 import android.widget.Toast;
 import android.widget.ToggleButton;
-
-import com.google.android.gms.common.annotation.KeepName;
-import com.google.mlkit.common.MlKitException;
-import com.google.mlkit.vision.pose.PoseDetectorOptionsBase;
-import com.litkaps.stickman.posedetector.PoseDetectorProcessor;
-import com.litkaps.stickman.preference.PreferenceUtils;
-import com.litkaps.stickman.preference.SettingsActivity;
-import com.litkaps.stickman.preference.SettingsActivity.LaunchSource;
-
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -57,6 +42,22 @@ import androidx.lifecycle.ViewModelProvider.AndroidViewModelFactory;
 import androidx.recyclerview.widget.DefaultItemAnimator;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+
+import com.google.android.gms.common.annotation.KeepName;
+import com.google.mlkit.common.MlKitException;
+import com.google.mlkit.vision.pose.PoseDetectorOptionsBase;
+import com.litkaps.stickman.posedetector.PoseDetectorProcessor;
+import com.litkaps.stickman.preference.PreferenceUtils;
+import com.litkaps.stickman.preference.SettingsActivity;
+import com.litkaps.stickman.preference.SettingsActivity.LaunchSource;
+
+import java.io.IOException;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Date;
+import java.util.List;
 
 @KeepName
 @RequiresApi(VERSION_CODES.LOLLIPOP)
@@ -148,12 +149,12 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
     final OptionModel[] accessoryOptionsArray = {
             new OptionModel("none", R.drawable.ic_baseline_close_24, Color.parseColor("#277E8A")),
             new OptionModel("glasses", R.drawable.icon_glasses, -1, "glasses"),
-            new OptionModel("graduation_hat", R.drawable.icon_graduation_hat, R.drawable.accessory_graduation_hat, "hat"),
             new OptionModel("helmet", R.drawable.icon_helmet, -1, "helmet"),
             new OptionModel("indiana_jones", R.drawable.icon_indiana_jones, R.drawable.accessory_indiana_jones, "hat"),
-            new OptionModel("shield", R.drawable.icon_shield,  -1, "handheld"),
+            new OptionModel("shield", R.drawable.icon_shield, -1, "handheld"),
             new OptionModel("sword", R.drawable.icon_sword, R.drawable.accessory_sword, "handheld"),
             new OptionModel("witch_hat", R.drawable.icon_witch_hat, R.drawable.accessory_witch_hat, "hat"),
+            new OptionModel("graduation_hat", R.drawable.icon_graduation_hat, R.drawable.accessory_graduation_hat, "hat"),
     };
 
     final ArrayList<OptionModel> accessoryOptions = new ArrayList<>(Arrays.asList(accessoryOptionsArray));
@@ -166,21 +167,17 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
 
         if (viewId == R.id.change_figure_button) {
             options = figureOptions;
-        }
-        else if (viewId == R.id.change_color_button) {
+        } else if (viewId == R.id.change_color_button) {
             options = backgroundColorOptions;
-        }
-        else if (viewId == R.id.change_background_image_button) {
+        } else if (viewId == R.id.change_background_image_button) {
             options = backgroundImageOptions;
-        }
-        else if (viewId == R.id.change_accessory_button) {
+        } else if (viewId == R.id.change_accessory_button) {
             options = accessoryOptions;
-        }
-        else if (viewId == R.id.change_style_button) {
+        } else if (viewId == R.id.change_style_button) {
             options = figureColorOptions;
         }
 
-        if(options == optionsAdapter.options && secondLevelControl.getVisibility() == View.VISIBLE) {
+        if (options == optionsAdapter.options && secondLevelControl.getVisibility() == View.VISIBLE) {
             // hide the panel if the same option was clicked again
             secondLevelControl.setVisibility(View.GONE);
             lineWidthBar.setVisibility(View.GONE);
@@ -188,7 +185,7 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
             optionsAdapter.setOptions(options);
             optionsAdapter.notifyDataSetChanged();
             secondLevelControl.setVisibility(View.VISIBLE);
-            if(options == figureColorOptions)
+            if (options == figureColorOptions)
                 lineWidthBar.setVisibility(View.VISIBLE);
         }
     };
@@ -196,7 +193,21 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
     View.OnClickListener recordListener = new View.OnClickListener() {
         @Override
         public void onClick(View view) {
-            // TODO: take screenshot
+            Bitmap bitmap = graphicOverlay.getGraphicBitmap();
+            ImageWriter imageWriter = new ImageWriter();
+
+            DateFormat dateFormat = new SimpleDateFormat("dd-MM-yyyy HH:mm:ss:SSS");
+            String uniqueName = "Stickman " + dateFormat.format(new Date());
+            boolean result = imageWriter.saveBitmapToImage(
+                    bitmap,
+                    "/Stickman",
+                    uniqueName);
+
+            if (result) {
+                Toast.makeText(getApplicationContext(), "Zdjęcie zostało zapisane!", Toast.LENGTH_LONG).show();
+            } else {
+                Toast.makeText(getApplicationContext(), "Spróbuj ponownie!", Toast.LENGTH_LONG).show();
+            }
         }
     };
 
@@ -296,8 +307,8 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
                         setFigure(options.get(position).name);
                     } else if (options == figureColorOptions) {
                         setFigureColor(options.get(position).tint);
-                    } else if(options == accessoryOptions) {
-                        if(position == 0)
+                    } else if (options == accessoryOptions) {
+                        if (position == 0)
                             removeAccessory();
                         else
                             setFigureAccessory(
@@ -366,17 +377,19 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
         lineWidthBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
             public void onProgressChanged(SeekBar seekBar, int i, boolean b) {
-                if(i < 1)
+                if (i < 1)
                     return;
 
                 ((PoseDetectorProcessor) imageProcessor).setFigureLineWidth(i);
             }
 
             @Override
-            public void onStartTrackingTouch(SeekBar seekBar) { }
+            public void onStartTrackingTouch(SeekBar seekBar) {
+            }
 
             @Override
-            public void onStopTrackingTouch(SeekBar seekBar) { }
+            public void onStopTrackingTouch(SeekBar seekBar) {
+            }
 
         });
 
@@ -508,30 +521,8 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
         if (cameraProvider != null) {
             // As required by CameraX API, unbinds all use cases before trying to re-bind any of them.
             cameraProvider.unbindAll();
-            bindPreviewUseCase();
             bindAnalysisUseCase();
         }
-    }
-
-    private void bindPreviewUseCase() {
-        if (!PreferenceUtils.isCameraLiveViewportEnabled(this)) {
-            return;
-        }
-        if (cameraProvider == null) {
-            return;
-        }
-        if (previewUseCase != null) {
-            cameraProvider.unbind(previewUseCase);
-        }
-
-        Preview.Builder builder = new Preview.Builder();
-        Size targetResolution = PreferenceUtils.getCameraXTargetResolution(this);
-        if (targetResolution != null) {
-            builder.setTargetResolution(targetResolution);
-        }
-        previewUseCase = builder.build();
-        previewUseCase.setSurfaceProvider(previewView.getSurfaceProvider());
-        cameraProvider.bindToLifecycle(/* lifecycleOwner= */ this, cameraSelector, previewUseCase);
     }
 
     private void bindAnalysisUseCase() {
@@ -548,11 +539,8 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
         try {
             PoseDetectorOptionsBase poseDetectorOptions =
                     PreferenceUtils.getPoseDetectorOptionsForLivePreview(this);
-            boolean shouldShowInFrameLikelihood =
-                    PreferenceUtils.shouldShowPoseDetectionInFrameLikelihoodLivePreview(this);
             imageProcessor =
-                    new PoseDetectorProcessor(this, poseDetectorOptions, shouldShowInFrameLikelihood);
-
+                    new PoseDetectorProcessor(this, poseDetectorOptions);
         } catch (Exception e) {
             Toast.makeText(
                     getApplicationContext(),
@@ -566,6 +554,8 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
         Size targetResolution = PreferenceUtils.getCameraXTargetResolution(this);
         if (targetResolution != null) {
             builder.setTargetResolution(targetResolution);
+        } else {
+            builder.setTargetResolution(new Size(720, 1280));
         }
         analysisUseCase = builder.build();
 
@@ -683,12 +673,12 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
     }
 
     private void setFigure(String name) {
-        if(name.equals("classic_stickman")) {
+        if (name.equals("classic_stickman")) {
             ((PoseDetectorProcessor) imageProcessor).setFigureID(0);
-        } else if(name.equals("comic_stickman")) {
+        } else if (name.equals("comic_stickman")) {
             ((PoseDetectorProcessor) imageProcessor).setFigureID(1);
-        } else if(name.equals("flexible_comic_stickman")) {
-        ((PoseDetectorProcessor) imageProcessor).setFigureID(2);
+        } else if (name.equals("flexible_comic_stickman")) {
+            ((PoseDetectorProcessor) imageProcessor).setFigureID(2);
         }
     }
 
