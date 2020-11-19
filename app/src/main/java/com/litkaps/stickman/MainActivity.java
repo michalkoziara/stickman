@@ -13,6 +13,7 @@ import android.os.Build.VERSION_CODES;
 import android.os.Bundle;
 import android.util.Log;
 import android.util.Size;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -149,7 +150,7 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
     final OptionModel[] accessoryOptionsArray = {
             new OptionModel("none", R.drawable.ic_baseline_close_24, Color.parseColor("#277E8A")),
             new OptionModel("glasses", R.drawable.icon_glasses, -1, "glasses"),
-            new OptionModel("helmet", R.drawable.icon_helmet, -1, "helmet"),
+            new OptionModel("helmet", R.drawable.icon_helmet, -1, "hat"),
             new OptionModel("indiana_jones", R.drawable.icon_indiana_jones, R.drawable.accessory_indiana_jones, "hat"),
             new OptionModel("shield", R.drawable.icon_shield, -1, "handheld"),
             new OptionModel("sword", R.drawable.icon_sword, R.drawable.accessory_sword, "handheld"),
@@ -203,11 +204,14 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
                     "/Stickman",
                     uniqueName);
 
+            Toast toast;
             if (result) {
-                Toast.makeText(getApplicationContext(), "Zdjęcie zostało zapisane!", Toast.LENGTH_LONG).show();
+                toast = Toast.makeText(getApplicationContext(), "Zdjęcie zostało zapisane!", Toast.LENGTH_LONG);
             } else {
-                Toast.makeText(getApplicationContext(), "Spróbuj ponownie!", Toast.LENGTH_LONG).show();
+                toast = Toast.makeText(getApplicationContext(), "Spróbuj ponownie!", Toast.LENGTH_LONG);
             }
+            toast.setGravity(Gravity.BOTTOM, 0, 250);
+            toast.show();
         }
     };
 

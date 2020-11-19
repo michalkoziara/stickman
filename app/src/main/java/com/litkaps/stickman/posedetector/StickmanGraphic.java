@@ -113,7 +113,7 @@ class StickmanGraphic extends GraphicOverlay.Graphic {
         PointF pointBetweenMouthCorners = getPointBetween(translatePoint(pose.getPoseLandmark(PoseLandmark.LEFT_MOUTH).getPosition()), translatePoint(pose.getPoseLandmark(PoseLandmark.RIGHT_MOUTH).getPosition()));
         PointF headCenterPoint = getPointBetween(pointBetweenEyes, pointBetweenMouthCorners);
 
-        float headRadius = scale(0.3f) * getDistance(pointBetweenEyes, pointBetweenMouthCorners);
+        float headRadius =  getDistance(pointBetweenEyes, pointBetweenMouthCorners);
 
         Matrix matrix = null;
         switch (accessoryType) {
@@ -127,11 +127,12 @@ class StickmanGraphic extends GraphicOverlay.Graphic {
                         headCenterPoint.y - headRadius,
                         accessory.getWidth(),
                         accessory.getHeight(),
-                        headRadius / accessory.getWidth() * scale(7),
+                        headRadius / accessory.getWidth() * 7f,
                         0
                 );
 
                 break;
+
             case 1: // handheld
                 float scaleX =
                         (getDistance(
@@ -155,21 +156,6 @@ class StickmanGraphic extends GraphicOverlay.Graphic {
 
                 break;
 
-            case 2: // helmet
-                matrix = calculateTransformMatrix(
-                        translateX(pose.getPoseLandmark(PoseLandmark.RIGHT_EYE_INNER).getPosition().x),
-                        translateY(pose.getPoseLandmark(PoseLandmark.RIGHT_EYE_INNER).getPosition().y),
-                        translateX(pose.getPoseLandmark(PoseLandmark.LEFT_EYE_INNER).getPosition().x),
-                        translateY(pose.getPoseLandmark(PoseLandmark.LEFT_EYE_INNER).getPosition().y),
-                        headCenterPoint.x,
-                        headCenterPoint.y - headRadius * scale(0.5f),
-                        accessory.getWidth(),
-                        accessory.getHeight(),
-                        headRadius / accessory.getWidth() * scale(7),
-                        0
-                );
-                break;
-
             case 3: // glasses
                 matrix = calculateTransformMatrix(
                         translateX(pose.getPoseLandmark(PoseLandmark.RIGHT_EYE_INNER).getPosition().x),
@@ -177,10 +163,10 @@ class StickmanGraphic extends GraphicOverlay.Graphic {
                         translateX(pose.getPoseLandmark(PoseLandmark.LEFT_EYE_INNER).getPosition().x),
                         translateY(pose.getPoseLandmark(PoseLandmark.LEFT_EYE_INNER).getPosition().y),
                         headCenterPoint.x,
-                        headCenterPoint.y - headRadius,
+                        headCenterPoint.y - headRadius/1.92f,
                         accessory.getWidth(),
                         accessory.getHeight(),
-                        headRadius / accessory.getWidth() * scale(2),
+                        headRadius / accessory.getWidth() * 3.4f,
                         0
                 );
 
@@ -203,24 +189,25 @@ class StickmanGraphic extends GraphicOverlay.Graphic {
         Matrix matrix = new Matrix();
         float deltaX = leftEye.getPosition().x - rightEye.getPosition().x;
         float deltaY = leftEye.getPosition().y - rightEye.getPosition().y;
-        float thetaRadians = (float) Math.atan2(deltaY, deltaX);
-        matrix.setRotate((float) Math.toDegrees(thetaRadians) / 5f);
+        float thetaRadians = (float) Math.atan2(deltaY, deltaX) / 5f;
+        thetaRadians = isImageFlipped() ? -thetaRadians : thetaRadians;
+        matrix.setRotate((float) Math.toDegrees(thetaRadians));
 
         // draw left eye
         canvas.drawRect(
-                translateX(rightEye.getPosition().x) - pd * scale(0.2f),
-                translateY(rightEye.getPosition().y) - pd,
-                translateX(rightEye.getPosition().x) + pd * scale(1),
-                translateY(rightEye.getPosition().y) + pd,
+                translateX(rightEye.getPosition().x) - pd / 3f,
+                translateY(rightEye.getPosition().y) - pd / 2.2f,
+                translateX(rightEye.getPosition().x) + pd / 4.2f,
+                translateY(rightEye.getPosition().y) + pd / 2f,
                 paint
         );
 
         // draw right eye
         canvas.drawRect(
-                translateX(leftEye.getPosition().x) - pd * scale(0.2f),
-                translateY(leftEye.getPosition().y) - pd,
-                translateX(leftEye.getPosition().x) + pd * scale(1),
-                translateY(leftEye.getPosition().y) + pd,
+                translateX(leftEye.getPosition().x) - pd / 3f,
+                translateY(leftEye.getPosition().y) - pd / 2.2f,
+                translateX(leftEye.getPosition().x) + pd / 4.2f,
+                translateY(leftEye.getPosition().y) + pd / 2f,
                 paint
         );
 
@@ -246,7 +233,7 @@ class StickmanGraphic extends GraphicOverlay.Graphic {
                 pose.getPoseLandmark(PoseLandmark.LEFT_MOUTH).getPosition().y,
                 pose.getPoseLandmark(PoseLandmark.RIGHT_MOUTH).getPosition().x,
                 pose.getPoseLandmark(PoseLandmark.RIGHT_MOUTH).getPosition().y,
-                scale(3),
+                8,
                 paint
         );
     }
@@ -261,8 +248,8 @@ class StickmanGraphic extends GraphicOverlay.Graphic {
         Paint paint = new Paint();
         paint.setColor(Color.WHITE);
         paint.setStyle(Paint.Style.FILL);
-        canvas.drawCircle(headCenterPoint.x, headCenterPoint.y, (headRadius * scale(0.3f)) + stickmanPaint.getStrokeWidth(), stickmanPaint);
-        canvas.drawCircle(headCenterPoint.x, headCenterPoint.y, (headRadius * scale(0.3f)), paint);
+        canvas.drawCircle(headCenterPoint.x, headCenterPoint.y, (headRadius * 1.46f) + stickmanPaint.getStrokeWidth(), stickmanPaint);
+        canvas.drawCircle(headCenterPoint.x, headCenterPoint.y, (headRadius * 1.46f), paint);
     }
 
 }

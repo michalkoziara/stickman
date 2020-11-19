@@ -227,7 +227,7 @@ public class GraphicOverlay extends View {
       float deltaX = x2 - x1;
       float deltaY =  y2 - y1;
       float thetaRadians = (float)Math.atan2(deltaY, deltaX);
-
+      thetaRadians = isImageFlipped() ? -thetaRadians : thetaRadians;
       matrix.setRotate((float)Math.toDegrees(thetaRadians) + rotation, objectWidth/2, objectHeight/2);
       matrix.postScale(sx, sx, objectWidth/2, objectHeight/2);
 
