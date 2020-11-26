@@ -8,12 +8,26 @@
     android:animateLayoutChanges="true"
     android:keepScreenOn="true">
 
+    <TextView
+        android:id="@+id/record_time"
+        android:layout_width="60dp"
+        android:layout_height="30dp"
+        android:layout_marginBottom="10dp"
+        android:background="@drawable/record_time"
+        android:visibility="gone"
+        app:layout_constraintBottom_toTopOf="@+id/record_button"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        tools:visibility="visible" />
+
     <androidx.camera.view.PreviewView
         android:id="@+id/preview_view"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/control_level0" />
+        app:layout_constraintTop_toBottomOf="@+id/control_level0" >
+
+    </androidx.camera.view.PreviewView>
 
     <com.litkaps.stickman.GraphicOverlay
         android:id="@+id/graphic_overlay"
@@ -186,6 +200,20 @@
         app:layout_constraintStart_toStartOf="parent" />
 
     <ToggleButton
+        android:id="@+id/record_mode_toggle"
+        android:layout_width="48dp"
+        android:layout_height="48dp"
+        android:layout_gravity="center_vertical"
+        android:layout_margin="10dp"
+        android:background="@drawable/record_mode_toggle"
+        android:checked="false"
+        android:textOff=""
+        android:textOn=""
+        app:layout_constraintBaseline_toBaselineOf="@+id/record_button"
+        app:layout_constraintEnd_toStartOf="@+id/facing_switch"
+        app:layout_constraintStart_toEndOf="@+id/record_button" />
+
+    <ToggleButton
         android:id="@+id/facing_switch"
         android:layout_width="48dp"
         android:layout_height="48dp"
@@ -195,9 +223,8 @@
         android:checked="false"
         android:textOff=""
         android:textOn=""
-        app:layout_constraintBaseline_toBaselineOf="@+id/record_button"
+        app:layout_constraintBaseline_toBaselineOf="@+id/record_mode_toggle"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toEndOf="@+id/record_button" />
-
+        app:layout_constraintStart_toEndOf="@+id/record_mode_toggle" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

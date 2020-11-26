@@ -14,6 +14,7 @@ import com.google.mlkit.vision.pose.Pose;
 import com.google.mlkit.vision.pose.PoseDetection;
 import com.google.mlkit.vision.pose.PoseDetector;
 import com.google.mlkit.vision.pose.PoseDetectorOptionsBase;
+import com.litkaps.stickman.BitmapToVideoEncoder;
 import com.litkaps.stickman.CameraImageGraphic;
 import com.litkaps.stickman.GraphicOverlay;
 import com.litkaps.stickman.VisionProcessorBase;
@@ -34,6 +35,7 @@ public class PoseDetectorProcessor extends VisionProcessorBase<Pose> {
     private Bitmap backgroundImage;
     private Bitmap scaledBackgroundImage;
     private boolean isUpdated;
+    BitmapToVideoEncoder encoder;
 
     public PoseDetectorProcessor(
             Context context, PoseDetectorOptionsBase options) {
@@ -78,6 +80,13 @@ public class PoseDetectorProcessor extends VisionProcessorBase<Pose> {
             graphicOverlay.add(new ComicStickmanGraphic(graphicOverlay, pose, accessoryID, accessoryType, stickmanPaint));
         else if(figureID == 2)
             graphicOverlay.add(new FlexibleComicStickmanGraphic(graphicOverlay, pose, accessoryID, accessoryType, stickmanPaint));
+
+//        if(encoder != null) {
+//            Bitmap bitmap = Bitmap.createBitmap(10, 10, Bitmap.Config.ARGB_8888);
+//            bitmap.eraseColor(Color.RED);
+//            encoder.queueFrame(bitmap);
+//
+//        }
     }
 
     @Override
@@ -105,5 +114,9 @@ public class PoseDetectorProcessor extends VisionProcessorBase<Pose> {
     public void setFigureAccessory(int accessoryID, int accessoryType) {
         this.accessoryID = accessoryID;
         this.accessoryType = accessoryType;
+    }
+
+    public void setBitmapToVideoEncoder(BitmapToVideoEncoder encoder) {
+        this.encoder = encoder;
     }
 }

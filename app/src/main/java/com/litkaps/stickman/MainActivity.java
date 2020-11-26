@@ -7,21 +7,31 @@ import android.content.pm.PackageManager;
 import android.content.res.ColorStateList;
 import android.graphics.Bitmap;
 import android.graphics.Color;
+import android.media.MediaCodec;
+import android.media.MediaCodecInfo;
+import android.media.MediaFormat;
 import android.net.Uri;
 import android.os.Build.VERSION;
 import android.os.Build.VERSION_CODES;
 import android.os.Bundle;
+import android.os.Environment;
+import android.os.Handler;
+import android.os.HandlerThread;
+import android.os.SystemClock;
 import android.util.Log;
 import android.util.Size;
 import android.view.Gravity;
 import android.view.LayoutInflater;
+import android.view.PixelCopy;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.Chronometer;
 import android.widget.CompoundButton;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.SeekBar;
+import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.ToggleButton;
 
@@ -52,13 +62,20 @@ import com.litkaps.stickman.preference.PreferenceUtils;
 import com.litkaps.stickman.preference.SettingsActivity;
 import com.litkaps.stickman.preference.SettingsActivity.LaunchSource;
 
+import org.jcodec.api.SequenceEncoder;
+
+import java.io.ByteArrayOutputStream;
+import java.io.File;
 import java.io.IOException;
+import java.nio.ByteBuffer;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
+import java.util.Timer;
+import java.util.TimerTask;
 
 @KeepName
 @RequiresApi(VERSION_CODES.LOLLIPOP)
@@ -79,7 +96,9 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
     private LinearLayout secondLevelControl;
     private SeekBar lineWidthBar;
     private Button recordButton;
-
+    private TextView recordTime;
+    private boolean isRecording = false;
+    private Chronometer chronometer;
     @Nullable
     private ProcessCameraProvider cameraProvider;
     @Nullable
@@ -93,6 +112,8 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
     private int lensFacing = CameraSelector.LENS_FACING_BACK;
     private CameraSelector cameraSelector;
     private OptionsAdapter optionsAdapter;
+
+    BitmapToVideoEncoder bitmapToVideoEncoder;
 
     /**
      * change background image options
@@ -191,7 +212,7 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
         }
     };
 
-    View.OnClickListener recordListener = new View.OnClickListener() {
+    View.OnClickListener takePhotoListener = new View.OnClickListener() {
         @Override
         public void onClick(View view) {
             Bitmap bitmap = graphicOverlay.getGraphicBitmap();
@@ -206,12 +227,101 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
 
             Toast toast;
             if (result) {
-                toast = Toast.makeText(getApplicationContext(), "Zdjęcie zostało zapisane!", Toast.LENGTH_LONG);
+                toast = Toast.makeText(MainActivity.this, "Zdjęcie zostało zapisane!", Toast.LENGTH_LONG);
             } else {
-                toast = Toast.makeText(getApplicationContext(), "Spróbuj ponownie!", Toast.LENGTH_LONG);
+                toast = Toast.makeText(MainActivity.this, "Spróbuj ponownie!", Toast.LENGTH_LONG);
             }
             toast.setGravity(Gravity.BOTTOM, 0, 250);
             toast.show();
+        }
+    };
+
+    View.OnClickListener recordListener = new View.OnClickListener() {
+        @RequiresApi(api = VERSION_CODES.N)
+        @Override
+        public void onClick(View view) {
+
+            if(isRecording) {
+                isRecording = false;
+                view.setBackground(getDrawable(R.drawable.record_video_button));
+                stopwatchTimer.cancel();
+                recordTime.setVisibility(View.GONE);
+
+//                bitmapToVideoEncoder.stopEncoding();
+//                ((PoseDetectorProcessor) imageProcessor).setBitmapToVideoEncoder(null);
+            }
+            else {
+                isRecording = true;
+                view.setBackground(getDrawable(R.drawable.stop_recording_button));
+                recordTime.setVisibility(View.VISIBLE);
+                startTimer();
+
+
+//                bitmapToVideoEncoder = new BitmapToVideoEncoder(new BitmapToVideoEncoder.IBitmapToVideoEncoderCallback() {
+//                    @Override
+//                    public void onEncodingComplete(File outputFile) {
+//                        Toast.makeText(getApplicationContext(),  "Encoding complete!", Toast.LENGTH_LONG).show();
+//                    }
+//                });
+//
+//
+//                ((PoseDetectorProcessor) imageProcessor).setBitmapToVideoEncoder(bitmapToVideoEncoder);
+//                bitmapToVideoEncoder.startEncoding(10, 10, new File(Environment.getExternalStorageDirectory().getAbsolutePath() + "/Stickman",  "recording.mp4"));
+//
+//                Bitmap bitmap = Bitmap.createBitmap(10, 10, Bitmap.Config.ARGB_8888);
+//                bitmap.eraseColor(Color.RED);
+//                bitmapToVideoEncoder.queueFrame(bitmap);
+//                bitmapToVideoEncoder.queueFrame(bitmap);
+//                bitmapToVideoEncoder.queueFrame(bitmap);
+//
+//                bitmapToVideoEncoder.stopEncoding();
+
+                // TODO: record video
+            }
+        }
+    };
+
+    Timer stopwatchTimer;
+    long startTime;
+    public void startTimer() {
+        stopwatchTimer = new Timer();
+        startTime = System.currentTimeMillis();
+        stopwatchTimer.scheduleAtFixedRate(new TimerTask() {
+            @Override
+            public void run() {
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        recordTime.setText(stopwatch());
+                        Log.d("APP", stopwatch());
+                    }
+                });
+
+            }
+        }, 0, 10);
+    }
+
+    public String stopwatch() {
+        long nowTime = System.currentTimeMillis();
+        long cast = nowTime - startTime;
+        Date date = new Date(cast);
+        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("HH:mm:ss.S");
+        return simpleDateFormat.format(date);
+    }
+
+
+    // toggle between recording a video or taking a photo
+    CompoundButton.OnCheckedChangeListener changeRecordModeListener = new CompoundButton.OnCheckedChangeListener() {
+        public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+            // switch to video recording
+            if(isChecked) {
+                recordButton.setBackground(getDrawable(R.drawable.record_video_button));
+                recordButton.setOnClickListener(recordListener);
+            }
+            else { // switch to taking photos
+                recordButton.setBackground(getDrawable(R.drawable.take_photo_button));
+                recordButton.setOnClickListener(takePhotoListener);
+            }
         }
     };
 
@@ -358,14 +468,14 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
 
         secondLevelControl = findViewById(R.id.control_level1);
         lineWidthBar = findViewById(R.id.line_width_seekbar);
-
+        recordTime = findViewById(R.id.record_time);
         findViewById(R.id.change_figure_button).setOnClickListener(unrollOptionsListener);
         findViewById(R.id.change_color_button).setOnClickListener(unrollOptionsListener);
         findViewById(R.id.change_background_image_button).setOnClickListener(unrollOptionsListener);
         findViewById(R.id.change_accessory_button).setOnClickListener(unrollOptionsListener);
         findViewById(R.id.change_style_button).setOnClickListener(unrollOptionsListener);
         recordButton = findViewById(R.id.record_button);
-        recordButton.setOnClickListener(recordListener);
+        recordButton.setOnClickListener(takePhotoListener);
 
         // display settings fragment
         findViewById(R.id.settings).setOnClickListener(new View.OnClickListener() {
@@ -377,6 +487,7 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
             }
         });
 
+        ((CompoundButton)findViewById(R.id.record_mode_toggle)).setOnCheckedChangeListener(changeRecordModeListener);
 
         lineWidthBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
@@ -713,5 +824,7 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
     private void removeAccessory() {
         ((PoseDetectorProcessor) imageProcessor).setFigureAccessory(0, -1);
     }
+
+
 
 }

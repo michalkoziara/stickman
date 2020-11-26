@@ -3,6 +3,7 @@ package com.litkaps.stickman.posedetector;
 import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.graphics.PointF;
+import android.util.Log;
 
 import com.google.mlkit.vision.pose.Pose;
 import com.google.mlkit.vision.pose.PoseLandmark;
@@ -10,9 +11,6 @@ import com.litkaps.stickman.GraphicOverlay;
 
 import java.util.List;
 
-/**
- * Draw a stickman
- */
 public class ClassicStickmanGraphic extends StickmanGraphic {
 
     ClassicStickmanGraphic(GraphicOverlay overlay, Pose pose, int accessoryID, int accessoryType, Paint stickmanPaint) {
@@ -25,6 +23,8 @@ public class ClassicStickmanGraphic extends StickmanGraphic {
         if (landmarks.isEmpty()) {
             return;
         }
+//        Log.d("APP", "isImageFlipped? " + isImageFlipped());
+
 
         PoseLandmark leftShoulder = pose.getPoseLandmark(PoseLandmark.LEFT_SHOULDER);
         PoseLandmark rightShoulder = pose.getPoseLandmark(PoseLandmark.RIGHT_SHOULDER);

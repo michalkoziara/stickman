@@ -2,6 +2,7 @@ package com.litkaps.stickman;
 
 import android.graphics.Bitmap;
 import android.os.Environment;
+import android.util.Log;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -18,6 +19,7 @@ public class ImageWriter {
                 return false;
             }
 
+            Log.d("APP", " absolute path: " + file_path);
             File file = new File(dir, uniqueName + ".jpg");
             FileOutputStream fOut = new FileOutputStream(file);
 

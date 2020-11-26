@@ -57,8 +57,6 @@ public class GraphicOverlay extends View {
   private boolean isImageFlipped;
   private boolean needUpdateTransformation = true;
 
-//  Bitmap bitmap; // bitmap for saving current view
-
   /**
    * Base class for a custom graphics object to be rendered within the graphic overlay. Subclass
    * this and implement the {@link Graphic#draw(Canvas)} method to define the graphics element. Add
@@ -227,7 +225,7 @@ public class GraphicOverlay extends View {
       float deltaX = x2 - x1;
       float deltaY =  y2 - y1;
       float thetaRadians = (float)Math.atan2(deltaY, deltaX);
-      thetaRadians = isImageFlipped() ? -thetaRadians : thetaRadians;
+      thetaRadians = isImageFlipped() ? thetaRadians - 3.142f : thetaRadians;
       matrix.setRotate((float)Math.toDegrees(thetaRadians) + rotation, objectWidth/2, objectHeight/2);
       matrix.postScale(sx, sx, objectWidth/2, objectHeight/2);
 
@@ -340,8 +338,8 @@ public class GraphicOverlay extends View {
     }
   }
 
-  Bitmap getGraphicBitmap() {
-    Bitmap bitmap = Bitmap.createBitmap( getWidth(), getHeight(), Bitmap.Config.ARGB_8888);
+  public Bitmap getGraphicBitmap() {
+    Bitmap bitmap = Bitmap.createBitmap(getWidth(), getHeight(), Bitmap.Config.ARGB_8888);
     Canvas canvas = new Canvas();
     canvas.setBitmap(bitmap);
 
@@ -354,20 +352,5 @@ public class GraphicOverlay extends View {
       return bitmap;
     }
   }
-//
-//  void saveBitmap() {
-//    String path = Environment.getExternalStorageDirectory().toString();
-//    OutputStream fOut = null;
-//    File file = new File(path, "stickman.jpg");
-//    try {
-//      fOut = new FileOutputStream(file);
-//      bitmap.compress(Bitmap.CompressFormat.JPEG, 85, fOut); // saving the Bitmap to a file compressed as a JPEG with 85% compression rate
-//      fOut.close();
-//
-//    } catch (FileNotFoundException e) {
-//      e.printStackTrace();
-//    } catch (IOException e) {
-//      e.printStackTrace();
-//    }
-//  }
+
 }

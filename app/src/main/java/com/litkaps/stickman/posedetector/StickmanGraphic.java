@@ -7,6 +7,7 @@ import android.graphics.Color;
 import android.graphics.Matrix;
 import android.graphics.Paint;
 import android.graphics.PointF;
+import android.util.Log;
 
 import com.google.mlkit.vision.pose.Pose;
 import com.google.mlkit.vision.pose.PoseLandmark;
@@ -44,65 +45,7 @@ class StickmanGraphic extends GraphicOverlay.Graphic {
     }
 
     @Override
-    public void draw(Canvas canvas) {
-        List<PoseLandmark> landmarks = pose.getAllPoseLandmarks();
-        if (landmarks.isEmpty()) {
-            return;
-        }
-
-        PoseLandmark leftShoulder = pose.getPoseLandmark(PoseLandmark.LEFT_SHOULDER);
-        PoseLandmark rightShoulder = pose.getPoseLandmark(PoseLandmark.RIGHT_SHOULDER);
-        PoseLandmark leftElbow = pose.getPoseLandmark(PoseLandmark.LEFT_ELBOW);
-        PoseLandmark rightElbow = pose.getPoseLandmark(PoseLandmark.RIGHT_ELBOW);
-        PoseLandmark leftWrist = pose.getPoseLandmark(PoseLandmark.LEFT_WRIST);
-        PoseLandmark rightWrist = pose.getPoseLandmark(PoseLandmark.RIGHT_WRIST);
-        PoseLandmark leftHip = pose.getPoseLandmark(PoseLandmark.LEFT_HIP);
-        PoseLandmark rightHip = pose.getPoseLandmark(PoseLandmark.RIGHT_HIP);
-        PoseLandmark leftKnee = pose.getPoseLandmark(PoseLandmark.LEFT_KNEE);
-        PoseLandmark rightKnee = pose.getPoseLandmark(PoseLandmark.RIGHT_KNEE);
-        PoseLandmark leftAnkle = pose.getPoseLandmark(PoseLandmark.LEFT_ANKLE);
-        PoseLandmark rightAnkle = pose.getPoseLandmark(PoseLandmark.RIGHT_ANKLE);
-
-        PoseLandmark nose = pose.getPoseLandmark(PoseLandmark.NOSE);
-        PoseLandmark leftEyeInner = pose.getPoseLandmark(PoseLandmark.LEFT_EYE_INNER);
-        PoseLandmark leftEye = pose.getPoseLandmark(PoseLandmark.LEFT_EYE);
-        PoseLandmark leftEyeOuter = pose.getPoseLandmark(PoseLandmark.LEFT_EYE_OUTER);
-        PoseLandmark rightEyeInner = pose.getPoseLandmark(PoseLandmark.RIGHT_EYE_INNER);
-        PoseLandmark rightEye = pose.getPoseLandmark(PoseLandmark.RIGHT_EYE);
-        PoseLandmark rightEyeOuter = pose.getPoseLandmark(PoseLandmark.RIGHT_EYE_OUTER);
-        PoseLandmark leftEar = pose.getPoseLandmark(PoseLandmark.LEFT_EAR);
-        PoseLandmark rightEar = pose.getPoseLandmark(PoseLandmark.RIGHT_EAR);
-        PoseLandmark leftMouth = pose.getPoseLandmark(PoseLandmark.LEFT_MOUTH);
-        PoseLandmark rightMouth = pose.getPoseLandmark(PoseLandmark.RIGHT_MOUTH);
-
-        drawLine(canvas, leftAnkle.getPosition(), leftKnee.getPosition(), stickmanPaint);
-        drawLine(canvas, rightAnkle.getPosition(), rightKnee.getPosition(), stickmanPaint);
-
-        PointF waistPoint = getPointBetween(rightHip.getPosition(), leftHip.getPosition());
-        drawLine(canvas, leftKnee.getPosition(), waistPoint, stickmanPaint);
-        drawLine(canvas, rightKnee.getPosition(), waistPoint, stickmanPaint);
-
-        PointF neckPoint = getPointBetween(rightShoulder.getPosition(), leftShoulder.getPosition());
-        drawLine(canvas, waistPoint, neckPoint, stickmanPaint);
-
-        drawLine(canvas, neckPoint, leftElbow.getPosition(), stickmanPaint);
-        drawLine(canvas, neckPoint, rightElbow.getPosition(), stickmanPaint);
-
-        drawLine(canvas, leftElbow.getPosition(), leftWrist.getPosition(), stickmanPaint);
-        drawLine(canvas, rightElbow.getPosition(), rightWrist.getPosition(), stickmanPaint);
-
-        PointF pointBetweenEyes = getPointBetween(rightEye.getPosition(), leftEye.getPosition());
-        PointF pointBetweenMouthCorners = getPointBetween(leftMouth.getPosition(), rightMouth.getPosition());
-        PointF headCenterPoint = getPointBetween(pointBetweenEyes, pointBetweenMouthCorners);
-
-        // neck
-        drawLine(canvas, neckPoint, headCenterPoint, stickmanPaint);
-
-        drawHead(canvas);
-        drawSmile(canvas);
-        drawRectangularEyes(canvas);
-        drawAccessory(canvas);
-    }
+    public void draw(Canvas canvas) { }
 
     void drawAccessory(Canvas canvas) {
         if (accessoryType == -1)
@@ -190,7 +133,8 @@ class StickmanGraphic extends GraphicOverlay.Graphic {
         float deltaX = leftEye.getPosition().x - rightEye.getPosition().x;
         float deltaY = leftEye.getPosition().y - rightEye.getPosition().y;
         float thetaRadians = (float) Math.atan2(deltaY, deltaX) / 5f;
-        thetaRadians = isImageFlipped() ? -thetaRadians : thetaRadians;
+        // subtract 180 degrees (3.142 Rad) if necessary
+        thetaRadians = isImageFlipped() ? thetaRadians - 3.142f : thetaRadians;
         matrix.setRotate((float) Math.toDegrees(thetaRadians));
 
         // draw left eye
