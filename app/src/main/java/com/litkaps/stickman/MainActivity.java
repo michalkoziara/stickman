@@ -7,22 +7,14 @@ import android.content.pm.PackageManager;
 import android.content.res.ColorStateList;
 import android.graphics.Bitmap;
 import android.graphics.Color;
-import android.media.MediaCodec;
-import android.media.MediaCodecInfo;
-import android.media.MediaFormat;
 import android.net.Uri;
 import android.os.Build.VERSION;
 import android.os.Build.VERSION_CODES;
 import android.os.Bundle;
-import android.os.Environment;
-import android.os.Handler;
-import android.os.HandlerThread;
-import android.os.SystemClock;
 import android.util.Log;
 import android.util.Size;
 import android.view.Gravity;
 import android.view.LayoutInflater;
-import android.view.PixelCopy;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
@@ -62,12 +54,7 @@ import com.litkaps.stickman.preference.PreferenceUtils;
 import com.litkaps.stickman.preference.SettingsActivity;
 import com.litkaps.stickman.preference.SettingsActivity.LaunchSource;
 
-import org.jcodec.api.SequenceEncoder;
-
-import java.io.ByteArrayOutputStream;
-import java.io.File;
 import java.io.IOException;
-import java.nio.ByteBuffer;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -244,8 +231,8 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
             if(isRecording) {
                 isRecording = false;
                 view.setBackground(getDrawable(R.drawable.record_video_button));
-                stopwatchTimer.cancel();
-                recordTime.setVisibility(View.GONE);
+//                stopwatchTimer.cancel();
+//                recordTime.setVisibility(View.GONE);
 
 //                bitmapToVideoEncoder.stopEncoding();
 //                ((PoseDetectorProcessor) imageProcessor).setBitmapToVideoEncoder(null);
@@ -253,8 +240,8 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
             else {
                 isRecording = true;
                 view.setBackground(getDrawable(R.drawable.stop_recording_button));
-                recordTime.setVisibility(View.VISIBLE);
-                startTimer();
+//                recordTime.setVisibility(View.VISIBLE);
+//                startTimer();
 
 
 //                bitmapToVideoEncoder = new BitmapToVideoEncoder(new BitmapToVideoEncoder.IBitmapToVideoEncoderCallback() {

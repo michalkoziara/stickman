@@ -7,14 +7,10 @@ import android.graphics.Color;
 import android.graphics.Matrix;
 import android.graphics.Paint;
 import android.graphics.PointF;
-import android.util.Log;
 
 import com.google.mlkit.vision.pose.Pose;
 import com.google.mlkit.vision.pose.PoseLandmark;
 import com.litkaps.stickman.GraphicOverlay;
-
-import java.util.List;
-import java.util.Locale;
 
 /**
  * generic class for stickman drawing
