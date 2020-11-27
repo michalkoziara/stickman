@@ -15,14 +15,14 @@ import com.litkaps.stickman.GraphicOverlay;
 /**
  * generic class for stickman drawing
  */
-class StickmanGraphic extends GraphicOverlay.Graphic {
-    int accessoryID;
-    int accessoryType;
+abstract class StickmanGraphic extends GraphicOverlay.Graphic {
+    protected int accessoryID;
+    protected int accessoryType;
 
-    Pose pose;
-    Paint stickmanPaint;
-    Paint whitePaint;
-    Paint facePaint;
+    protected Pose pose;
+    protected Paint stickmanPaint;
+    protected Paint whitePaint;
+    protected Paint facePaint;
 
     StickmanGraphic(GraphicOverlay overlay, Pose pose, int accessoryID, int accessoryType, Paint stickmanPaint) {
         super(overlay);
