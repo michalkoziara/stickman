@@ -11,7 +11,7 @@ import com.litkaps.stickman.GraphicOverlay;
 import java.util.List;
 
 /**
- * Draw a stickman
+ * Draw a stickman.
  */
 public class ComicStickmanGraphic extends StickmanGraphic{
 
@@ -38,16 +38,8 @@ public class ComicStickmanGraphic extends StickmanGraphic{
         PoseLandmark rightKnee = pose.getPoseLandmark(PoseLandmark.RIGHT_KNEE);
         PoseLandmark leftAnkle = pose.getPoseLandmark(PoseLandmark.LEFT_ANKLE);
         PoseLandmark rightAnkle = pose.getPoseLandmark(PoseLandmark.RIGHT_ANKLE);
-
-//        PoseLandmark nose = pose.getPoseLandmark(PoseLandmark.NOSE);
-//        PoseLandmark leftEyeInner = pose.getPoseLandmark(PoseLandmark.LEFT_EYE_INNER);
         PoseLandmark leftEye = pose.getPoseLandmark(PoseLandmark.LEFT_EYE);
-//        PoseLandmark leftEyeOuter = pose.getPoseLandmark(PoseLandmark.LEFT_EYE_OUTER);
-//        PoseLandmark rightEyeInner = pose.getPoseLandmark(PoseLandmark.RIGHT_EYE_INNER);
         PoseLandmark rightEye = pose.getPoseLandmark(PoseLandmark.RIGHT_EYE);
-//        PoseLandmark rightEyeOuter = pose.getPoseLandmark(PoseLandmark.RIGHT_EYE_OUTER);
-//        PoseLandmark leftEar = pose.getPoseLandmark(PoseLandmark.LEFT_EAR);
-//        PoseLandmark rightEar = pose.getPoseLandmark(PoseLandmark.RIGHT_EAR);
         PoseLandmark leftMouth = pose.getPoseLandmark(PoseLandmark.LEFT_MOUTH);
         PoseLandmark rightMouth = pose.getPoseLandmark(PoseLandmark.RIGHT_MOUTH);
 
@@ -57,7 +49,7 @@ public class ComicStickmanGraphic extends StickmanGraphic{
         PointF pointBetweenMouthCorners = getPointBetween(leftMouth.getPosition(), rightMouth.getPosition());
         PointF headCenterPoint = getPointBetween(pointBetweenEyes, pointBetweenMouthCorners);
 
-        // neck
+        // Neck
         drawLine(canvas, neckPoint, headCenterPoint, stickmanPaint);
 
         // Left body
@@ -74,9 +66,9 @@ public class ComicStickmanGraphic extends StickmanGraphic{
         drawLine(canvas, rightHip.getPosition(), rightKnee.getPosition(), stickmanPaint);
         drawLine(canvas, rightKnee.getPosition(), rightAnkle.getPosition(), stickmanPaint);
 
-        // shoulder line
+        // Shoulder line
         drawLine(canvas, leftShoulder.getPosition(), rightShoulder.getPosition(), stickmanPaint);
-        // waist line
+        // Waist line
         drawLine(canvas, leftHip.getPosition(), rightHip.getPosition(), stickmanPaint);
 
         drawHead(canvas);

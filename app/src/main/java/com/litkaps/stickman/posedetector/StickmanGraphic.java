@@ -13,7 +13,7 @@ import com.google.mlkit.vision.pose.PoseLandmark;
 import com.litkaps.stickman.GraphicOverlay;
 
 /**
- * generic class for stickman drawing
+ * Base class for stickman drawing.
  */
 abstract class StickmanGraphic extends GraphicOverlay.Graphic {
     protected int accessoryID;
@@ -122,8 +122,8 @@ abstract class StickmanGraphic extends GraphicOverlay.Graphic {
         PoseLandmark leftEye = pose.getPoseLandmark(PoseLandmark.LEFT_EYE);
         PoseLandmark rightEye = pose.getPoseLandmark(PoseLandmark.RIGHT_EYE);
 
-        // pupillary distance
-        float pd = translateX(leftEye.getPosition().x) - translateX(rightEye.getPosition().x);
+        // Calculate a distance between pupillaries.
+        float pupilDistance = translateX(leftEye.getPosition().x) - translateX(rightEye.getPosition().x);
 
         Matrix matrix = new Matrix();
         float deltaX = leftEye.getPosition().x - rightEye.getPosition().x;
@@ -133,21 +133,21 @@ abstract class StickmanGraphic extends GraphicOverlay.Graphic {
         thetaRadians = isImageFlipped() ? thetaRadians - 3.142f : thetaRadians;
         matrix.setRotate((float) Math.toDegrees(thetaRadians));
 
-        // draw left eye
+        // Draw left eye
         canvas.drawRect(
-                translateX(rightEye.getPosition().x) - pd / 3f,
-                translateY(rightEye.getPosition().y) - pd / 2.2f,
-                translateX(rightEye.getPosition().x) + pd / 4.2f,
-                translateY(rightEye.getPosition().y) + pd / 2f,
+                translateX(rightEye.getPosition().x) - pupilDistance / 3f,
+                translateY(rightEye.getPosition().y) - pupilDistance / 2.2f,
+                translateX(rightEye.getPosition().x) + pupilDistance / 4.2f,
+                translateY(rightEye.getPosition().y) + pupilDistance / 2f,
                 paint
         );
 
-        // draw right eye
+        // Draw right eye
         canvas.drawRect(
-                translateX(leftEye.getPosition().x) - pd / 3f,
-                translateY(leftEye.getPosition().y) - pd / 2.2f,
-                translateX(leftEye.getPosition().x) + pd / 4.2f,
-                translateY(leftEye.getPosition().y) + pd / 2f,
+                translateX(leftEye.getPosition().x) - pupilDistance / 3f,
+                translateY(leftEye.getPosition().y) - pupilDistance / 2.2f,
+                translateX(leftEye.getPosition().x) + pupilDistance / 4.2f,
+                translateY(leftEye.getPosition().y) + pupilDistance / 2f,
                 paint
         );
 

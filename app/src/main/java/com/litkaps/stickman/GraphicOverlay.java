@@ -177,32 +177,6 @@ public class GraphicOverlay extends View {
       canvas.drawPath(path, paint);
     }
 
-    public void drawEyes(
-            Canvas canvas,
-            PoseLandmark eyeInner,
-            PoseLandmark eyeOuter,
-            PoseLandmark eye,
-            int lowerEyelidRadius,
-            int upperEyelidRadius,
-            Paint paint) {
-      float leftEyeInnerX = eyeInner.getPosition().x;
-      float leftEyeInnerY = eyeInner.getPosition().y;
-      float leftEyeOuterX = eyeOuter.getPosition().x;
-      float leftEyeOuterY = eyeOuter.getPosition().y;
-
-      drawPoint(canvas, eye.getPosition(), paint);
-      drawCurvedLine(canvas,
-              leftEyeInnerX, leftEyeInnerY,
-              leftEyeOuterX, leftEyeOuterY,
-              upperEyelidRadius,
-              paint);
-      drawCurvedLine(canvas,
-              leftEyeInnerX, leftEyeInnerY,
-              leftEyeOuterX, leftEyeOuterY,
-              lowerEyelidRadius,
-              paint);
-    }
-
     public PointF getPointBetween(PointF a, PointF b) {
       return new PointF((a.x + b.x) / 2, (a.y + b.y) / 2);
     }
