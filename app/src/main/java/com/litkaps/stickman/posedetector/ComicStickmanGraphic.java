@@ -13,7 +13,7 @@ import java.util.List;
 /**
  * Draw a stickman.
  */
-public class ComicStickmanGraphic extends StickmanGraphic{
+public class ComicStickmanGraphic extends StickmanGraphic {
 
     ComicStickmanGraphic(GraphicOverlay overlay, Pose pose, int accessoryID, int accessoryType, Paint stickmanPaint) {
         super(overlay, pose, accessoryID, accessoryType, stickmanPaint);
@@ -26,50 +26,50 @@ public class ComicStickmanGraphic extends StickmanGraphic{
             return;
         }
 
-        PoseLandmark leftShoulder = pose.getPoseLandmark(PoseLandmark.LEFT_SHOULDER);
-        PoseLandmark rightShoulder = pose.getPoseLandmark(PoseLandmark.RIGHT_SHOULDER);
-        PoseLandmark leftElbow = pose.getPoseLandmark(PoseLandmark.LEFT_ELBOW);
-        PoseLandmark rightElbow = pose.getPoseLandmark(PoseLandmark.RIGHT_ELBOW);
-        PoseLandmark leftWrist = pose.getPoseLandmark(PoseLandmark.LEFT_WRIST);
-        PoseLandmark rightWrist = pose.getPoseLandmark(PoseLandmark.RIGHT_WRIST);
-        PoseLandmark leftHip = pose.getPoseLandmark(PoseLandmark.LEFT_HIP);
-        PoseLandmark rightHip = pose.getPoseLandmark(PoseLandmark.RIGHT_HIP);
-        PoseLandmark leftKnee = pose.getPoseLandmark(PoseLandmark.LEFT_KNEE);
-        PoseLandmark rightKnee = pose.getPoseLandmark(PoseLandmark.RIGHT_KNEE);
-        PoseLandmark leftAnkle = pose.getPoseLandmark(PoseLandmark.LEFT_ANKLE);
-        PoseLandmark rightAnkle = pose.getPoseLandmark(PoseLandmark.RIGHT_ANKLE);
-        PoseLandmark leftEye = pose.getPoseLandmark(PoseLandmark.LEFT_EYE);
-        PoseLandmark rightEye = pose.getPoseLandmark(PoseLandmark.RIGHT_EYE);
-        PoseLandmark leftMouth = pose.getPoseLandmark(PoseLandmark.LEFT_MOUTH);
-        PoseLandmark rightMouth = pose.getPoseLandmark(PoseLandmark.RIGHT_MOUTH);
+        PointF leftShoulder = getPosition(PoseLandmark.LEFT_SHOULDER);
+        PointF rightShoulder = getPosition(PoseLandmark.RIGHT_SHOULDER);
+        PointF leftElbow = getPosition(PoseLandmark.LEFT_ELBOW);
+        PointF rightElbow = getPosition(PoseLandmark.RIGHT_ELBOW);
+        PointF leftWrist = getPosition(PoseLandmark.LEFT_WRIST);
+        PointF rightWrist = getPosition(PoseLandmark.RIGHT_WRIST);
+        PointF leftHip = getPosition(PoseLandmark.LEFT_HIP);
+        PointF rightHip = getPosition(PoseLandmark.RIGHT_HIP);
+        PointF leftKnee = getPosition(PoseLandmark.LEFT_KNEE);
+        PointF rightKnee = getPosition(PoseLandmark.RIGHT_KNEE);
+        PointF leftAnkle = getPosition(PoseLandmark.LEFT_ANKLE);
+        PointF rightAnkle = getPosition(PoseLandmark.RIGHT_ANKLE);
+        PointF leftEye = getPosition(PoseLandmark.LEFT_EYE);
+        PointF rightEye = getPosition(PoseLandmark.RIGHT_EYE);
+        PointF leftMouth = getPosition(PoseLandmark.LEFT_MOUTH);
+        PointF rightMouth = getPosition(PoseLandmark.RIGHT_MOUTH);
 
-        PointF neckPoint = getPointBetween(rightShoulder.getPosition(), leftShoulder.getPosition());
+        PointF neckPoint = getPointBetween(rightShoulder, leftShoulder);
 
-        PointF pointBetweenEyes = getPointBetween(rightEye.getPosition(), leftEye.getPosition());
-        PointF pointBetweenMouthCorners = getPointBetween(leftMouth.getPosition(), rightMouth.getPosition());
+        PointF pointBetweenEyes = getPointBetween(rightEye, leftEye);
+        PointF pointBetweenMouthCorners = getPointBetween(leftMouth, rightMouth);
         PointF headCenterPoint = getPointBetween(pointBetweenEyes, pointBetweenMouthCorners);
 
         // Neck
         drawLine(canvas, neckPoint, headCenterPoint, stickmanPaint);
 
         // Left body
-        drawLine(canvas, leftShoulder.getPosition(), leftElbow.getPosition(), stickmanPaint);
-        drawLine(canvas, leftElbow.getPosition(), leftWrist.getPosition(), stickmanPaint);
-        drawLine(canvas, leftShoulder.getPosition(), leftHip.getPosition(), stickmanPaint);
-        drawLine(canvas, leftHip.getPosition(), leftKnee.getPosition(), stickmanPaint);
-        drawLine(canvas, leftKnee.getPosition(), leftAnkle.getPosition(), stickmanPaint);
+        drawLine(canvas, leftShoulder, leftElbow, stickmanPaint);
+        drawLine(canvas, leftElbow, leftWrist, stickmanPaint);
+        drawLine(canvas, leftShoulder, leftHip, stickmanPaint);
+        drawLine(canvas, leftHip, leftKnee, stickmanPaint);
+        drawLine(canvas, leftKnee, leftAnkle, stickmanPaint);
 
         // Right body
-        drawLine(canvas, rightShoulder.getPosition(), rightElbow.getPosition(), stickmanPaint);
-        drawLine(canvas, rightElbow.getPosition(), rightWrist.getPosition(), stickmanPaint);
-        drawLine(canvas, rightShoulder.getPosition(), rightHip.getPosition(), stickmanPaint);
-        drawLine(canvas, rightHip.getPosition(), rightKnee.getPosition(), stickmanPaint);
-        drawLine(canvas, rightKnee.getPosition(), rightAnkle.getPosition(), stickmanPaint);
+        drawLine(canvas, rightShoulder, rightElbow, stickmanPaint);
+        drawLine(canvas, rightElbow, rightWrist, stickmanPaint);
+        drawLine(canvas, rightShoulder, rightHip, stickmanPaint);
+        drawLine(canvas, rightHip, rightKnee, stickmanPaint);
+        drawLine(canvas, rightKnee, rightAnkle, stickmanPaint);
 
         // Shoulder line
-        drawLine(canvas, leftShoulder.getPosition(), rightShoulder.getPosition(), stickmanPaint);
+        drawLine(canvas, leftShoulder, rightShoulder, stickmanPaint);
         // Waist line
-        drawLine(canvas, leftHip.getPosition(), rightHip.getPosition(), stickmanPaint);
+        drawLine(canvas, leftHip, rightHip, stickmanPaint);
 
         drawHead(canvas);
         drawSmile(canvas);

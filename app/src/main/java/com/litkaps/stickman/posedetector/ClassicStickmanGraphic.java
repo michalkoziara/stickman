@@ -23,41 +23,41 @@ public class ClassicStickmanGraphic extends StickmanGraphic {
             return;
         }
 
-        PoseLandmark leftShoulder = pose.getPoseLandmark(PoseLandmark.LEFT_SHOULDER);
-        PoseLandmark rightShoulder = pose.getPoseLandmark(PoseLandmark.RIGHT_SHOULDER);
-        PoseLandmark leftElbow = pose.getPoseLandmark(PoseLandmark.LEFT_ELBOW);
-        PoseLandmark rightElbow = pose.getPoseLandmark(PoseLandmark.RIGHT_ELBOW);
-        PoseLandmark leftWrist = pose.getPoseLandmark(PoseLandmark.LEFT_WRIST);
-        PoseLandmark rightWrist = pose.getPoseLandmark(PoseLandmark.RIGHT_WRIST);
-        PoseLandmark leftHip = pose.getPoseLandmark(PoseLandmark.LEFT_HIP);
-        PoseLandmark rightHip = pose.getPoseLandmark(PoseLandmark.RIGHT_HIP);
-        PoseLandmark leftKnee = pose.getPoseLandmark(PoseLandmark.LEFT_KNEE);
-        PoseLandmark rightKnee = pose.getPoseLandmark(PoseLandmark.RIGHT_KNEE);
-        PoseLandmark leftAnkle = pose.getPoseLandmark(PoseLandmark.LEFT_ANKLE);
-        PoseLandmark rightAnkle = pose.getPoseLandmark(PoseLandmark.RIGHT_ANKLE);
-        PoseLandmark leftEye = pose.getPoseLandmark(PoseLandmark.LEFT_EYE);
-        PoseLandmark rightEye = pose.getPoseLandmark(PoseLandmark.RIGHT_EYE);
-        PoseLandmark leftMouth = pose.getPoseLandmark(PoseLandmark.LEFT_MOUTH);
-        PoseLandmark rightMouth = pose.getPoseLandmark(PoseLandmark.RIGHT_MOUTH);
+        PointF leftShoulder = getPosition(PoseLandmark.LEFT_SHOULDER);
+        PointF rightShoulder = getPosition(PoseLandmark.RIGHT_SHOULDER);
+        PointF leftElbow = getPosition(PoseLandmark.LEFT_ELBOW);
+        PointF rightElbow = getPosition(PoseLandmark.RIGHT_ELBOW);
+        PointF leftWrist = getPosition(PoseLandmark.LEFT_WRIST);
+        PointF rightWrist = getPosition(PoseLandmark.RIGHT_WRIST);
+        PointF leftHip = getPosition(PoseLandmark.LEFT_HIP);
+        PointF rightHip = getPosition(PoseLandmark.RIGHT_HIP);
+        PointF leftKnee = getPosition(PoseLandmark.LEFT_KNEE);
+        PointF rightKnee = getPosition(PoseLandmark.RIGHT_KNEE);
+        PointF leftAnkle = getPosition(PoseLandmark.LEFT_ANKLE);
+        PointF rightAnkle = getPosition(PoseLandmark.RIGHT_ANKLE);
+        PointF leftEye = getPosition(PoseLandmark.LEFT_EYE);
+        PointF rightEye = getPosition(PoseLandmark.RIGHT_EYE);
+        PointF leftMouth = getPosition(PoseLandmark.LEFT_MOUTH);
+        PointF rightMouth = getPosition(PoseLandmark.RIGHT_MOUTH);
 
-        drawLine(canvas, leftAnkle.getPosition(), leftKnee.getPosition(), stickmanPaint);
-        drawLine(canvas, rightAnkle.getPosition(), rightKnee.getPosition(), stickmanPaint);
+        drawLine(canvas, leftAnkle, leftKnee, stickmanPaint);
+        drawLine(canvas, rightAnkle, rightKnee, stickmanPaint);
 
-        PointF waistPoint = getPointBetween(rightHip.getPosition(), leftHip.getPosition());
-        drawLine(canvas, leftKnee.getPosition(), waistPoint, stickmanPaint);
-        drawLine(canvas, rightKnee.getPosition(), waistPoint, stickmanPaint);
+        PointF waistPoint = getPointBetween(rightHip, leftHip);
+        drawLine(canvas, leftKnee, waistPoint, stickmanPaint);
+        drawLine(canvas, rightKnee, waistPoint, stickmanPaint);
 
-        PointF neckPoint = getPointBetween(rightShoulder.getPosition(), leftShoulder.getPosition());
+        PointF neckPoint = getPointBetween(rightShoulder, leftShoulder);
         drawLine(canvas, waistPoint, neckPoint, stickmanPaint);
 
-        drawLine(canvas, neckPoint, leftElbow.getPosition(), stickmanPaint);
-        drawLine(canvas, neckPoint, rightElbow.getPosition(), stickmanPaint);
+        drawLine(canvas, neckPoint, leftElbow, stickmanPaint);
+        drawLine(canvas, neckPoint, rightElbow, stickmanPaint);
 
-        drawLine(canvas, leftElbow.getPosition(), leftWrist.getPosition(), stickmanPaint);
-        drawLine(canvas, rightElbow.getPosition(), rightWrist.getPosition(), stickmanPaint);
+        drawLine(canvas, leftElbow, leftWrist, stickmanPaint);
+        drawLine(canvas, rightElbow, rightWrist, stickmanPaint);
 
-        PointF pointBetweenEyes = getPointBetween(rightEye.getPosition(), leftEye.getPosition());
-        PointF pointBetweenMouthCorners = getPointBetween(leftMouth.getPosition(), rightMouth.getPosition());
+        PointF pointBetweenEyes = getPointBetween(rightEye, leftEye);
+        PointF pointBetweenMouthCorners = getPointBetween(leftMouth, rightMouth);
         PointF headCenterPoint = getPointBetween(pointBetweenEyes, pointBetweenMouthCorners);
 
         // Adds the neck.

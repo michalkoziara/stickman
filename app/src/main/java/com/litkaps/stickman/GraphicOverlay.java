@@ -185,7 +185,6 @@ public class GraphicOverlay extends View {
       return (float) Math.sqrt((a.x - b.x) * (a.x - b.x) + (a.y - b.y) * (a.y - b.y));
     }
 
-
     /**
      * Calculates rotation between point (x1, y1) and point (x2, y2), then translates it
      * to point (x3, y3) and applies additional rotation.
