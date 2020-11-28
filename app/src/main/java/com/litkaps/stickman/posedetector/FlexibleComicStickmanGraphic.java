@@ -71,7 +71,6 @@ public class FlexibleComicStickmanGraphic extends StickmanGraphic {
         path.quadTo(leftKnee.x, leftKnee.y, leftHip.x, leftHip.y);
         path.moveTo(rightAnkle.x, rightAnkle.y);
         path.quadTo(rightKnee.x, rightKnee.y, rightHip.x, rightHip.y);
-        canvas.drawPath(path, stickmanPaint);
 
         // arms
         path.moveTo(leftWrist.x, leftWrist.y);
@@ -79,7 +78,7 @@ public class FlexibleComicStickmanGraphic extends StickmanGraphic {
         path.moveTo(rightWrist.x, rightWrist.y);
         path.quadTo(rightElbow.x, rightElbow.y, rightShoulder.x, rightShoulder.y);
 
-        canvas.drawPath(path, stickmanPaint);
+        drawPath(canvas, path, stickmanPaint);
 
         stickmanPaint.setStyle(Paint.Style.FILL);
 

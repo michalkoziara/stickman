@@ -153,7 +153,7 @@ abstract class StickmanGraphic extends GraphicOverlay.Graphic {
         }
 
         // Calculate a distance between pupillaries.
-        float pupilDistance = translateX(leftEyePoint.x) - translateX(rightEyePoint.x);
+        float pupilDistance = leftEyePoint.x - rightEyePoint.x;
 
         Matrix matrix = new Matrix();
         float deltaX = leftEyePoint.x - rightEyePoint.x;
@@ -165,19 +165,19 @@ abstract class StickmanGraphic extends GraphicOverlay.Graphic {
 
         // Draw left eye
         canvas.drawRect(
-                translateX(rightEyePoint.x) - pupilDistance / 3f,
-                translateY(rightEyePoint.y) - pupilDistance / 2.2f,
-                translateX(rightEyePoint.x) + pupilDistance / 4.2f,
-                translateY(rightEyePoint.y) + pupilDistance / 2f,
+                rightEyePoint.x - pupilDistance / 3f,
+                rightEyePoint.y - pupilDistance / 2.2f,
+                rightEyePoint.x + pupilDistance / 4.2f,
+                rightEyePoint.y + pupilDistance / 2f,
                 paint
         );
 
         // Draw right eye
         canvas.drawRect(
-                translateX(leftEyePoint.x) - pupilDistance / 3f,
-                translateY(leftEyePoint.y) - pupilDistance / 2.2f,
-                translateX(leftEyePoint.x) + pupilDistance / 4.2f,
-                translateY(leftEyePoint.y) + pupilDistance / 2f,
+                leftEyePoint.x - pupilDistance / 3f,
+                leftEyePoint.y - pupilDistance / 2.2f,
+                leftEyePoint.x + pupilDistance / 4.2f,
+                leftEyePoint.y + pupilDistance / 2f,
                 paint
         );
     }

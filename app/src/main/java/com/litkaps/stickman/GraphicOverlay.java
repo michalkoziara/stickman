@@ -142,10 +142,14 @@ public class GraphicOverlay extends View {
       if (fill) {
         paint.setStyle(Paint.Style.FILL);
       }
-      canvas.drawCircle(translateX(point.x), translateY(point.y), radius, paint);
+      canvas.drawCircle(point.x, point.y, radius, paint);
     }
 
     public void drawPoint(Canvas canvas, @Nullable PointF point, Paint paint) {
+      if (point == null) {
+        return;
+      }
+
       drawCircle(canvas, point, DOT_RADIUS, paint, true);
     }
 
@@ -153,8 +157,14 @@ public class GraphicOverlay extends View {
       if (start == null || end == null) {
         return;
       }
-      canvas.drawLine(
-              translateX(start.x), translateY(start.y), translateX(end.x), translateY(end.y), paint);
+      canvas.drawLine(start.x, start.y, end.x, end.y, paint);
+    }
+
+    public void drawPath(Canvas canvas, @Nullable Path path, Paint paint) {
+      if (path == null) {
+        return;
+      }
+      canvas.drawPath(path, paint);
     }
 
     public void drawCurvedLine(Canvas canvas, float x1, float y1, float x2, float y2, float curveRadius, Paint paint) {
@@ -171,8 +181,8 @@ public class GraphicOverlay extends View {
       float pointX = (float) (midX + curveRadius * Math.cos(angleRadians));
       float pointY = (float) (midY + curveRadius * Math.sin(angleRadians));
 
-      path.moveTo(translateX(x1), translateY(y1));
-      path.cubicTo(translateX(x1), translateY(y1), translateX(pointX), translateY(pointY), translateX(x2), translateY(y2));
+      path.moveTo(x1, y1);
+      path.cubicTo(x1, y1, pointX, pointY, x2, y2);
 
       canvas.drawPath(path, paint);
     }
