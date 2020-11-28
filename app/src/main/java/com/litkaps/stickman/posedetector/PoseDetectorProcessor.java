@@ -14,34 +14,31 @@ import com.google.mlkit.vision.pose.Pose;
 import com.google.mlkit.vision.pose.PoseDetection;
 import com.google.mlkit.vision.pose.PoseDetector;
 import com.google.mlkit.vision.pose.PoseDetectorOptionsBase;
+import com.litkaps.stickman.BitmapToVideoEncoder;
 import com.litkaps.stickman.GraphicOverlay;
 import com.litkaps.stickman.ImageGraphic;
 import com.litkaps.stickman.VideoEncoder;
 import com.litkaps.stickman.VisionProcessorBase;
 
+import java.io.File;
+
 /**
  * A processor to run pose detector.
  */
 public class PoseDetectorProcessor extends VisionProcessorBase<Pose> {
-    private final Paint stickmanPaint = new Paint(Color.BLACK);
-    private int figureID;
-    private int accessoryID;
-    private int accessoryType = -1;
+    protected interface PoseDetectCallback {
+        void onDetectionComplete(@NonNull Pose pose, @NonNull GraphicOverlay graphicOverlay, Bitmap cameraImage);
+    }
 
     private static final String TAG = "PoseDetectorProcessor";
 
     private final PoseDetector detector;
-
-    private Bitmap backgroundImage;
-    private Bitmap scaledBackgroundImage;
-    private boolean isUpdated;
-    private VideoEncoder encoder;
+    private PoseDetectCallback poseDetectCallback;
 
     public PoseDetectorProcessor(
             Context context, PoseDetectorOptionsBase options) {
         super(context);
         detector = PoseDetection.getClient(options);
-        stickmanPaint.setStrokeWidth(16);
     }
 
     @Override
@@ -57,34 +54,7 @@ public class PoseDetectorProcessor extends VisionProcessorBase<Pose> {
 
     @Override
     protected void onSuccess(@NonNull Pose pose, @NonNull GraphicOverlay graphicOverlay, Bitmap cameraImage) {
-        if (backgroundImage != null) {
-            if (isUpdated) {
-                scaledBackgroundImage = Bitmap.createScaledBitmap(
-                        backgroundImage,
-                        cameraImage.getWidth(),
-                        cameraImage.getHeight(),
-                        true);
-
-                isUpdated = false;
-            }
-
-            graphicOverlay.add(new ImageGraphic(graphicOverlay, scaledBackgroundImage));
-        } else {
-            scaledBackgroundImage = null;
-            graphicOverlay.add(new ImageGraphic(graphicOverlay, cameraImage));
-        }
-
-        if (figureID == 0) {
-            graphicOverlay.add(new ClassicStickmanGraphic(graphicOverlay, pose, accessoryID, accessoryType, stickmanPaint));
-        } else if (figureID == 1) {
-            graphicOverlay.add(new ComicStickmanGraphic(graphicOverlay, pose, accessoryID, accessoryType, stickmanPaint));
-        } else if (figureID == 2) {
-            graphicOverlay.add(new FlexibleComicStickmanGraphic(graphicOverlay, pose, accessoryID, accessoryType, stickmanPaint));
-        }
-
-        if (encoder != null) {
-            encoder.queueFrame(graphicOverlay.getGraphicBitmap());
-        }
+        poseDetectCallback.onDetectionComplete(pose, graphicOverlay, cameraImage);
     }
 
     @Override
@@ -92,34 +62,7 @@ public class PoseDetectorProcessor extends VisionProcessorBase<Pose> {
         Log.e(TAG, "Pose detection failed!", e);
     }
 
-    public void setBackgroundImage(Bitmap bitmap) {
-        backgroundImage = bitmap;
-        isUpdated = true;
-    }
-
-    public void setFigureID(int figureID) {
-        this.figureID = figureID;
-    }
-
-    public void setFigureColor(int color) {
-        stickmanPaint.setColor(color);
-    }
-
-    public void setFigureLineWidth(int width) {
-        stickmanPaint.setStrokeWidth(width);
-    }
-
-    public void setFigureAccessory(int accessoryID, int accessoryType) {
-        this.accessoryID = accessoryID;
-        this.accessoryType = accessoryType;
-    }
-
-    public void setVideoEncoder(VideoEncoder encoder) {
-        this.encoder = encoder;
-    }
-
-    public void clearVideoEncoder() {
-        this.encoder.stopEncoding();
-        this.encoder = null;
+    protected void computePoseOnSuccess(PoseDetectCallback poseDetectCallback) {
+        this.poseDetectCallback = poseDetectCallback;
     }
 }

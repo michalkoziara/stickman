@@ -50,6 +50,7 @@ import com.google.android.material.snackbar.Snackbar;
 import com.google.mlkit.common.MlKitException;
 import com.google.mlkit.vision.pose.PoseDetectorOptionsBase;
 import com.litkaps.stickman.posedetector.PoseDetectorProcessor;
+import com.litkaps.stickman.posedetector.StickmanImageDrawer;
 import com.litkaps.stickman.preference.PreferenceUtils;
 import com.litkaps.stickman.preference.SettingsActivity;
 import com.litkaps.stickman.preference.SettingsActivity.LaunchSource;
@@ -94,6 +95,8 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
     private ImageAnalysis analysisUseCase;
     @Nullable
     private VisionImageProcessor imageProcessor;
+    @Nullable
+    private StickmanImageDrawer stickmanImageDrawer;
     private boolean needUpdateGraphicOverlayImageSourceInfo;
 
     private int lensFacing = CameraSelector.LENS_FACING_BACK;
@@ -229,7 +232,7 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
                 stopwatchTimer.cancel();
                 recordTime.setVisibility(View.GONE);
 
-                ((PoseDetectorProcessor) imageProcessor).clearVideoEncoder();
+                stickmanImageDrawer.clearVideoEncoder();
             } else {
                 isRecording = true;
                 view.setBackground(
@@ -256,7 +259,7 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
                                     .show();
                         });
 
-                ((PoseDetectorProcessor) imageProcessor).setVideoEncoder(videoEncoder);
+                stickmanImageDrawer.setVideoEncoder(videoEncoder);
             }
         }
     };
@@ -290,7 +293,6 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
         return simpleDateFormat.format(date);
     }
 
-
     // toggle between recording a video or taking a photo
     CompoundButton.OnCheckedChangeListener changeRecordModeListener = new CompoundButton.OnCheckedChangeListener() {
         public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
@@ -304,38 +306,6 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
             }
         }
     };
-
-    static class OptionModel {
-        String name;
-        int imageResourceID;
-        String accessoryType;
-        int accessoryID;
-        int tint = -1;
-
-        OptionModel(String name, int iconResourceID) {
-            this.name = name;
-            this.imageResourceID = iconResourceID;
-        }
-
-        // for figure accessory
-        OptionModel(String name, int iconResourceID, int accessoryID, String accessoryType) {
-            this.name = name;
-            this.imageResourceID = iconResourceID;
-            this.accessoryType = accessoryType;
-            this.accessoryID = accessoryID;
-        }
-
-        OptionModel(String name, int iconResourceID, int tint) {
-            this.name = name;
-            this.imageResourceID = iconResourceID;
-            this.tint = tint;
-        }
-
-        OptionModel(int tint) {
-            imageResourceID = R.drawable.ic_baseline_paint_24;
-            this.tint = tint;
-        }
-    }
 
     class OptionsAdapter extends RecyclerView.Adapter<OptionsAdapter.OptionViewHolder> {
         ArrayList<OptionModel> options;
@@ -359,7 +329,7 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
 
         @Override
         public void onBindViewHolder(@NonNull OptionViewHolder holder, int position) {
-            MainActivity.OptionModel option = options.get(position);
+            OptionModel option = options.get(position);
             holder.optionButton.setImageResource(option.imageResourceID);
 
             // set tint for the color icons
@@ -474,7 +444,7 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
                 if (i < 1)
                     return;
 
-                ((PoseDetectorProcessor) imageProcessor).setFigureLineWidth(i);
+                stickmanImageDrawer.setFigureLineWidth(i);
             }
 
             @Override
@@ -635,6 +605,9 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
                     PreferenceUtils.getPoseDetectorOptionsForLivePreview(this);
             imageProcessor =
                     new PoseDetectorProcessor(this, poseDetectorOptions);
+            stickmanImageDrawer = new StickmanImageDrawer(
+                    (PoseDetectorProcessor) imageProcessor
+            );
         } catch (Exception e) {
             Snackbar.make(getWindow().getDecorView().getRootView(),
                     "Can not create image processor: " + e.getLocalizedMessage(),
@@ -759,8 +732,9 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
     }
 
     private void setBackgroundImage(Bitmap backgroundImage) {
-        if (imageProcessor != null)
-            ((PoseDetectorProcessor) imageProcessor).setBackgroundImage(backgroundImage);
+        if (stickmanImageDrawer != null) {
+            stickmanImageDrawer.setBackgroundImage(backgroundImage);
+        }
     }
 
     private void startChooseImageIntentForResult() {
@@ -771,42 +745,62 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
     }
 
     private void setFigure(String name) {
-        if (name.equals("classic_stickman")) {
-            ((PoseDetectorProcessor) imageProcessor).setFigureID(0);
-        } else if (name.equals("comic_stickman")) {
-            ((PoseDetectorProcessor) imageProcessor).setFigureID(1);
-        } else if (name.equals("flexible_comic_stickman")) {
-            ((PoseDetectorProcessor) imageProcessor).setFigureID(2);
+        if (stickmanImageDrawer != null) {
+            switch (name) {
+                case "classic_stickman": {
+                    stickmanImageDrawer.setFigureID(0);
+                    break;
+                }
+                case "comic_stickman": {
+                    stickmanImageDrawer.setFigureID(1);
+                    break;
+                }
+                case "flexible_comic_stickman": {
+                    stickmanImageDrawer.setFigureID(2);
+                    break;
+                }
+            }
         }
     }
 
     private void setFigureColor(int colorValue) {
-        ((PoseDetectorProcessor) imageProcessor).setFigureColor(colorValue);
+        if (stickmanImageDrawer != null) {
+            stickmanImageDrawer.setFigureColor(colorValue);
+        }
     }
 
     private void setFigureAccessory(int accessoryID, String accessoryType) {
         int type;
         switch (accessoryType) {
-            case "handheld":
+            case "hat": {
+                type = 0;
+                break;
+            }
+            case "handheld": {
                 type = 1;
                 break;
-            case "helmet":
+            }
+            case "helmet": {
                 type = 2;
                 break;
-            case "glasses":
+            }
+            case "glasses": {
                 type = 3;
                 break;
-            case "hat":
-            default:
+            }
+            default: {
                 type = 0;
+            }
         }
 
-        ((PoseDetectorProcessor) imageProcessor).setFigureAccessory(accessoryID, type);
+        if (stickmanImageDrawer != null) {
+            stickmanImageDrawer.setFigureAccessory(accessoryID, type);
+        }
     }
 
     private void removeAccessory() {
-        ((PoseDetectorProcessor) imageProcessor).setFigureAccessory(0, -1);
+        if (stickmanImageDrawer != null) {
+            stickmanImageDrawer.setFigureAccessory(0, -1);
+        }
     }
-
-
 }
