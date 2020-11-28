@@ -13,7 +13,6 @@ import android.view.View;
 import androidx.annotation.Nullable;
 
 import com.google.common.base.Preconditions;
-import com.google.mlkit.vision.pose.PoseLandmark;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -322,7 +321,7 @@ public class GraphicOverlay extends View {
   }
 
   public Bitmap getGraphicBitmap() {
-    Bitmap bitmap = Bitmap.createBitmap(getWidth(), getHeight(), Bitmap.Config.ARGB_8888);
+    Bitmap bitmap = Bitmap.createBitmap(getImageWidth(), getImageHeight(), Bitmap.Config.ARGB_8888);
     Canvas canvas = new Canvas();
     canvas.setBitmap(bitmap);
 

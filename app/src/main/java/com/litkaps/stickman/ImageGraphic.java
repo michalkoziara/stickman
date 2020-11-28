@@ -6,11 +6,11 @@ import android.graphics.Canvas;
 import com.litkaps.stickman.GraphicOverlay.Graphic;
 
 /** Draw camera image to background. */
-public class CameraImageGraphic extends Graphic {
+public class ImageGraphic extends Graphic {
 
   private final Bitmap bitmap;
 
-  public CameraImageGraphic(GraphicOverlay overlay, Bitmap bitmap) {
+  public ImageGraphic(GraphicOverlay overlay, Bitmap bitmap) {
     super(overlay);
     this.bitmap = bitmap;
   }

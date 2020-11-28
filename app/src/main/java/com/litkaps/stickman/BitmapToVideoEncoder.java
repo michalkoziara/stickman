@@ -9,6 +9,7 @@ import android.media.MediaMuxer;
 import android.util.Log;
 
 import java.io.File;
+import java.io.FileDescriptor;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.Queue;
@@ -35,7 +36,7 @@ public class BitmapToVideoEncoder {
     private static int mWidth;
     private static int mHeight;
     private static final int BIT_RATE = 16000000;
-    private static final int FRAME_RATE = 30; // Frames per second
+    private static final int FRAME_RATE = 5; // Frames per second
 
     private static final int I_FRAME_INTERVAL = 1;
 
@@ -60,18 +61,9 @@ public class BitmapToVideoEncoder {
         return mEncodeQueue.size();
     }
 
-    public void startEncoding(int width, int height, File outputFile) {
+    public void startEncoding(int width, int height, FileDescriptor fileDescriptor) {
         mWidth = width;
         mHeight = height;
-        mOutputFile = outputFile;
-
-        String outputFileString;
-        try {
-            outputFileString = outputFile.getCanonicalPath();
-        } catch (IOException e) {
-            Log.e(TAG, "Unable to get path for " + outputFile);
-            return;
-        }
 
         MediaCodecInfo codecInfo = selectCodec(MIME_TYPE);
         if (codecInfo == null) {
@@ -79,12 +71,6 @@ public class BitmapToVideoEncoder {
             return;
         }
         Log.d(TAG, "found codec: " + codecInfo.getName());
-        int colorFormat;
-        try {
-            colorFormat = selectColorFormat(codecInfo, MIME_TYPE);
-        } catch (Exception e) {
-            colorFormat = MediaCodecInfo.CodecCapabilities.COLOR_FormatYUV420SemiPlanar;
-        }
 
         try {
             mediaCodec = MediaCodec.createByCodecName(codecInfo.getName());
@@ -96,12 +82,12 @@ public class BitmapToVideoEncoder {
         MediaFormat mediaFormat = MediaFormat.createVideoFormat(MIME_TYPE, mWidth, mHeight);
         mediaFormat.setInteger(MediaFormat.KEY_BIT_RATE, BIT_RATE);
         mediaFormat.setInteger(MediaFormat.KEY_FRAME_RATE, FRAME_RATE);
-        mediaFormat.setInteger(MediaFormat.KEY_COLOR_FORMAT, colorFormat);
+        mediaFormat.setInteger(MediaFormat.KEY_COLOR_FORMAT, MediaCodecInfo.CodecCapabilities.COLOR_FormatYUV420SemiPlanar);
         mediaFormat.setInteger(MediaFormat.KEY_I_FRAME_INTERVAL, I_FRAME_INTERVAL);
         mediaCodec.configure(mediaFormat, null, null, MediaCodec.CONFIGURE_FLAG_ENCODE);
         mediaCodec.start();
         try {
-            mediaMuxer = new MediaMuxer(outputFileString, MediaMuxer.OutputFormat.MUXER_OUTPUT_MPEG_4);
+            mediaMuxer = new MediaMuxer(fileDescriptor, MediaMuxer.OutputFormat.MUXER_OUTPUT_MPEG_4);
         } catch (IOException e) {
             Log.e(TAG,"MediaMuxer creation failed. " + e.getMessage());
             return;
@@ -263,33 +249,6 @@ public class BitmapToVideoEncoder {
             }
         }
         return null;
-    }
-
-    private static int selectColorFormat(MediaCodecInfo codecInfo,
-                                         String mimeType) {
-        MediaCodecInfo.CodecCapabilities capabilities = codecInfo
-                .getCapabilitiesForType(mimeType);
-        for (int i = 0; i < capabilities.colorFormats.length; i++) {
-            int colorFormat = capabilities.colorFormats[i];
-            if (isRecognizedFormat(colorFormat)) {
-                return colorFormat;
-            }
-        }
-        return 0; // not reached
-    }
-
-    private static boolean isRecognizedFormat(int colorFormat) {
-        switch (colorFormat) {
-            // these are the formats we know how to handle for
-            case MediaCodecInfo.CodecCapabilities.COLOR_FormatYUV420Planar:
-            case MediaCodecInfo.CodecCapabilities.COLOR_FormatYUV420PackedPlanar:
-            case MediaCodecInfo.CodecCapabilities.COLOR_FormatYUV420SemiPlanar:
-            case MediaCodecInfo.CodecCapabilities.COLOR_FormatYUV420PackedSemiPlanar:
-            case MediaCodecInfo.CodecCapabilities.COLOR_TI_FormatYUV420PackedSemiPlanar:
-                return true;
-            default:
-                return false;
-        }
     }
 
     private byte[] getNV21(int inputWidth, int inputHeight, Bitmap scaled) {

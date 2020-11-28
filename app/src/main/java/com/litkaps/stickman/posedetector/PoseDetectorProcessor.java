@@ -14,16 +14,16 @@ import com.google.mlkit.vision.pose.Pose;
 import com.google.mlkit.vision.pose.PoseDetection;
 import com.google.mlkit.vision.pose.PoseDetector;
 import com.google.mlkit.vision.pose.PoseDetectorOptionsBase;
-import com.litkaps.stickman.BitmapToVideoEncoder;
-import com.litkaps.stickman.CameraImageGraphic;
 import com.litkaps.stickman.GraphicOverlay;
+import com.litkaps.stickman.ImageGraphic;
+import com.litkaps.stickman.VideoEncoder;
 import com.litkaps.stickman.VisionProcessorBase;
 
 /**
  * A processor to run pose detector.
  */
 public class PoseDetectorProcessor extends VisionProcessorBase<Pose> {
-    private Paint stickmanPaint = new Paint(Color.BLACK);
+    private final Paint stickmanPaint = new Paint(Color.BLACK);
     private int figureID;
     private int accessoryID;
     private int accessoryType = -1;
@@ -35,7 +35,7 @@ public class PoseDetectorProcessor extends VisionProcessorBase<Pose> {
     private Bitmap backgroundImage;
     private Bitmap scaledBackgroundImage;
     private boolean isUpdated;
-    BitmapToVideoEncoder encoder;
+    private VideoEncoder encoder;
 
     public PoseDetectorProcessor(
             Context context, PoseDetectorOptionsBase options) {
@@ -68,25 +68,23 @@ public class PoseDetectorProcessor extends VisionProcessorBase<Pose> {
                 isUpdated = false;
             }
 
-            graphicOverlay.add(new CameraImageGraphic(graphicOverlay, scaledBackgroundImage));
+            graphicOverlay.add(new ImageGraphic(graphicOverlay, scaledBackgroundImage));
         } else {
             scaledBackgroundImage = null;
-            graphicOverlay.add(new CameraImageGraphic(graphicOverlay, cameraImage));
+            graphicOverlay.add(new ImageGraphic(graphicOverlay, cameraImage));
         }
 
-        if(figureID == 0)
+        if (figureID == 0) {
             graphicOverlay.add(new ClassicStickmanGraphic(graphicOverlay, pose, accessoryID, accessoryType, stickmanPaint));
-        else if(figureID == 1)
+        } else if (figureID == 1) {
             graphicOverlay.add(new ComicStickmanGraphic(graphicOverlay, pose, accessoryID, accessoryType, stickmanPaint));
-        else if(figureID == 2)
+        } else if (figureID == 2) {
             graphicOverlay.add(new FlexibleComicStickmanGraphic(graphicOverlay, pose, accessoryID, accessoryType, stickmanPaint));
+        }
 
-//        if(encoder != null) {
-//            Bitmap bitmap = Bitmap.createBitmap(10, 10, Bitmap.Config.ARGB_8888);
-//            bitmap.eraseColor(Color.RED);
-//            encoder.queueFrame(bitmap);
-//
-//        }
+        if (encoder != null) {
+            encoder.queueFrame(graphicOverlay.getGraphicBitmap());
+        }
     }
 
     @Override
@@ -116,7 +114,12 @@ public class PoseDetectorProcessor extends VisionProcessorBase<Pose> {
         this.accessoryType = accessoryType;
     }
 
-    public void setBitmapToVideoEncoder(BitmapToVideoEncoder encoder) {
+    public void setVideoEncoder(VideoEncoder encoder) {
         this.encoder = encoder;
+    }
+
+    public void clearVideoEncoder() {
+        this.encoder.stopEncoding();
+        this.encoder = null;
     }
 }

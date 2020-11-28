@@ -1,5 +1,6 @@
 package com.litkaps.stickman;
 
+import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageInfo;
@@ -13,7 +14,6 @@ import android.os.Build.VERSION_CODES;
 import android.os.Bundle;
 import android.util.Log;
 import android.util.Size;
-import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -24,7 +24,6 @@ import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.SeekBar;
 import android.widget.TextView;
-import android.widget.Toast;
 import android.widget.ToggleButton;
 
 import androidx.annotation.NonNull;
@@ -47,6 +46,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.gms.common.annotation.KeepName;
+import com.google.android.material.snackbar.Snackbar;
 import com.google.mlkit.common.MlKitException;
 import com.google.mlkit.vision.pose.PoseDetectorOptionsBase;
 import com.litkaps.stickman.posedetector.PoseDetectorProcessor;
@@ -55,7 +55,6 @@ import com.litkaps.stickman.preference.SettingsActivity;
 import com.litkaps.stickman.preference.SettingsActivity.LaunchSource;
 
 import java.io.IOException;
-import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -79,6 +78,7 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
 
     private Uri imageUri;
     private int colorValue;
+    private Size targetResolution;
 
     private LinearLayout secondLevelControl;
     private SeekBar lineWidthBar;
@@ -99,8 +99,6 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
     private int lensFacing = CameraSelector.LENS_FACING_BACK;
     private CameraSelector cameraSelector;
     private OptionsAdapter optionsAdapter;
-
-    BitmapToVideoEncoder bitmapToVideoEncoder;
 
     /**
      * change background image options
@@ -203,23 +201,17 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
         @Override
         public void onClick(View view) {
             Bitmap bitmap = graphicOverlay.getGraphicBitmap();
-            ImageWriter imageWriter = new ImageWriter();
+            ContentResolver resolver = getApplicationContext().getContentResolver();
+            ImageWriter imageWriter = new ImageWriter(resolver);
 
-            DateFormat dateFormat = new SimpleDateFormat("dd-MM-yyyy HH:mm:ss:SSS");
-            String uniqueName = "Stickman " + dateFormat.format(new Date());
-            boolean result = imageWriter.saveBitmapToImage(
-                    bitmap,
-                    "/Stickman",
-                    uniqueName);
+            String uniqueName = "Stickman " + System.currentTimeMillis();
+            boolean result = imageWriter.saveBitmapToImage(bitmap, uniqueName);
 
-            Toast toast;
-            if (result) {
-                toast = Toast.makeText(MainActivity.this, "Zdjęcie zostało zapisane!", Toast.LENGTH_LONG);
-            } else {
-                toast = Toast.makeText(MainActivity.this, "Spróbuj ponownie!", Toast.LENGTH_LONG);
-            }
-            toast.setGravity(Gravity.BOTTOM, 0, 250);
-            toast.show();
+            String resultText = result ? "Zdjęcie zostało zapisane!" : "Spróbuj ponownie!";
+
+            Snackbar.make(view.getRootView(), resultText, Snackbar.LENGTH_SHORT)
+                    .setAnchorView(recordButton)
+                    .show();
         }
     };
 
@@ -227,49 +219,51 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
         @RequiresApi(api = VERSION_CODES.N)
         @Override
         public void onClick(View view) {
-
-            if(isRecording) {
+            if (isRecording) {
                 isRecording = false;
-                view.setBackground(getDrawable(R.drawable.record_video_button));
-//                stopwatchTimer.cancel();
-//                recordTime.setVisibility(View.GONE);
+                view.setBackground(
+                        ContextCompat.getDrawable(getApplicationContext(),
+                                R.drawable.record_video_button)
+                );
 
-//                bitmapToVideoEncoder.stopEncoding();
-//                ((PoseDetectorProcessor) imageProcessor).setBitmapToVideoEncoder(null);
-            }
-            else {
+                stopwatchTimer.cancel();
+                recordTime.setVisibility(View.GONE);
+
+                ((PoseDetectorProcessor) imageProcessor).clearVideoEncoder();
+            } else {
                 isRecording = true;
-                view.setBackground(getDrawable(R.drawable.stop_recording_button));
-//                recordTime.setVisibility(View.VISIBLE);
-//                startTimer();
+                view.setBackground(
+                        ContextCompat.getDrawable(getApplicationContext(),
+                                R.drawable.stop_recording_button)
+                );
 
+                recordTime.setVisibility(View.VISIBLE);
+                startTimer();
 
-//                bitmapToVideoEncoder = new BitmapToVideoEncoder(new BitmapToVideoEncoder.IBitmapToVideoEncoderCallback() {
-//                    @Override
-//                    public void onEncodingComplete(File outputFile) {
-//                        Toast.makeText(getApplicationContext(),  "Encoding complete!", Toast.LENGTH_LONG).show();
-//                    }
-//                });
-//
-//
-//                ((PoseDetectorProcessor) imageProcessor).setBitmapToVideoEncoder(bitmapToVideoEncoder);
-//                bitmapToVideoEncoder.startEncoding(10, 10, new File(Environment.getExternalStorageDirectory().getAbsolutePath() + "/Stickman",  "recording.mp4"));
-//
-//                Bitmap bitmap = Bitmap.createBitmap(10, 10, Bitmap.Config.ARGB_8888);
-//                bitmap.eraseColor(Color.RED);
-//                bitmapToVideoEncoder.queueFrame(bitmap);
-//                bitmapToVideoEncoder.queueFrame(bitmap);
-//                bitmapToVideoEncoder.queueFrame(bitmap);
-//
-//                bitmapToVideoEncoder.stopEncoding();
+                String uniqueName = "Stickman " + System.currentTimeMillis();
+                ContentResolver resolver = getApplication().getContentResolver();
 
-                // TODO: record video
+                VideoEncoder videoEncoder = new VideoEncoder(
+                        uniqueName,
+                        targetResolution.getWidth(),
+                        targetResolution.getHeight(),
+                        resolver,
+                        outputFile -> {
+                            String resultText = "Film został zapisany!";
+
+                            Snackbar.make(view.getRootView(), resultText, Snackbar.LENGTH_SHORT)
+                                    .setAnchorView(recordButton)
+                                    .show();
+                        });
+
+                ((PoseDetectorProcessor) imageProcessor).setVideoEncoder(videoEncoder);
             }
         }
     };
 
     Timer stopwatchTimer;
     long startTime;
+
     public void startTimer() {
         stopwatchTimer = new Timer();
         startTime = System.currentTimeMillis();
@@ -301,11 +295,10 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
     CompoundButton.OnCheckedChangeListener changeRecordModeListener = new CompoundButton.OnCheckedChangeListener() {
         public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
             // switch to video recording
-            if(isChecked) {
+            if (isChecked) {
                 recordButton.setBackground(getDrawable(R.drawable.record_video_button));
                 recordButton.setOnClickListener(recordListener);
-            }
-            else { // switch to taking photos
+            } else { // switch to taking photos
                 recordButton.setBackground(getDrawable(R.drawable.take_photo_button));
                 recordButton.setOnClickListener(takePhotoListener);
             }
@@ -437,11 +430,10 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
         super.onCreate(savedInstanceState);
 
         if (VERSION.SDK_INT < VERSION_CODES.LOLLIPOP) {
-            Toast.makeText(
-                    getApplicationContext(),
-                    "CameraX is only supported on SDK version >=21. Current SDK version is "
-                            + VERSION.SDK_INT,
-                    Toast.LENGTH_LONG)
+            String errorMessage = "CameraX is only supported on SDK version >=21. Current SDK version is "
+                    + VERSION.SDK_INT;
+
+            Snackbar.make(getWindow().getDecorView().getRootView(), errorMessage, Snackbar.LENGTH_LONG)
                     .show();
             return;
         }
@@ -474,7 +466,7 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
             }
         });
 
-        ((CompoundButton)findViewById(R.id.record_mode_toggle)).setOnCheckedChangeListener(changeRecordModeListener);
+        ((CompoundButton) findViewById(R.id.record_mode_toggle)).setOnCheckedChangeListener(changeRecordModeListener);
 
         lineWidthBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
@@ -565,11 +557,11 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
         } catch (CameraInfoUnavailableException e) {
             // Falls through
         }
-        Toast.makeText(
-                getApplicationContext(),
+
+        Snackbar.make(buttonView.getRootView(),
                 "This device does not have lens with facing: " + newLensFacing,
-                Toast.LENGTH_SHORT)
-                .show();
+                Snackbar.LENGTH_SHORT
+        ).setAnchorView(buttonView).show();
     }
 
     @Override
@@ -644,21 +636,21 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
             imageProcessor =
                     new PoseDetectorProcessor(this, poseDetectorOptions);
         } catch (Exception e) {
-            Toast.makeText(
-                    getApplicationContext(),
+            Snackbar.make(getWindow().getDecorView().getRootView(),
                     "Can not create image processor: " + e.getLocalizedMessage(),
-                    Toast.LENGTH_LONG)
-                    .show();
+                    Snackbar.LENGTH_LONG
+            ).show();
+
             return;
         }
 
         ImageAnalysis.Builder builder = new ImageAnalysis.Builder();
-        Size targetResolution = PreferenceUtils.getCameraXTargetResolution(this);
-        if (targetResolution != null) {
-            builder.setTargetResolution(targetResolution);
-        } else {
-            builder.setTargetResolution(new Size(720, 1280));
+        targetResolution = PreferenceUtils.getCameraXTargetResolution(this);
+        if (targetResolution == null) {
+            targetResolution = new Size(720, 1280);
         }
+
+        builder.setTargetResolution(targetResolution);
         analysisUseCase = builder.build();
 
         needUpdateGraphicOverlayImageSourceInfo = true;
@@ -683,7 +675,11 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
                         imageProcessor.processImageProxy(imageProxy, graphicOverlay);
                     } catch (MlKitException e) {
                         Log.e(TAG, "Failed to process image. Error: " + e.getLocalizedMessage());
-                        Toast.makeText(getApplicationContext(), e.getLocalizedMessage(), Toast.LENGTH_SHORT)
+                        String localizedMessage = e.getLocalizedMessage() == null
+                                ? "Failed to process image."
+                                : e.getLocalizedMessage();
+
+                        Snackbar.make(getWindow().getDecorView().getRootView(), localizedMessage, Snackbar.LENGTH_SHORT)
                                 .show();
                     }
                 });
@@ -811,7 +807,6 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
     private void removeAccessory() {
         ((PoseDetectorProcessor) imageProcessor).setFigureAccessory(0, -1);
     }
-
 
 
 }
