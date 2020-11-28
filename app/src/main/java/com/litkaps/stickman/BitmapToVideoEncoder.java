@@ -152,7 +152,6 @@ public class BitmapToVideoEncoder {
     }
 
     private void encode() {
-
         Log.d(TAG, "Encoder started");
 
         while(true) {
@@ -227,8 +226,13 @@ public class BitmapToVideoEncoder {
             Log.d(TAG,"RELEASE CODEC");
         }
         if (mediaMuxer != null) {
-            mediaMuxer.stop();
-            mediaMuxer.release();
+            try {
+                mediaMuxer.stop();
+                mediaMuxer.release();
+            } catch (IllegalStateException illegalStateException) {
+                illegalStateException.printStackTrace();
+            }
+
             mediaMuxer = null;
             Log.d(TAG,"RELEASE MUXER");
         }
