@@ -46,6 +46,11 @@ dependencies {
     // Multidex
     implementation 'androidx.multidex:multidex:2.0.1'
 
+    // Glide - media management and loading
+    implementation 'com.github.bumptech.glide:glide:4.11.0'
+    implementation 'androidx.recyclerview:recyclerview:1.1.0'
+    annotationProcessor 'com.github.bumptech.glide:compiler:4.11.0'
+
     // Material Design
     implementation 'com.google.android.material:material:1.2.1'
 

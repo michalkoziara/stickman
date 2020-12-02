@@ -49,6 +49,14 @@
         </activity>
 
         <activity
+            android:name=".mediaviewer.MediaViewerActivity"
+            />
+
+        <activity
+            android:name=".mediaviewer.VideoActivity"
+            />
+
+        <activity
             android:name=".preference.SettingsActivity"
             android:exported="false" />
 

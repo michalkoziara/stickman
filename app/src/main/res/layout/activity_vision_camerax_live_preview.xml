@@ -173,6 +173,20 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toBottomOf="@id/control_level1" />
 
+    <ImageView
+        android:id="@+id/media_viewer_button"
+        android:layout_width="48dp"
+        android:layout_height="48dp"
+        android:layout_gravity="center_vertical"
+        android:layout_marginBottom="22dp"
+        app:tint="@color/gray"
+        android:src="@drawable/ic_baseline_image_24"
+        android:background="@drawable/round_button_bg"
+        android:padding="6dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@+id/record_button"
+        app:layout_constraintStart_toStartOf="parent" />
+
     <ToggleButton
         android:id="@+id/record_button"
         android:layout_width="60dp"

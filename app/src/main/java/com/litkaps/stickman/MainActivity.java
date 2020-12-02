@@ -47,6 +47,7 @@ import com.google.android.gms.common.annotation.KeepName;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.mlkit.common.MlKitException;
 import com.google.mlkit.vision.pose.PoseDetectorOptionsBase;
+import com.litkaps.stickman.mediaviewer.MediaViewerActivity;
 import com.litkaps.stickman.posedetector.PoseDetectorProcessor;
 import com.litkaps.stickman.posedetector.StickmanImageDrawer;
 import com.litkaps.stickman.preference.PreferenceUtils;
@@ -408,6 +409,13 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
         });
 
         ((CompoundButton) findViewById(R.id.record_mode_toggle)).setOnCheckedChangeListener(changeRecordModeListener);
+        findViewById(R.id.media_viewer_button).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(getApplicationContext(), MediaViewerActivity.class);
+                startActivity(intent);
+            }
+        });
 
         lineWidthBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
