@@ -18,9 +18,13 @@ public class VideoEncoder {
     }
 
     private final BitmapToVideoEncoder bitmapToVideoEncoder;
+    private final ContentResolver resolver;
+    private final ContentValues videoDetails;
+    private final Uri videoContentUri;
 
     VideoEncoder(String name, int width, int height, ContentResolver resolver, VideoEncoderCallback onSuccess) {
         bitmapToVideoEncoder = new BitmapToVideoEncoder(onSuccess);
+        this.resolver = resolver;
 
         Uri videoCollection;
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
@@ -30,9 +34,9 @@ public class VideoEncoder {
             videoCollection = MediaStore.Video.Media.EXTERNAL_CONTENT_URI;
         }
 
-        ContentValues videoDetails = new ContentValues();
-        videoDetails.put(MediaStore.Video.Media.TITLE, name);
-        videoDetails.put(MediaStore.Video.Media.DISPLAY_NAME, name);
+        videoDetails = new ContentValues();
+        videoDetails.put(MediaStore.Video.Media.TITLE, name + ".mp4");
+        videoDetails.put(MediaStore.Video.Media.DISPLAY_NAME, name + ".mp4");
         videoDetails.put(MediaStore.Video.Media.MIME_TYPE, "video/mp4");
 
         long now = System.currentTimeMillis() / 1000;
@@ -40,10 +44,11 @@ public class VideoEncoder {
         videoDetails.put(MediaStore.Video.Media.DATE_MODIFIED, now);
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-            videoDetails.put(MediaStore.Images.Media.DATE_TAKEN, System.currentTimeMillis());
+            videoDetails.put(MediaStore.Video.Media.DATE_TAKEN, System.currentTimeMillis());
+            videoDetails.put(MediaStore.Video.Media.IS_PENDING, 1);
         }
 
-        Uri videoContentUri = resolver.insert(videoCollection, videoDetails);
+        videoContentUri = resolver.insert(videoCollection, videoDetails);
 
         try {
             if (videoContentUri != null) {
@@ -68,6 +73,12 @@ public class VideoEncoder {
     public void stopEncoding() {
         if (bitmapToVideoEncoder != null) {
             bitmapToVideoEncoder.stopEncoding();
+
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                videoDetails.put(MediaStore.Video.Media.IS_PENDING, 0);
+            }
+
+            resolver.update(videoContentUri, videoDetails, null, null);
         }
     }
 }
