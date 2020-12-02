@@ -36,14 +36,11 @@ public class ImageWriter {
         imageDetails.put(MediaStore.Images.Media.TITLE, name);
         imageDetails.put(MediaStore.Images.Media.DISPLAY_NAME, name);
         imageDetails.put(MediaStore.Images.Media.MIME_TYPE, "image/jpeg");
+        imageDetails.put(MediaStore.Images.Media.DESCRIPTION , "Stickman application media.");
 
         long now = System.currentTimeMillis() / 1000;
         imageDetails.put(MediaStore.Images.Media.DATE_ADDED, now);
         imageDetails.put(MediaStore.Images.Media.DATE_MODIFIED, now);
-
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-            imageDetails.put(MediaStore.Images.Media.DATE_TAKEN, System.currentTimeMillis());
-        }
 
         Uri imageContentUri = resolver.insert(imageCollection, imageDetails);
         if (imageContentUri == null || imageContentUri.getPath() == null) {
@@ -52,21 +49,6 @@ public class ImageWriter {
 
         try (OutputStream stream = resolver.openOutputStream(imageContentUri)) {
             bitmap.compress(Bitmap.CompressFormat.JPEG, 100, stream);
-        } catch (IOException ioException) {
-            ioException.printStackTrace();
-            return false;
-        }
-
-        DateFormat dateFormat = SimpleDateFormat.getDateTimeInstance();
-        try (ParcelFileDescriptor parcelFileDescriptor =
-                     resolver.openFileDescriptor(imageContentUri, "rw", null)) {
-            if (parcelFileDescriptor != null) {
-                ExifInterface exifInterface = new ExifInterface(parcelFileDescriptor.getFileDescriptor());
-                exifInterface.setAttribute(ExifInterface.TAG_DATETIME, dateFormat.format(new Date()));
-                exifInterface.saveAttributes();
-            } else {
-                return false;
-            }
         } catch (IOException ioException) {
             ioException.printStackTrace();
             return false;

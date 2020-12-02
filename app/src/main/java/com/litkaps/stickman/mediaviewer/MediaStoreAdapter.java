@@ -5,6 +5,7 @@ import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
+import android.os.Build;
 import android.provider.MediaStore;
 
 import android.view.LayoutInflater;
@@ -38,12 +39,13 @@ public class MediaStoreAdapter extends RecyclerView.Adapter<MediaStoreAdapter.Vi
 
     public interface OnClickThumbListener {
         void OnClickImage(Uri imageUri);
+
         void OnClickVideo(Uri videoUri);
     }
 
     public MediaStoreAdapter(Activity activity) {
         this.mActivity = activity;
-        this.mOnClickThumbListener = (OnClickThumbListener)activity;
+        this.mOnClickThumbListener = (OnClickThumbListener) activity;
     }
 
     @Override
@@ -67,11 +69,12 @@ public class MediaStoreAdapter extends RecyclerView.Adapter<MediaStoreAdapter.Vi
                 .override(200, 200)
                 .into(holder.getImageView());
 
-        SimpleDateFormat dateFormat = new SimpleDateFormat("MMM/dd/yyyy", Locale.getDefault());
+        DateFormat dateFormat = SimpleDateFormat.getDateInstance();
         mMediaStoreCursor.moveToPosition(position);
-        holder.thumbnailLabel.setText(dateFormat.format(new Date(mMediaStoreCursor.getLong(1))));
 
-        if(mMediaStoreCursor.getInt(3) == MediaStore.Files.FileColumns.MEDIA_TYPE_IMAGE)
+        holder.thumbnailLabel.setText(dateFormat.format(new Date(mMediaStoreCursor.getLong(1) * 1000)));
+
+        if (mMediaStoreCursor.getInt(3) == MediaStore.Files.FileColumns.MEDIA_TYPE_IMAGE)
             holder.thumbnailLabel.setCompoundDrawablesWithIntrinsicBounds(R.drawable.ic_baseline_image_24, 0, 0, 0);
         else
             holder.thumbnailLabel.setCompoundDrawablesWithIntrinsicBounds(R.drawable.ic_baseline_movie_24, 0, 0, 0);

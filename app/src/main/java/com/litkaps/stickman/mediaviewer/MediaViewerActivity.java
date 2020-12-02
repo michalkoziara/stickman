@@ -42,9 +42,9 @@ public class MediaViewerActivity extends AppCompatActivity implements LoaderMana
 
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-        switch(requestCode) {
+        switch (requestCode) {
             case READ_EXTERNAL_STORAGE_PERMISSION_RESULT:
-                if(grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                     //Call cursor loader
                     // Toast.makeText(this, "Now have access to view thumbs", Toast.LENGTH_SHORT).show();
                     LoaderManager.getInstance(this).initLoader(MEDIASTORE_LOADER_ID, null, this);
@@ -56,16 +56,16 @@ public class MediaViewerActivity extends AppCompatActivity implements LoaderMana
     }
 
     private void checkReadExternalStoragePermission() {
-        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            if(ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE) ==
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE) ==
                     PackageManager.PERMISSION_GRANTED) {
                 // Start cursor loader
                 LoaderManager.getInstance(this).initLoader(MEDIASTORE_LOADER_ID, null, this);
             } else {
-                if(shouldShowRequestPermissionRationale(Manifest.permission.READ_EXTERNAL_STORAGE)) {
+                if (shouldShowRequestPermissionRationale(Manifest.permission.READ_EXTERNAL_STORAGE)) {
                     Toast.makeText(this, "App needs to view thumbnails", Toast.LENGTH_SHORT).show();
                 }
-                requestPermissions(new String[] {Manifest.permission.READ_EXTERNAL_STORAGE},
+                requestPermissions(new String[]{Manifest.permission.READ_EXTERNAL_STORAGE},
                         READ_EXTERNAL_STORAGE_PERMISSION_RESULT);
             }
         } else {
@@ -76,28 +76,26 @@ public class MediaViewerActivity extends AppCompatActivity implements LoaderMana
 
     @Override
     public Loader<Cursor> onCreateLoader(int id, Bundle args) {
-        String dateColumnName = Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q
-                ? MediaStore.Files.FileColumns.DATE_TAKEN
-                : MediaStore.Files.FileColumns.DATE_MODIFIED;
-
         String[] projection = {
                 MediaStore.Files.FileColumns._ID,
-                dateColumnName,
+                MediaStore.Files.FileColumns.DATE_MODIFIED,
                 MediaStore.Files.FileColumns.DATA,
                 MediaStore.Files.FileColumns.MEDIA_TYPE
         };
-        String selection = MediaStore.Files.FileColumns.MEDIA_TYPE + "="
+        String selection = "(" + MediaStore.Files.FileColumns.MEDIA_TYPE + "="
                 + MediaStore.Files.FileColumns.MEDIA_TYPE_IMAGE
                 + " OR "
                 + MediaStore.Files.FileColumns.MEDIA_TYPE + "="
-                + MediaStore.Files.FileColumns.MEDIA_TYPE_VIDEO;
+                + MediaStore.Files.FileColumns.MEDIA_TYPE_VIDEO
+                + ") AND "
+                + MediaStore.Files.FileColumns.DISPLAY_NAME + " LIKE ?";
         return new CursorLoader(
                 this,
                 MediaStore.Files.getContentUri("external"),
                 projection,
                 selection,
-                null,
-                dateColumnName + " DESC"
+                new String[]{"Stickman%"},
+                MediaStore.Files.FileColumns.DATE_MODIFIED + " DESC"
         );
     }
 
