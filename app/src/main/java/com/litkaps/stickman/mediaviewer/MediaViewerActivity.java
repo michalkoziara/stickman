@@ -1,6 +1,7 @@
 package com.litkaps.stickman.mediaviewer;
 
 import android.Manifest;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.net.Uri;
@@ -119,10 +120,9 @@ public class MediaViewerActivity extends AppCompatActivity implements LoaderMana
 
     @Override
     public void OnClickVideo(Uri videoUri) {
-//        Intent videoPlayIntent = new Intent(this, VideoPlayActivity.class);
-//        videoPlayIntent.setData(videoUri);
-//        startActivity(videoPlayIntent);
-
+        Intent videoPlayIntent = new Intent(this, VideoActivity.class);
+        videoPlayIntent.setData(videoUri);
+        startActivity(videoPlayIntent);
     }
 
 }
