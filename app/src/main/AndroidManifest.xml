@@ -53,13 +53,32 @@
             />
 
         <activity
-            android:name=".mediaviewer.VideoActivity"
+            android:name=".mediaviewer.VideoViewActivity"
+            />
+
+        <activity
+            android:name=".mediaviewer.ImageViewActivity"
             />
 
         <activity
             android:name=".preference.SettingsActivity"
             android:exported="false" />
 
+        <provider
+            android:name="androidx.core.content.FileProvider"
+            android:authorities="com.litkaps.stickman.provider"
+            android:exported="false"
+            android:grantUriPermissions="true">
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/provider_paths" />
+        </provider>
+
+        <receiver android:name="androidx.media.session.MediaButtonReceiver" >
+            <intent-filter>
+                <action android:name="android.intent.action.MEDIA_BUTTON" />
+            </intent-filter>
+        </receiver>
     </application>
 
 </manifest>

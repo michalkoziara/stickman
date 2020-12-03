@@ -3,9 +3,7 @@ package com.litkaps.stickman.mediaviewer;
 import android.app.Activity;
 import android.database.Cursor;
 import android.graphics.Bitmap;
-import android.graphics.drawable.Drawable;
 import android.net.Uri;
-import android.os.Build;
 import android.provider.MediaStore;
 
 import android.view.LayoutInflater;
@@ -15,27 +13,23 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
+import com.litkaps.stickman.BuildConfig;
 import com.litkaps.stickman.R;
 
 import java.io.File;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
-import java.time.format.DateTimeFormatter;
-import java.time.format.FormatStyle;
 import java.util.Date;
-import java.util.Locale;
 
 import androidx.core.content.FileProvider;
 import androidx.recyclerview.widget.RecyclerView;
-
-import static androidx.camera.core.CameraX.getContext;
 
 
 public class MediaStoreAdapter extends RecyclerView.Adapter<MediaStoreAdapter.ViewHolder> {
 
     private Cursor mMediaStoreCursor;
     private final Activity mActivity;
-    private OnClickThumbListener mOnClickThumbListener;
+    private final OnClickThumbListener mOnClickThumbListener;
 
     public interface OnClickThumbListener {
         void OnClickImage(Uri imageUri);
@@ -168,9 +162,8 @@ public class MediaStoreAdapter extends RecyclerView.Adapter<MediaStoreAdapter.Vi
 
         mMediaStoreCursor.moveToPosition(position);
         String dataString = mMediaStoreCursor.getString(dataIndex);
-        String authorities = mActivity.getPackageName() + ".fileprovider";
+        String authorities = BuildConfig.APPLICATION_ID + ".provider";
         Uri mediaUri = FileProvider.getUriForFile(mActivity, authorities, new File(dataString));
-//        Uri mediaUri = Uri.parse("file://" + dataString);
 
         switch (mMediaStoreCursor.getInt(mediaTypeIndex)) {
             case MediaStore.Files.FileColumns.MEDIA_TYPE_IMAGE:

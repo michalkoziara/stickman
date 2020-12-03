@@ -112,15 +112,14 @@ public class MediaViewerActivity extends AppCompatActivity implements LoaderMana
 
     @Override
     public void OnClickImage(Uri imageUri) {
-//        // Toast.makeText(MediaThumbMainActivity.this, "Image uri = " + imageUri.toString(), Toast.LENGTH_SHORT).show();
-//        Intent fullScreenIntent = new Intent(this, FullScreenImageActivity.class);
-//        fullScreenIntent.setData(imageUri);
-//        startActivity(fullScreenIntent);
+        Intent imageViewIntent = new Intent(this, ImageViewActivity.class);
+        imageViewIntent.setData(imageUri);
+        startActivity(imageViewIntent);
     }
 
     @Override
     public void OnClickVideo(Uri videoUri) {
-        Intent videoPlayIntent = new Intent(this, VideoActivity.class);
+        Intent videoPlayIntent = new Intent(this, VideoViewActivity.class);
         videoPlayIntent.setData(videoUri);
         startActivity(videoPlayIntent);
     }

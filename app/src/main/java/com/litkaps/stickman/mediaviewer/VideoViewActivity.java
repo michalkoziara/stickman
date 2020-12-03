@@ -20,7 +20,7 @@ import android.widget.ImageButton;
 
 import com.litkaps.stickman.R;
 
-public class VideoActivity extends AppCompatActivity {
+public class VideoViewActivity extends AppCompatActivity {
 
     private static final String TAG = "VideoPlayActivity";
 
@@ -173,7 +173,7 @@ public class VideoActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_video);
+        setContentView(R.layout.activity_view_video);
 
         mPlayPauseButton = findViewById(R.id.videoPlayPauseButton);
         mSurfaceView = findViewById(R.id.videoSurfaceView);
