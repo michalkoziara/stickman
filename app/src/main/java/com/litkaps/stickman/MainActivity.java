@@ -516,7 +516,7 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
         super.onResume();
         bindAllCameraUseCases();
 
-        if (optionsAdapter.options == backgroundColorOptions && colorValue != -1) {
+        if (colorValue != -1) {
             setBackgroundColor(colorValue);
         } else if (optionsAdapter.options == backgroundImageOptions) {
             tryReloadAndDetectInImage();
