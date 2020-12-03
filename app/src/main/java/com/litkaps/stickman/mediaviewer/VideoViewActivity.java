@@ -38,13 +38,13 @@ public class VideoViewActivity extends AppCompatActivity {
 
             switch (state.getState()) {
                 case PlaybackStateCompat.STATE_PLAYING:
-                    mPlayPauseButton.setImageResource(R.drawable.classic_stickman);
+                    mPlayPauseButton.setImageResource(R.drawable.ic_baseline_pause_circle_filled_24);
                     break;
                 case PlaybackStateCompat.STATE_PAUSED:
-                    mPlayPauseButton.setImageResource(R.drawable.classic_stickman);
+                    mPlayPauseButton.setImageResource(R.drawable.ic_baseline_play_circle_filled_24);
                     break;
                 case PlaybackStateCompat.STATE_STOPPED:
-                    mPlayPauseButton.setImageResource(R.drawable.classic_stickman);
+                    mPlayPauseButton.setImageResource(R.drawable.ic_baseline_play_circle_filled_24);
                     break;
             }
         }
