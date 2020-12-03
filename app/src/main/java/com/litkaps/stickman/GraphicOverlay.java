@@ -221,8 +221,8 @@ public class GraphicOverlay extends View {
   public GraphicOverlay(Context context, AttributeSet attrs) {
     super(context, attrs);
     addOnLayoutChangeListener(
-        (view, left, top, right, bottom, oldLeft, oldTop, oldRight, oldBottom) ->
-            needUpdateTransformation = true);
+            (view, left, top, right, bottom, oldLeft, oldTop, oldRight, oldBottom) ->
+                    needUpdateTransformation = true);
   }
 
   /** Removes all graphics from the overlay. */
@@ -321,9 +321,8 @@ public class GraphicOverlay extends View {
   }
 
   public Bitmap getGraphicBitmap() {
-    Bitmap bitmap = Bitmap.createBitmap(getImageWidth(), getImageHeight(), Bitmap.Config.ARGB_8888);
-    Canvas canvas = new Canvas();
-    canvas.setBitmap(bitmap);
+    Bitmap bitmap = Bitmap.createBitmap(getWidth(), getHeight(), Bitmap.Config.ARGB_8888);
+    Canvas canvas = new Canvas(bitmap);
 
     synchronized (lock) {
       updateTransformationIfNeeded();
@@ -331,8 +330,23 @@ public class GraphicOverlay extends View {
       for (GraphicOverlay.Graphic graphic : graphics) {
         graphic.draw(canvas);
       }
+      bitmap = getResizedBitmap(bitmap, getImageWidth(), getImageHeight());
       return bitmap;
     }
   }
 
+  private Bitmap getResizedBitmap(Bitmap bitmap, int newWidth, int newHeight) {
+    int width = bitmap.getWidth();
+    int height = bitmap.getHeight();
+    float scaleWidth = ((float) newWidth) / width;
+    float scaleHeight = ((float) newHeight) / height;
+
+    Matrix matrix = new Matrix();
+    matrix.postScale(scaleWidth, scaleHeight);
+
+    Bitmap resizedBitmap = Bitmap.createBitmap(
+            bitmap, 0, 0, width, height, matrix, false);
+    bitmap.recycle();
+    return resizedBitmap;
+  }
 }
