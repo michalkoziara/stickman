@@ -75,7 +75,7 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
     private GraphicOverlay graphicOverlay;
 
     private Uri imageUri;
-    private int colorValue;
+    private int colorValue = -1;
     private Size targetResolution;
 
     private LinearLayout secondLevelControl;
@@ -516,7 +516,7 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
         super.onResume();
         bindAllCameraUseCases();
 
-        if (optionsAdapter.options == backgroundColorOptions) {
+        if (optionsAdapter.options == backgroundColorOptions && colorValue != -1) {
             setBackgroundColor(colorValue);
         } else if (optionsAdapter.options == backgroundImageOptions) {
             tryReloadAndDetectInImage();
@@ -705,6 +705,7 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
 
     private void removeBackground() {
         imageUri = null;
+        colorValue = -1;
         setBackgroundImage(null);
     }
 
