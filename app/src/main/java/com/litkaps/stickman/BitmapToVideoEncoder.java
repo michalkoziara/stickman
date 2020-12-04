@@ -89,7 +89,7 @@ public class BitmapToVideoEncoder {
         try {
             mediaMuxer = new MediaMuxer(fileDescriptor, MediaMuxer.OutputFormat.MUXER_OUTPUT_MPEG_4);
         } catch (IOException e) {
-            Log.e(TAG,"MediaMuxer creation failed. " + e.getMessage());
+            Log.e(TAG, "MediaMuxer creation failed. " + e.getMessage());
             return;
         }
 
@@ -154,18 +154,19 @@ public class BitmapToVideoEncoder {
     private void encode() {
         Log.d(TAG, "Encoder started");
 
-        while(true) {
-            if (mNoMoreFrames && (mEncodeQueue.size() ==  0)) break;
+        while (true) {
+            if (mNoMoreFrames && (mEncodeQueue.size() == 0)) break;
 
             Bitmap bitmap = mEncodeQueue.poll();
-            if (bitmap ==  null) {
+            if (bitmap == null) {
                 synchronized (mFrameSync) {
                     mNewFrameLatch = new CountDownLatch(1);
                 }
 
                 try {
                     mNewFrameLatch.await();
-                } catch (InterruptedException e) {}
+                } catch (InterruptedException e) {
+                }
 
                 bitmap = mEncodeQueue.poll();
             }
@@ -223,7 +224,7 @@ public class BitmapToVideoEncoder {
             mediaCodec.stop();
             mediaCodec.release();
             mediaCodec = null;
-            Log.d(TAG,"RELEASE CODEC");
+            Log.d(TAG, "RELEASE CODEC");
         }
         if (mediaMuxer != null) {
             try {
@@ -234,7 +235,7 @@ public class BitmapToVideoEncoder {
             }
 
             mediaMuxer = null;
-            Log.d(TAG,"RELEASE MUXER");
+            Log.d(TAG, "RELEASE MUXER");
         }
     }
 

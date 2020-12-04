@@ -5,16 +5,10 @@ import android.content.ContentValues;
 import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Build;
-import android.os.ParcelFileDescriptor;
 import android.provider.MediaStore;
-
-import androidx.exifinterface.media.ExifInterface;
 
 import java.io.IOException;
 import java.io.OutputStream;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
-import java.util.Date;
 
 public class ImageWriter {
     final ContentResolver resolver;
@@ -36,7 +30,7 @@ public class ImageWriter {
         imageDetails.put(MediaStore.Images.Media.TITLE, name);
         imageDetails.put(MediaStore.Images.Media.DISPLAY_NAME, name);
         imageDetails.put(MediaStore.Images.Media.MIME_TYPE, "image/jpeg");
-        imageDetails.put(MediaStore.Images.Media.DESCRIPTION , "Stickman application media.");
+        imageDetails.put(MediaStore.Images.Media.DESCRIPTION, "Stickman application media.");
 
         long now = System.currentTimeMillis() / 1000;
         imageDetails.put(MediaStore.Images.Media.DATE_ADDED, now);

@@ -1,6 +1,5 @@
 package com.litkaps.stickman.mediaviewer;
 
-import androidx.appcompat.app.AppCompatActivity;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -8,15 +7,18 @@ import android.content.IntentFilter;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.net.Uri;
+import android.os.Bundle;
 import android.os.SystemClock;
 import android.support.v4.media.session.MediaControllerCompat;
 import android.support.v4.media.session.MediaSessionCompat;
 import android.support.v4.media.session.PlaybackStateCompat;
-import android.os.Bundle;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import android.view.View;
 import android.widget.ImageButton;
+
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
 
 import com.litkaps.stickman.R;
 
@@ -24,14 +26,7 @@ public class VideoViewActivity extends AppCompatActivity {
 
     private static final String TAG = "VideoPlayActivity";
 
-    private MediaPlayer mMediaPlayer;
-    private Uri mVideoUri;
-    private ImageButton mPlayPauseButton;
-    private SurfaceView mSurfaceView;
-
-    private MediaControllerCompat mController;
-    private MediaControllerCompat.TransportControls mControllerTransportControls;
-    private MediaControllerCompat.Callback mControllerCallback = new MediaControllerCompat.Callback() {
+    private final MediaControllerCompat.Callback mControllerCallback = new MediaControllerCompat.Callback() {
         @Override
         public void onPlaybackStateChanged(PlaybackStateCompat state) {
             super.onPlaybackStateChanged(state);
@@ -41,23 +36,43 @@ public class VideoViewActivity extends AppCompatActivity {
                     mPlayPauseButton.setImageResource(R.drawable.ic_baseline_pause_circle_filled_24);
                     break;
                 case PlaybackStateCompat.STATE_PAUSED:
-                    mPlayPauseButton.setImageResource(R.drawable.ic_baseline_play_circle_filled_24);
-                    break;
                 case PlaybackStateCompat.STATE_STOPPED:
                     mPlayPauseButton.setImageResource(R.drawable.ic_baseline_play_circle_filled_24);
+                    break;
+                case PlaybackStateCompat.STATE_BUFFERING:
+                case PlaybackStateCompat.STATE_NONE:
+                case PlaybackStateCompat.STATE_ERROR:
+                case PlaybackStateCompat.STATE_CONNECTING:
+                case PlaybackStateCompat.STATE_FAST_FORWARDING:
+                case PlaybackStateCompat.STATE_REWINDING:
+                case PlaybackStateCompat.STATE_SKIPPING_TO_NEXT:
+                case PlaybackStateCompat.STATE_SKIPPING_TO_PREVIOUS:
+                case PlaybackStateCompat.STATE_SKIPPING_TO_QUEUE_ITEM:
                     break;
             }
         }
     };
+
+    private MediaPlayer mMediaPlayer;
+    private Uri mVideoUri;
+    private ImageButton mPlayPauseButton;
+    private SurfaceView mSurfaceView;
+
+    private MediaControllerCompat mController;
+    private MediaControllerCompat.TransportControls mControllerTransportControls;
+
     private PlaybackStateCompat.Builder mPBuilder;
     private MediaSessionCompat mSession;
-    private class MediaSessionCallback extends MediaSessionCompat.Callback implements SurfaceHolder.Callback, MediaPlayer.OnCompletionListener,
+
+    private class MediaSessionCallback extends MediaSessionCompat.Callback implements
+            SurfaceHolder.Callback,
+            MediaPlayer.OnCompletionListener,
             AudioManager.OnAudioFocusChangeListener {
 
-        private Context mContext;
-        private AudioManager mAudioManager;
-        private IntentFilter mNoisyIntentFilter;
-        private AudioBecommingNoisy mAudioBecommingNoisy;
+        private final Context mContext;
+        private final AudioManager mAudioManager;
+        private final IntentFilter mNoisyIntentFilter;
+        private final AudioBecommingNoisy mAudioBecommingNoisy;
 
         public MediaSessionCallback(Context context) {
             super();
@@ -99,7 +114,7 @@ public class VideoViewActivity extends AppCompatActivity {
 
         private void releaseResources() {
             mSession.setActive(false);
-            if(mMediaPlayer != null) {
+            if (mMediaPlayer != null) {
                 mMediaPlayer.stop();
                 mMediaPlayer.reset();
                 mMediaPlayer.release();
@@ -109,12 +124,21 @@ public class VideoViewActivity extends AppCompatActivity {
 
         private void mediaPlay() {
             registerReceiver(mAudioBecommingNoisy, mNoisyIntentFilter);
-            int requestAudioFocusResult = mAudioManager.requestAudioFocus(this, AudioManager.STREAM_MUSIC, AudioManager.AUDIOFOCUS_GAIN);
-            if(requestAudioFocusResult == AudioManager.AUDIOFOCUS_REQUEST_GRANTED) {
+            int requestAudioFocusResult = mAudioManager.requestAudioFocus(
+                    this,
+                    AudioManager.STREAM_MUSIC,
+                    AudioManager.AUDIOFOCUS_GAIN
+            );
+
+            if (requestAudioFocusResult == AudioManager.AUDIOFOCUS_REQUEST_GRANTED) {
                 mSession.setActive(true);
                 mPBuilder.setActions(PlaybackStateCompat.ACTION_PAUSE | PlaybackStateCompat.ACTION_STOP);
-                mPBuilder.setState(PlaybackStateCompat.STATE_PLAYING,
-                        mMediaPlayer.getCurrentPosition(), 1.0f, SystemClock.elapsedRealtime());
+                mPBuilder.setState(
+                        PlaybackStateCompat.STATE_PLAYING,
+                        mMediaPlayer.getCurrentPosition(),
+                        1.0f,
+                        SystemClock.elapsedRealtime()
+                );
                 mSession.setPlaybackState(mPBuilder.build());
                 mMediaPlayer.start();
             }
@@ -131,18 +155,18 @@ public class VideoViewActivity extends AppCompatActivity {
         }
 
         @Override
-        public void surfaceCreated(SurfaceHolder surfaceHolder) {
+        public void surfaceCreated(@NonNull SurfaceHolder surfaceHolder) {
             mMediaPlayer = MediaPlayer.create(mContext, mVideoUri, surfaceHolder);
             mMediaPlayer.setOnCompletionListener(this);
         }
 
         @Override
-        public void surfaceChanged(SurfaceHolder surfaceHolder, int i, int i1, int i2) {
+        public void surfaceChanged(@NonNull SurfaceHolder surfaceHolder, int i, int i1, int i2) {
 
         }
 
         @Override
-        public void surfaceDestroyed(SurfaceHolder surfaceHolder) {
+        public void surfaceDestroyed(@NonNull SurfaceHolder surfaceHolder) {
 
         }
 
@@ -158,13 +182,11 @@ public class VideoViewActivity extends AppCompatActivity {
         public void onAudioFocusChange(int audioFocusChanged) {
             switch (audioFocusChanged) {
                 case AudioManager.AUDIOFOCUS_LOSS_TRANSIENT:
+                case AudioManager.AUDIOFOCUS_LOSS:
                     mediaPause();
                     break;
                 case AudioManager.AUDIOFOCUS_GAIN:
                     mediaPlay();
-                    break;
-                case AudioManager.AUDIOFOCUS_LOSS:
-                    mediaPause();
                     break;
             }
         }
@@ -179,7 +201,7 @@ public class VideoViewActivity extends AppCompatActivity {
         mSurfaceView = findViewById(R.id.videoSurfaceView);
 
         Intent callingIntent = this.getIntent();
-        if(callingIntent != null) {
+        if (callingIntent != null) {
             mVideoUri = callingIntent.getData();
         }
 
@@ -189,25 +211,22 @@ public class VideoViewActivity extends AppCompatActivity {
         mPBuilder = new PlaybackStateCompat.Builder();
         mController = new MediaControllerCompat(this, mSession);
         mControllerTransportControls = mController.getTransportControls();
-
     }
 
     public void playPauseClick(View view) {
-        if(mController.getPlaybackState().getState() == PlaybackStateCompat.STATE_PLAYING) {
+        if (mController.getPlaybackState().getState() == PlaybackStateCompat.STATE_PLAYING) {
             mControllerTransportControls.pause();
         } else if (mController.getPlaybackState().getState() == PlaybackStateCompat.STATE_PAUSED ||
                 mController.getPlaybackState().getState() == PlaybackStateCompat.STATE_STOPPED ||
                 mController.getPlaybackState().getState() == PlaybackStateCompat.STATE_NONE) {
             mControllerTransportControls.play();
         }
-
     }
 
     @Override
     protected void onStop() {
-
         mController.unregisterCallback(mControllerCallback);
-        if(mController.getPlaybackState().getState() == PlaybackStateCompat.STATE_PLAYING ||
+        if (mController.getPlaybackState().getState() == PlaybackStateCompat.STATE_PLAYING ||
                 mController.getPlaybackState().getState() == PlaybackStateCompat.STATE_PAUSED) {
             mControllerTransportControls.stop();
         }
@@ -226,12 +245,11 @@ public class VideoViewActivity extends AppCompatActivity {
 
     @Override
     protected void onPause() {
-
-        if(mController.getPlaybackState().getState() == PlaybackStateCompat.STATE_PLAYING) {
+        if (mController.getPlaybackState().getState() == PlaybackStateCompat.STATE_PLAYING) {
             mControllerTransportControls.pause();
         }
-        super.onPause();
 
+        super.onPause();
     }
 
     @Override

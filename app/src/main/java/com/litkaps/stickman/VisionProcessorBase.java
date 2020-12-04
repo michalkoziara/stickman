@@ -33,138 +33,138 @@ import java.util.TimerTask;
  */
 public abstract class VisionProcessorBase<T> implements VisionImageProcessor {
 
-  protected static final String MANUAL_TESTING_LOG = "LogTagForTest";
-  private static final String TAG = "VisionProcessorBase";
+    protected static final String MANUAL_TESTING_LOG = "LogTagForTest";
+    private static final String TAG = "VisionProcessorBase";
 
-  private final ActivityManager activityManager;
-  private final Timer fpsTimer = new Timer();
-  private final ScopedExecutor executor;
+    private final ActivityManager activityManager;
+    private final Timer fpsTimer = new Timer();
+    private final ScopedExecutor executor;
 
-  // Whether this processor is already shut down
-  private boolean isShutdown;
+    // Whether this processor is already shut down
+    private boolean isShutdown;
 
-  // Used to calculate latency, running in the same thread, no sync needed.
-  private int numRuns = 0;
-  private long totalRunMs = 0;
-  private long maxRunMs = 0;
-  private long minRunMs = Long.MAX_VALUE;
+    // Used to calculate latency, running in the same thread, no sync needed.
+    private int numRuns = 0;
+    private long totalRunMs = 0;
+    private long maxRunMs = 0;
+    private long minRunMs = Long.MAX_VALUE;
 
-  // Frame count that have been processed so far in an one second interval to calculate FPS.
-  private int frameProcessedInOneSecondInterval = 0;
-  private int framesPerSecond = 0;
+    // Frame count that have been processed so far in an one second interval to calculate FPS.
+    private int frameProcessedInOneSecondInterval = 0;
+    private int framesPerSecond = 0;
 
-  // To keep the latest images and its metadata.
-  @GuardedBy("this")
-  private ByteBuffer latestImage;
+    // To keep the latest images and its metadata.
+    @GuardedBy("this")
+    private ByteBuffer latestImage;
 
-  @GuardedBy("this")
-  private FrameMetadata latestImageMetaData;
-  // To keep the images and metadata in process.
-  @GuardedBy("this")
-  private ByteBuffer processingImage;
+    @GuardedBy("this")
+    private FrameMetadata latestImageMetaData;
+    // To keep the images and metadata in process.
+    @GuardedBy("this")
+    private ByteBuffer processingImage;
 
-  @GuardedBy("this")
-  private FrameMetadata processingMetaData;
+    @GuardedBy("this")
+    private FrameMetadata processingMetaData;
 
-  protected VisionProcessorBase(Context context) {
-    activityManager = (ActivityManager) context.getSystemService(Context.ACTIVITY_SERVICE);
-    executor = new ScopedExecutor(TaskExecutors.MAIN_THREAD);
-    fpsTimer.scheduleAtFixedRate(
-        new TimerTask() {
-          @Override
-          public void run() {
-            framesPerSecond = frameProcessedInOneSecondInterval;
-            frameProcessedInOneSecondInterval = 0;
-          }
-        },
-        /* delay= */ 0,
-        /* period= */ 1000);
-  }
-
-  @Override
-  @RequiresApi(VERSION_CODES.KITKAT)
-  @ExperimentalGetImage
-  public void processImageProxy(ImageProxy image, GraphicOverlay graphicOverlay) {
-    if (isShutdown) {
-      image.close();
-      return;
+    protected VisionProcessorBase(Context context) {
+        activityManager = (ActivityManager) context.getSystemService(Context.ACTIVITY_SERVICE);
+        executor = new ScopedExecutor(TaskExecutors.MAIN_THREAD);
+        fpsTimer.scheduleAtFixedRate(
+                new TimerTask() {
+                    @Override
+                    public void run() {
+                        framesPerSecond = frameProcessedInOneSecondInterval;
+                        frameProcessedInOneSecondInterval = 0;
+                    }
+                },
+                /* delay= */ 0,
+                /* period= */ 1000);
     }
 
-    requestDetectInImage(
-            InputImage.fromMediaImage(image.getImage(), image.getImageInfo().getRotationDegrees()),
-            graphicOverlay,
-            /* originalCameraImage= */ BitmapUtils.getBitmap(image))
-        // When the image is from CameraX analysis use case, must call image.close() on received
-        // images when finished using them. Otherwise, new images may not be received or the camera
-        // may stall.
-        .addOnCompleteListener(results -> image.close());
-  }
+    @Override
+    @RequiresApi(VERSION_CODES.KITKAT)
+    @ExperimentalGetImage
+    public void processImageProxy(ImageProxy image, GraphicOverlay graphicOverlay) {
+        if (isShutdown) {
+            image.close();
+            return;
+        }
 
-  // -----------------Common processing logic-------------------------------------------------------
-  private Task<T> requestDetectInImage(
-      final InputImage image,
-      final GraphicOverlay graphicOverlay,
-      @Nullable final Bitmap originalCameraImage) {
-    final long startMs = SystemClock.elapsedRealtime();
+        requestDetectInImage(
+                InputImage.fromMediaImage(image.getImage(), image.getImageInfo().getRotationDegrees()),
+                graphicOverlay,
+                /* originalCameraImage= */ BitmapUtils.getBitmap(image))
+                // When the image is from CameraX analysis use case, must call image.close() on received
+                // images when finished using them. Otherwise, new images may not be received or the camera
+                // may stall.
+                .addOnCompleteListener(results -> image.close());
+    }
 
-    return detectInImage(image)
-        .addOnSuccessListener(
-            executor,
-            results -> {
-              long currentLatencyMs = SystemClock.elapsedRealtime() - startMs;
-              numRuns++;
-              frameProcessedInOneSecondInterval++;
-              totalRunMs += currentLatencyMs;
-              maxRunMs = Math.max(currentLatencyMs, maxRunMs);
-              minRunMs = Math.min(currentLatencyMs, minRunMs);
+    // -----------------Common processing logic-------------------------------------------------------
+    private Task<T> requestDetectInImage(
+            final InputImage image,
+            final GraphicOverlay graphicOverlay,
+            @Nullable final Bitmap originalCameraImage) {
+        final long startMs = SystemClock.elapsedRealtime();
 
-              // Only log inference info once per second. When frameProcessedInOneSecondInterval is
-              // equal to 1, it means this is the first frame processed during the current second.
-              if (frameProcessedInOneSecondInterval == 1) {
-                Log.d(TAG, "Max latency is: " + maxRunMs);
-                Log.d(TAG, "Min latency is: " + minRunMs);
-                Log.d(TAG, "Num of Runs: " + numRuns + ", Avg latency is: " + totalRunMs / numRuns);
-                MemoryInfo mi = new MemoryInfo();
-                activityManager.getMemoryInfo(mi);
-                long availableMegs = mi.availMem / 0x100000L;
-                Log.d(TAG, "Memory available in system: " + availableMegs + " MB");
-              }
+        return detectInImage(image)
+                .addOnSuccessListener(
+                        executor,
+                        results -> {
+                            long currentLatencyMs = SystemClock.elapsedRealtime() - startMs;
+                            numRuns++;
+                            frameProcessedInOneSecondInterval++;
+                            totalRunMs += currentLatencyMs;
+                            maxRunMs = Math.max(currentLatencyMs, maxRunMs);
+                            minRunMs = Math.min(currentLatencyMs, minRunMs);
 
-              graphicOverlay.clear();
+                            // Only log inference info once per second. When frameProcessedInOneSecondInterval is
+                            // equal to 1, it means this is the first frame processed during the current second.
+                            if (frameProcessedInOneSecondInterval == 1) {
+                                Log.d(TAG, "Max latency is: " + maxRunMs);
+                                Log.d(TAG, "Min latency is: " + minRunMs);
+                                Log.d(TAG, "Num of Runs: " + numRuns + ", Avg latency is: " + totalRunMs / numRuns);
+                                MemoryInfo mi = new MemoryInfo();
+                                activityManager.getMemoryInfo(mi);
+                                long availableMegs = mi.availMem / 0x100000L;
+                                Log.d(TAG, "Memory available in system: " + availableMegs + " MB");
+                            }
 
-              VisionProcessorBase.this.onSuccess(results, graphicOverlay, originalCameraImage);
+                            graphicOverlay.clear();
 
-              graphicOverlay.postInvalidate();
-            })
-        .addOnFailureListener(
-            executor,
-            e -> {
-              graphicOverlay.clear();
-              graphicOverlay.postInvalidate();
-              String error = "Failed to process. Error: " + e.getLocalizedMessage();
-              Toast.makeText(
-                      graphicOverlay.getContext(),
-                      error + "\nCause: " + e.getCause(),
-                      Toast.LENGTH_SHORT)
-                  .show();
-              Log.d(TAG, error);
-              e.printStackTrace();
-              VisionProcessorBase.this.onFailure(e);
-            });
-  }
+                            VisionProcessorBase.this.onSuccess(results, graphicOverlay, originalCameraImage);
 
-  @Override
-  public void stop() {
-    executor.shutdown();
-    isShutdown = true;
-    numRuns = 0;
-    totalRunMs = 0;
-    fpsTimer.cancel();
-  }
+                            graphicOverlay.postInvalidate();
+                        })
+                .addOnFailureListener(
+                        executor,
+                        e -> {
+                            graphicOverlay.clear();
+                            graphicOverlay.postInvalidate();
+                            String error = "Failed to process. Error: " + e.getLocalizedMessage();
+                            Toast.makeText(
+                                    graphicOverlay.getContext(),
+                                    error + "\nCause: " + e.getCause(),
+                                    Toast.LENGTH_SHORT)
+                                    .show();
+                            Log.d(TAG, error);
+                            e.printStackTrace();
+                            VisionProcessorBase.this.onFailure(e);
+                        });
+    }
 
-  protected abstract Task<T> detectInImage(InputImage image);
+    @Override
+    public void stop() {
+        executor.shutdown();
+        isShutdown = true;
+        numRuns = 0;
+        totalRunMs = 0;
+        fpsTimer.cancel();
+    }
 
-  protected abstract void onSuccess(@NonNull T results, @NonNull GraphicOverlay graphicOverlay, Bitmap cameraImage);
+    protected abstract Task<T> detectInImage(InputImage image);
 
-  protected abstract void onFailure(@NonNull Exception e);
+    protected abstract void onSuccess(@NonNull T results, @NonNull GraphicOverlay graphicOverlay, Bitmap cameraImage);
+
+    protected abstract void onFailure(@NonNull Exception e);
 }

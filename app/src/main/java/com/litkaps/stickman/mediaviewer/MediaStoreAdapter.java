@@ -2,15 +2,17 @@ package com.litkaps.stickman.mediaviewer;
 
 import android.app.Activity;
 import android.database.Cursor;
-import android.graphics.Bitmap;
 import android.net.Uri;
 import android.provider.MediaStore;
-
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
+
+import androidx.annotation.NonNull;
+import androidx.core.content.FileProvider;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
 import com.litkaps.stickman.BuildConfig;
@@ -20,9 +22,6 @@ import java.io.File;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-
-import androidx.core.content.FileProvider;
-import androidx.recyclerview.widget.RecyclerView;
 
 
 public class MediaStoreAdapter extends RecyclerView.Adapter<MediaStoreAdapter.ViewHolder> {
@@ -42,6 +41,7 @@ public class MediaStoreAdapter extends RecyclerView.Adapter<MediaStoreAdapter.Vi
         this.mOnClickThumbListener = (OnClickThumbListener) activity;
     }
 
+    @NonNull
     @Override
     public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(parent.getContext())
@@ -51,12 +51,6 @@ public class MediaStoreAdapter extends RecyclerView.Adapter<MediaStoreAdapter.Vi
 
     @Override
     public void onBindViewHolder(ViewHolder holder, int position) {
-        /*
-        Bitmap bitmap = getBitmapFromMediaStore(position);
-        if (bitmap != null) {
-            holder.getImageView().setImageBitmap(bitmap);
-        }
-        */
         Glide.with(mActivity)
                 .load(getUriFromMediaStore(position))
                 .centerCrop()
@@ -68,10 +62,11 @@ public class MediaStoreAdapter extends RecyclerView.Adapter<MediaStoreAdapter.Vi
 
         holder.thumbnailLabel.setText(dateFormat.format(new Date(mMediaStoreCursor.getLong(1) * 1000)));
 
-        if (mMediaStoreCursor.getInt(3) == MediaStore.Files.FileColumns.MEDIA_TYPE_IMAGE)
+        if (mMediaStoreCursor.getInt(3) == MediaStore.Files.FileColumns.MEDIA_TYPE_IMAGE) {
             holder.thumbnailLabel.setCompoundDrawablesWithIntrinsicBounds(R.drawable.ic_baseline_image_24, 0, 0, 0);
-        else
+        } else {
             holder.thumbnailLabel.setCompoundDrawablesWithIntrinsicBounds(R.drawable.ic_baseline_movie_24, 0, 0, 0);
+        }
     }
 
     @Override
@@ -121,39 +116,13 @@ public class MediaStoreAdapter extends RecyclerView.Adapter<MediaStoreAdapter.Vi
         }
     }
 
-    private Bitmap getBitmapFromMediaStore(int position) {
-        int idIndex = mMediaStoreCursor.getColumnIndex(MediaStore.Files.FileColumns._ID);
-        int mediaTypeIndex = mMediaStoreCursor.getColumnIndex(MediaStore.Files.FileColumns.MEDIA_TYPE);
-
-        mMediaStoreCursor.moveToPosition(position);
-        switch (mMediaStoreCursor.getInt(mediaTypeIndex)) {
-            case MediaStore.Files.FileColumns.MEDIA_TYPE_IMAGE:
-                return MediaStore.Images.Thumbnails.getThumbnail(
-                        mActivity.getContentResolver(),
-                        mMediaStoreCursor.getLong(idIndex),
-                        MediaStore.Images.Thumbnails.MICRO_KIND,
-                        null
-                );
-            case MediaStore.Files.FileColumns.MEDIA_TYPE_VIDEO:
-                return MediaStore.Video.Thumbnails.getThumbnail(
-                        mActivity.getContentResolver(),
-                        mMediaStoreCursor.getLong(idIndex),
-                        MediaStore.Video.Thumbnails.MICRO_KIND,
-                        null
-                );
-            default:
-                return null;
-        }
-    }
-
     private Uri getUriFromMediaStore(int position) {
         int dataIndex = mMediaStoreCursor.getColumnIndex(MediaStore.Files.FileColumns.DATA);
 
         mMediaStoreCursor.moveToPosition(position);
 
         String dataString = mMediaStoreCursor.getString(dataIndex);
-        Uri mediaUri = Uri.parse("file://" + dataString);
-        return mediaUri;
+        return Uri.parse("file://" + dataString);
     }
 
     private void getOnClickUri(int position) {

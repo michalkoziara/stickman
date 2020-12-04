@@ -38,7 +38,7 @@ public class VideoEncoder {
         videoDetails.put(MediaStore.Video.Media.TITLE, name + ".mp4");
         videoDetails.put(MediaStore.Video.Media.DISPLAY_NAME, name + ".mp4");
         videoDetails.put(MediaStore.Video.Media.MIME_TYPE, "video/mp4");
-        videoDetails.put(MediaStore.Video.Media.DESCRIPTION , "Stickman application media.");
+        videoDetails.put(MediaStore.Video.Media.DESCRIPTION, "Stickman application media.");
 
         long now = System.currentTimeMillis() / 1000;
         videoDetails.put(MediaStore.Video.Media.DATE_ADDED, now);

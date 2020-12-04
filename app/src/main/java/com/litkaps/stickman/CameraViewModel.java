@@ -14,37 +14,39 @@ import com.google.common.util.concurrent.ListenableFuture;
 
 import java.util.concurrent.ExecutionException;
 
-/** View model for interacting with Camera. */
+/**
+ * View model for interacting with Camera.
+ */
 public final class CameraViewModel extends AndroidViewModel {
 
-  private static final String TAG = "CameraViewModel";
-  private MutableLiveData<ProcessCameraProvider> cameraProviderLiveData;
+    private static final String TAG = "CameraViewModel";
+    private MutableLiveData<ProcessCameraProvider> cameraProviderLiveData;
 
-  /**
-   * Create an instance which interacts with the camera service via the given application context.
-   */
-  public CameraViewModel(@NonNull Application application) {
-    super(application);
-  }
-
-  public LiveData<ProcessCameraProvider> getProcessCameraProvider() {
-    if (cameraProviderLiveData == null) {
-      cameraProviderLiveData = new MutableLiveData<>();
-
-      ListenableFuture<ProcessCameraProvider> cameraProviderFuture =
-          ProcessCameraProvider.getInstance(getApplication());
-      cameraProviderFuture.addListener(
-          () -> {
-            try {
-              cameraProviderLiveData.setValue(cameraProviderFuture.get());
-            } catch (ExecutionException | InterruptedException e) {
-              // Handle any errors (including cancellation) here.
-              Log.e(TAG, "Unhandled exception", e);
-            }
-          },
-          ContextCompat.getMainExecutor(getApplication()));
+    /**
+     * Create an instance which interacts with the camera service via the given application context.
+     */
+    public CameraViewModel(@NonNull Application application) {
+        super(application);
     }
 
-    return cameraProviderLiveData;
-  }
+    public LiveData<ProcessCameraProvider> getProcessCameraProvider() {
+        if (cameraProviderLiveData == null) {
+            cameraProviderLiveData = new MutableLiveData<>();
+
+            ListenableFuture<ProcessCameraProvider> cameraProviderFuture =
+                    ProcessCameraProvider.getInstance(getApplication());
+            cameraProviderFuture.addListener(
+                    () -> {
+                        try {
+                            cameraProviderLiveData.setValue(cameraProviderFuture.get());
+                        } catch (ExecutionException | InterruptedException e) {
+                            // Handle any errors (including cancellation) here.
+                            Log.e(TAG, "Unhandled exception", e);
+                        }
+                    },
+                    ContextCompat.getMainExecutor(getApplication()));
+        }
+
+        return cameraProviderLiveData;
+    }
 }
