@@ -30,12 +30,6 @@ android {
     configurations.all {
         resolutionStrategy.force 'com.google.code.findbugs:jsr305:3.0.2'
     }
-
-    lintOptions {
-        abortOnError false
-        quiet true
-        lintConfig file('./code_quality_tools/lint.xml')
-    }
 }
 
 repositories {
