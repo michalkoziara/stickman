@@ -12,6 +12,7 @@ import android.net.Uri;
 import android.os.Build.VERSION;
 import android.os.Build.VERSION_CODES;
 import android.os.Bundle;
+import android.os.StrictMode;
 import android.util.Log;
 import android.util.Size;
 import android.view.LayoutInflater;
@@ -60,6 +61,9 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
+
+import io.reactivex.rxjava3.core.SingleObserver;
+import io.reactivex.rxjava3.disposables.Disposable;
 
 @KeepName
 @RequiresApi(VERSION_CODES.LOLLIPOP)
@@ -200,17 +204,31 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
         @Override
         public void onClick(View view) {
             Bitmap bitmap = graphicOverlay.getGraphicBitmap();
-            ContentResolver resolver = getApplicationContext().getContentResolver();
-            ImageWriter imageWriter = new ImageWriter(resolver);
+            ImageWriter imageWriter = new ImageWriter(getContentResolver());
 
             String uniqueName = "Stickman " + System.currentTimeMillis();
-            boolean result = imageWriter.saveBitmapToImage(bitmap, uniqueName);
+            imageWriter.saveBitmapToImage(bitmap, uniqueName).safeSubscribe(
+                    new SingleObserver<Boolean>() {
+                        @Override
+                        public void onSubscribe(@NonNull Disposable d) {
+                        }
 
-            String resultText = result ? "Zdjęcie zostało zapisane!" : "Spróbuj ponownie!";
+                        @Override
+                        public void onSuccess(@NonNull Boolean result) {
+                            String resultText = result
+                                    ? "Zdjęcie zostało zapisane!"
+                                    : "Spróbuj ponownie!";
 
-            Snackbar.make(view.getRootView(), resultText, Snackbar.LENGTH_SHORT)
-                    .setAnchorView(recordButton)
-                    .show();
+                            Snackbar.make(view.getRootView(), resultText, Snackbar.LENGTH_SHORT)
+                                    .setAnchorView(recordButton)
+                                    .show();
+                        }
+
+                        @Override
+                        public void onError(@NonNull Throwable e) {
+                        }
+                    }
+            );
         }
     };
 
@@ -246,13 +264,12 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
                 timer.start();
 
                 String uniqueName = "Stickman " + System.currentTimeMillis();
-                ContentResolver resolver = getApplication().getContentResolver();
 
                 VideoEncoder videoEncoder = new VideoEncoder(
                         uniqueName,
                         targetResolution.getWidth(),
                         targetResolution.getHeight(),
-                        resolver,
+                        getContentResolver(),
                         outputFile -> {
                             String resultText = "Film został zapisany!";
 
@@ -371,6 +388,30 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        if (BuildConfig.DEBUG) {
+            // Looks out for operations such as flash I/O and network I/O
+            // being performed on the main application thread instead of on a background thread.
+            StrictMode.setThreadPolicy(
+                    new StrictMode.ThreadPolicy.Builder()
+                            .detectDiskReads()
+                            .detectDiskWrites()
+                            .detectNetwork()   // or .detectAll() for all detectable problems
+                            .penaltyLog() // Log detected violations to the system log.
+                            .build()
+            );
+
+            // Guards against bad coding practices such as not closing SQLiteCursor
+            // objects or any Closeable object that was created.
+            StrictMode.setVmPolicy(
+                    new StrictMode.VmPolicy.Builder()
+                            .detectLeakedSqlLiteObjects()
+                            .detectLeakedClosableObjects()
+                            .penaltyLog()
+                            .penaltyDeath() // Crashes the whole process on violation.
+                            .build()
+            );
+        }
 
         if (VERSION.SDK_INT < VERSION_CODES.LOLLIPOP) {
             String errorMessage = "CameraX is only supported on SDK version >=21. Current SDK version is "

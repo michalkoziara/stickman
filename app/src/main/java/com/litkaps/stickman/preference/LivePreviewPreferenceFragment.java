@@ -6,6 +6,8 @@ import android.preference.PreferenceFragment;
 
 import com.litkaps.stickman.R;
 
+import io.reactivex.rxjava3.schedulers.Schedulers;
+
 /**
  * Configures live preview demo settings.
  */
@@ -15,8 +17,12 @@ public class LivePreviewPreferenceFragment extends PreferenceFragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        addPreferencesFromResource(R.xml.preference_live_preview_quickstart);
-        setUpCameraXTargetAnalysisSizePreference();
+        Schedulers.io().createWorker().schedule(
+                () -> {
+                    addPreferencesFromResource(R.xml.preference_live_preview_quickstart);
+                    setUpCameraXTargetAnalysisSizePreference();
+                }
+        );
     }
 
     private void setUpCameraXTargetAnalysisSizePreference() {

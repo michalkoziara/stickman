@@ -16,9 +16,9 @@ import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.CountDownLatch;
 
-import io.reactivex.Completable;
-import io.reactivex.android.schedulers.AndroidSchedulers;
-import io.reactivex.schedulers.Schedulers;
+import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers;
+import io.reactivex.rxjava3.core.Completable;
+import io.reactivex.rxjava3.schedulers.Schedulers;
 
 public class BitmapToVideoEncoder {
     private static final String TAG = BitmapToVideoEncoder.class.getSimpleName();
@@ -95,7 +95,7 @@ public class BitmapToVideoEncoder {
 
         Log.d(TAG, "Initialization complete. Starting encoder...");
 
-        Completable.fromAction(() -> encode())
+        Completable.fromAction(this::encode)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe();

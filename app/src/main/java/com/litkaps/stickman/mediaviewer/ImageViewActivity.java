@@ -9,6 +9,8 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import com.litkaps.stickman.R;
 
+import io.reactivex.rxjava3.schedulers.Schedulers;
+
 public class ImageViewActivity extends AppCompatActivity {
 
     @Override
@@ -21,7 +23,7 @@ public class ImageViewActivity extends AppCompatActivity {
             Uri imageUri = callingIntent.getData();
 
             ImageView imgView = findViewById(R.id.imageView);
-            imgView.setImageURI(imageUri);
+            Schedulers.io().createWorker().schedule(() -> imgView.setImageURI(imageUri));
         }
     }
 }

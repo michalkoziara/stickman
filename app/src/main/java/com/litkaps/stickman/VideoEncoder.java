@@ -10,7 +10,10 @@ import android.provider.MediaStore;
 
 import java.io.File;
 import java.io.FileDescriptor;
-import java.io.FileNotFoundException;
+import java.io.IOException;
+
+import io.reactivex.rxjava3.schedulers.Schedulers;
+
 
 public class VideoEncoder {
     public interface VideoEncoderCallback extends BitmapToVideoEncoder.IBitmapToVideoEncoderCallback {
@@ -20,7 +23,8 @@ public class VideoEncoder {
     private final BitmapToVideoEncoder bitmapToVideoEncoder;
     private final ContentResolver resolver;
     private final ContentValues videoDetails;
-    private final Uri videoContentUri;
+
+    private Uri videoContentUri;
 
     VideoEncoder(String name, int width, int height, ContentResolver resolver, VideoEncoderCallback onSuccess) {
         bitmapToVideoEncoder = new BitmapToVideoEncoder(onSuccess);
@@ -48,20 +52,18 @@ public class VideoEncoder {
             videoDetails.put(MediaStore.Video.Media.IS_PENDING, 1);
         }
 
-        videoContentUri = resolver.insert(videoCollection, videoDetails);
+        Schedulers.io().createWorker().schedule(() -> {
+            videoContentUri = resolver.insert(videoCollection, videoDetails);
 
-        try {
             if (videoContentUri != null) {
-                ParcelFileDescriptor parcelFileDescriptor = resolver.openFileDescriptor(videoContentUri, "rw");
-
-                if (parcelFileDescriptor != null) {
+                try (ParcelFileDescriptor parcelFileDescriptor = resolver.openFileDescriptor(videoContentUri, "rw")) {
                     FileDescriptor fileDescriptor = parcelFileDescriptor.getFileDescriptor();
                     bitmapToVideoEncoder.startEncoding(width, height, fileDescriptor);
+                } catch (IOException e) {
+                    e.printStackTrace();
                 }
             }
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        }
+        });
     }
 
     public void queueFrame(Bitmap frame) {
@@ -78,7 +80,9 @@ public class VideoEncoder {
                 videoDetails.put(MediaStore.Video.Media.IS_PENDING, 0);
             }
 
-            resolver.update(videoContentUri, videoDetails, null, null);
+            Schedulers.io().createWorker().schedule(
+                    () -> resolver.update(videoContentUri, videoDetails, null, null)
+            );
         }
     }
 }

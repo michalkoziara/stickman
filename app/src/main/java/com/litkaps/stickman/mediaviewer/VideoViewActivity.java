@@ -22,6 +22,8 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import com.litkaps.stickman.R;
 
+import io.reactivex.rxjava3.schedulers.Schedulers;
+
 public class VideoViewActivity extends AppCompatActivity {
 
     private static final String TAG = "VideoPlayActivity";
@@ -123,41 +125,47 @@ public class VideoViewActivity extends AppCompatActivity {
         }
 
         private void mediaPlay() {
-            registerReceiver(mAudioBecommingNoisy, mNoisyIntentFilter);
-            int requestAudioFocusResult = mAudioManager.requestAudioFocus(
-                    this,
-                    AudioManager.STREAM_MUSIC,
-                    AudioManager.AUDIOFOCUS_GAIN
-            );
-
-            if (requestAudioFocusResult == AudioManager.AUDIOFOCUS_REQUEST_GRANTED) {
-                mSession.setActive(true);
-                mPBuilder.setActions(PlaybackStateCompat.ACTION_PAUSE | PlaybackStateCompat.ACTION_STOP);
-                mPBuilder.setState(
-                        PlaybackStateCompat.STATE_PLAYING,
-                        mMediaPlayer.getCurrentPosition(),
-                        1.0f,
-                        SystemClock.elapsedRealtime()
+            if (mMediaPlayer != null) {
+                registerReceiver(mAudioBecommingNoisy, mNoisyIntentFilter);
+                int requestAudioFocusResult = mAudioManager.requestAudioFocus(
+                        this,
+                        AudioManager.STREAM_MUSIC,
+                        AudioManager.AUDIOFOCUS_GAIN
                 );
-                mSession.setPlaybackState(mPBuilder.build());
-                mMediaPlayer.start();
+
+                if (requestAudioFocusResult == AudioManager.AUDIOFOCUS_REQUEST_GRANTED) {
+                    mSession.setActive(true);
+                    mPBuilder.setActions(PlaybackStateCompat.ACTION_PAUSE | PlaybackStateCompat.ACTION_STOP);
+                    mPBuilder.setState(
+                            PlaybackStateCompat.STATE_PLAYING,
+                            mMediaPlayer.getCurrentPosition(),
+                            1.0f,
+                            SystemClock.elapsedRealtime()
+                    );
+                    mSession.setPlaybackState(mPBuilder.build());
+                    mMediaPlayer.start();
+                }
             }
         }
 
         private void mediaPause() {
-            mMediaPlayer.pause();
-            mPBuilder.setActions(PlaybackStateCompat.ACTION_PLAY | PlaybackStateCompat.ACTION_STOP);
-            mPBuilder.setState(PlaybackStateCompat.STATE_PAUSED,
-                    mMediaPlayer.getCurrentPosition(), 1.0f, SystemClock.elapsedRealtime());
-            mSession.setPlaybackState(mPBuilder.build());
-            mAudioManager.abandonAudioFocus(this);
-            unregisterReceiver(mAudioBecommingNoisy);
+            if (mMediaPlayer != null) {
+                mMediaPlayer.pause();
+                mPBuilder.setActions(PlaybackStateCompat.ACTION_PLAY | PlaybackStateCompat.ACTION_STOP);
+                mPBuilder.setState(PlaybackStateCompat.STATE_PAUSED,
+                        mMediaPlayer.getCurrentPosition(), 1.0f, SystemClock.elapsedRealtime());
+                mSession.setPlaybackState(mPBuilder.build());
+                mAudioManager.abandonAudioFocus(this);
+                unregisterReceiver(mAudioBecommingNoisy);
+            }
         }
 
         @Override
         public void surfaceCreated(@NonNull SurfaceHolder surfaceHolder) {
-            mMediaPlayer = MediaPlayer.create(mContext, mVideoUri, surfaceHolder);
-            mMediaPlayer.setOnCompletionListener(this);
+            Schedulers.io().createWorker().schedule(() -> {
+                mMediaPlayer = MediaPlayer.create(mContext, mVideoUri, surfaceHolder);
+                mMediaPlayer.setOnCompletionListener(this);
+            });
         }
 
         @Override
@@ -174,7 +182,7 @@ public class VideoViewActivity extends AppCompatActivity {
         public void onCompletion(MediaPlayer mediaPlayer) {
             mPBuilder.setActions(PlaybackStateCompat.ACTION_PLAY | PlaybackStateCompat.ACTION_STOP);
             mPBuilder.setState(PlaybackStateCompat.STATE_STOPPED,
-                    mMediaPlayer.getCurrentPosition(), 1.0f, SystemClock.elapsedRealtime());
+                    mediaPlayer.getCurrentPosition(), 1.0f, SystemClock.elapsedRealtime());
             mSession.setPlaybackState(mPBuilder.build());
         }
 

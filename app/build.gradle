@@ -41,7 +41,7 @@ dependencies {
     implementation fileTree(dir: "libs", include: ["*.jar"])
 
     // RxJava
-    implementation 'io.reactivex.rxjava2:rxandroid:2.0.2'
+    implementation 'io.reactivex.rxjava3:rxandroid:3.0.0'
 
     // Multidex
     implementation 'androidx.multidex:multidex:2.0.1'
@@ -84,7 +84,7 @@ dependencies {
 
     implementation 'androidx.appcompat:appcompat:1.2.0'
     implementation 'androidx.annotation:annotation:1.1.0'
-    implementation 'androidx.constraintlayout:constraintlayout:2.0.2'
+    implementation 'androidx.constraintlayout:constraintlayout:2.0.4'
 
     // CameraX
     implementation "androidx.camera:camera-camera2:1.0.0-SNAPSHOT"
