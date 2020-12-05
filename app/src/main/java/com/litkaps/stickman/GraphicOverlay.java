@@ -65,7 +65,7 @@ public class GraphicOverlay extends View {
         private static final float DOT_RADIUS = 20.0f;
         private GraphicOverlay overlay;
 
-        public Graphic(GraphicOverlay overlay) {
+        protected Graphic(GraphicOverlay overlay) {
             this.overlay = overlay;
         }
 

@@ -23,18 +23,16 @@ import io.reactivex.rxjava3.schedulers.Schedulers;
 public class BitmapToVideoEncoder {
     private static final String TAG = BitmapToVideoEncoder.class.getSimpleName();
 
-    private IBitmapToVideoEncoderCallback mCallback;
+    private final IBitmapToVideoEncoderCallback mCallback;
     private File mOutputFile;
     private Queue<Bitmap> mEncodeQueue = new ConcurrentLinkedQueue();
     private MediaCodec mediaCodec;
     private MediaMuxer mediaMuxer;
 
-    private Object mFrameSync = new Object();
+    private final Object mFrameSync = new Object();
     private CountDownLatch mNewFrameLatch;
 
     private static final String MIME_TYPE = "video/avc"; // H.264 Advanced Video Coding
-    private static int mWidth;
-    private static int mHeight;
     private static final int BIT_RATE = 16000000;
     private static final int FRAME_RATE = 5; // Frames per second
 
@@ -62,10 +60,8 @@ public class BitmapToVideoEncoder {
     }
 
     public void startEncoding(int width, int height, FileDescriptor fileDescriptor) {
-        mWidth = width;
-        mHeight = height;
 
-        MediaCodecInfo codecInfo = selectCodec(MIME_TYPE);
+        MediaCodecInfo codecInfo = selectCodec();
         if (codecInfo == null) {
             Log.e(TAG, "Unable to find an appropriate codec for " + MIME_TYPE);
             return;
@@ -79,7 +75,7 @@ public class BitmapToVideoEncoder {
             return;
         }
 
-        MediaFormat mediaFormat = MediaFormat.createVideoFormat(MIME_TYPE, mWidth, mHeight);
+        MediaFormat mediaFormat = MediaFormat.createVideoFormat(MIME_TYPE, width, height);
         mediaFormat.setInteger(MediaFormat.KEY_BIT_RATE, BIT_RATE);
         mediaFormat.setInteger(MediaFormat.KEY_FRAME_RATE, FRAME_RATE);
         mediaFormat.setInteger(MediaFormat.KEY_COLOR_FORMAT, MediaCodecInfo.CodecCapabilities.COLOR_FormatYUV420SemiPlanar);
@@ -154,8 +150,7 @@ public class BitmapToVideoEncoder {
     private void encode() {
         Log.d(TAG, "Encoder started");
 
-        while (true) {
-            if (mNoMoreFrames && (mEncodeQueue.size() == 0)) break;
+        while (!mNoMoreFrames || !mEncodeQueue.isEmpty()) {
 
             Bitmap bitmap = mEncodeQueue.poll();
             if (bitmap == null) {
@@ -175,9 +170,9 @@ public class BitmapToVideoEncoder {
 
             byte[] byteConvertFrame = getNV21(bitmap.getWidth(), bitmap.getHeight(), bitmap);
 
-            long TIMEOUT_USEC = 500000;
-            int inputBufIndex = mediaCodec.dequeueInputBuffer(TIMEOUT_USEC);
-            long ptsUsec = computePresentationTime(mGenerateIndex, FRAME_RATE);
+            long timeoutUsec = 500000;
+            int inputBufIndex = mediaCodec.dequeueInputBuffer(timeoutUsec);
+            long ptsUsec = computePresentationTime(mGenerateIndex);
             if (inputBufIndex >= 0) {
                 final ByteBuffer inputBuffer = mediaCodec.getInputBuffer(inputBufIndex);
                 inputBuffer.clear();
@@ -186,7 +181,7 @@ public class BitmapToVideoEncoder {
                 mGenerateIndex++;
             }
             MediaCodec.BufferInfo mBufferInfo = new MediaCodec.BufferInfo();
-            int encoderStatus = mediaCodec.dequeueOutputBuffer(mBufferInfo, TIMEOUT_USEC);
+            int encoderStatus = mediaCodec.dequeueOutputBuffer(mBufferInfo, timeoutUsec);
             if (encoderStatus == MediaCodec.INFO_TRY_AGAIN_LATER) {
                 // no output available yet
                 Log.e(TAG, "No output from encoder available");
@@ -239,7 +234,7 @@ public class BitmapToVideoEncoder {
         }
     }
 
-    private static MediaCodecInfo selectCodec(String mimeType) {
+    private static MediaCodecInfo selectCodec() {
         int numCodecs = MediaCodecList.getCodecCount();
         for (int i = 0; i < numCodecs; i++) {
             MediaCodecInfo codecInfo = MediaCodecList.getCodecInfoAt(i);
@@ -247,8 +242,8 @@ public class BitmapToVideoEncoder {
                 continue;
             }
             String[] types = codecInfo.getSupportedTypes();
-            for (int j = 0; j < types.length; j++) {
-                if (types[j].equalsIgnoreCase(mimeType)) {
+            for (String type : types) {
+                if (type.equalsIgnoreCase(BitmapToVideoEncoder.MIME_TYPE)) {
                     return codecInfo;
                 }
             }
@@ -276,26 +271,27 @@ public class BitmapToVideoEncoder {
         int yIndex = 0;
         int uvIndex = frameSize;
 
-        int a, R, G, B, Y, U, V;
+        int r;
+        int g;
+        int b;
+        int y;
+        int u;
+        int v;
         int index = 0;
         for (int j = 0; j < height; j++) {
             for (int i = 0; i < width; i++) {
+                r = (argb[index] & 0xff0000) >> 16;
+                g = (argb[index] & 0xff00) >> 8;
+                b = (argb[index] & 0xff);
 
-                a = (argb[index] & 0xff000000) >> 24; // a is not used obviously
-                R = (argb[index] & 0xff0000) >> 16;
-                G = (argb[index] & 0xff00) >> 8;
-                B = (argb[index] & 0xff) >> 0;
+                y = ((66 * r + 129 * g + 25 * b + 128) >> 8) + 16;
+                u = ((-38 * r - 74 * g + 112 * b + 128) >> 8) + 128;
+                v = ((112 * r - 94 * g - 18 * b + 128) >> 8) + 128;
 
-
-                Y = ((66 * R + 129 * G + 25 * B + 128) >> 8) + 16;
-                U = ((-38 * R - 74 * G + 112 * B + 128) >> 8) + 128;
-                V = ((112 * R - 94 * G - 18 * B + 128) >> 8) + 128;
-
-
-                yuv420sp[yIndex++] = (byte) ((Y < 0) ? 0 : ((Y > 255) ? 255 : Y));
+                yuv420sp[yIndex++] = (byte) ((y < 0) ? 0 : Math.min(y, 255));
                 if (j % 2 == 0 && index % 2 == 0) {
-                    yuv420sp[uvIndex++] = (byte) ((U < 0) ? 0 : ((U > 255) ? 255 : U));
-                    yuv420sp[uvIndex++] = (byte) ((V < 0) ? 0 : ((V > 255) ? 255 : V));
+                    yuv420sp[uvIndex++] = (byte) ((u < 0) ? 0 : Math.min(u, 255));
+                    yuv420sp[uvIndex++] = (byte) ((v < 0) ? 0 : Math.min(v, 255));
 
                 }
 
@@ -304,7 +300,7 @@ public class BitmapToVideoEncoder {
         }
     }
 
-    private long computePresentationTime(long frameIndex, int framerate) {
-        return 132 + frameIndex * 1000000 / framerate;
+    private long computePresentationTime(long frameIndex) {
+        return 132 + frameIndex * 1000000 / BitmapToVideoEncoder.FRAME_RATE;
     }
 }

@@ -15,7 +15,7 @@ public abstract class CountUpTimer extends CountDownTimer {
 
     @Override
     public void onTick(long msUntilFinished) {
-        int msSecond = (int) ((duration - msUntilFinished));
+        int msSecond = (int) (duration - msUntilFinished);
         onTick(msSecond);
     }
 

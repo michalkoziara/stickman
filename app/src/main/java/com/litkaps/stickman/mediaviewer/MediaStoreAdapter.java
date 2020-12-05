@@ -20,8 +20,10 @@ import com.litkaps.stickman.R;
 
 import java.io.File;
 import java.text.DateFormat;
-import java.text.SimpleDateFormat;
 import java.util.Date;
+
+import static android.provider.MediaStore.MediaColumns.DATA;
+import static java.text.DateFormat.getDateInstance;
 
 
 public class MediaStoreAdapter extends RecyclerView.Adapter<MediaStoreAdapter.ViewHolder> {
@@ -31,9 +33,9 @@ public class MediaStoreAdapter extends RecyclerView.Adapter<MediaStoreAdapter.Vi
     private final OnClickThumbListener mOnClickThumbListener;
 
     public interface OnClickThumbListener {
-        void OnClickImage(Uri imageUri);
+        void onClickImage(Uri imageUri);
 
-        void OnClickVideo(Uri videoUri);
+        void onClickVideo(Uri videoUri);
     }
 
     public MediaStoreAdapter(Activity activity) {
@@ -57,7 +59,7 @@ public class MediaStoreAdapter extends RecyclerView.Adapter<MediaStoreAdapter.Vi
                 .override(200, 200)
                 .into(holder.getImageView());
 
-        DateFormat dateFormat = SimpleDateFormat.getDateInstance();
+        DateFormat dateFormat = getDateInstance();
         mMediaStoreCursor.moveToPosition(position);
 
         holder.thumbnailLabel.setText(dateFormat.format(new Date(mMediaStoreCursor.getLong(1) * 1000)));
@@ -95,6 +97,26 @@ public class MediaStoreAdapter extends RecyclerView.Adapter<MediaStoreAdapter.Vi
         public void onClick(View v) {
             getOnClickUri(getAdapterPosition());
         }
+
+        private void getOnClickUri(int position) {
+            int mediaTypeIndex = mMediaStoreCursor.getColumnIndex(MediaStore.Files.FileColumns.MEDIA_TYPE);
+            int dataIndex = mMediaStoreCursor.getColumnIndex(DATA);
+
+            mMediaStoreCursor.moveToPosition(position);
+            String dataString = mMediaStoreCursor.getString(dataIndex);
+            String authorities = BuildConfig.APPLICATION_ID + ".provider";
+            Uri mediaUri = FileProvider.getUriForFile(mActivity, authorities, new File(dataString));
+
+            switch (mMediaStoreCursor.getInt(mediaTypeIndex)) {
+                case MediaStore.Files.FileColumns.MEDIA_TYPE_IMAGE:
+                    mOnClickThumbListener.onClickImage(mediaUri);
+                    break;
+                case MediaStore.Files.FileColumns.MEDIA_TYPE_VIDEO:
+                    mOnClickThumbListener.onClickVideo(mediaUri);
+                    break;
+                default:
+            }
+        }
     }
 
     private Cursor swapCursor(Cursor cursor) {
@@ -117,32 +139,11 @@ public class MediaStoreAdapter extends RecyclerView.Adapter<MediaStoreAdapter.Vi
     }
 
     private Uri getUriFromMediaStore(int position) {
-        int dataIndex = mMediaStoreCursor.getColumnIndex(MediaStore.Files.FileColumns.DATA);
+        int dataIndex = mMediaStoreCursor.getColumnIndex(DATA);
 
         mMediaStoreCursor.moveToPosition(position);
 
         String dataString = mMediaStoreCursor.getString(dataIndex);
         return Uri.parse("file://" + dataString);
-    }
-
-    private void getOnClickUri(int position) {
-        int mediaTypeIndex = mMediaStoreCursor.getColumnIndex(MediaStore.Files.FileColumns.MEDIA_TYPE);
-        int dataIndex = mMediaStoreCursor.getColumnIndex(MediaStore.Files.FileColumns.DATA);
-
-        mMediaStoreCursor.moveToPosition(position);
-        String dataString = mMediaStoreCursor.getString(dataIndex);
-        String authorities = BuildConfig.APPLICATION_ID + ".provider";
-        Uri mediaUri = FileProvider.getUriForFile(mActivity, authorities, new File(dataString));
-
-        switch (mMediaStoreCursor.getInt(mediaTypeIndex)) {
-            case MediaStore.Files.FileColumns.MEDIA_TYPE_IMAGE:
-                mOnClickThumbListener.OnClickImage(mediaUri);
-                break;
-            case MediaStore.Files.FileColumns.MEDIA_TYPE_VIDEO:
-                mOnClickThumbListener.OnClickVideo(mediaUri);
-                break;
-            default:
-        }
-
     }
 }

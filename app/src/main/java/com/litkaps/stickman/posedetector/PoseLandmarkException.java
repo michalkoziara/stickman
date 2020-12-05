@@ -6,15 +6,6 @@ package com.litkaps.stickman.posedetector;
  */
 public class PoseLandmarkException extends Exception {
     /**
-     * Constructs a new exception with {@code null} as its detail message.
-     * The cause is not initialized, and may subsequently be initialized by a
-     * call to {@link #initCause}.
-     */
-    public PoseLandmarkException() {
-        super();
-    }
-
-    /**
      * Constructs a new exception with the specified detail message.  The
      * cause is not initialized, and may subsequently be initialized by
      * a call to {@link #initCause}.

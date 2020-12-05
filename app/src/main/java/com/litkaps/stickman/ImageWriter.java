@@ -15,6 +15,13 @@ import io.reactivex.rxjava3.core.Single;
 import io.reactivex.rxjava3.core.SingleOnSubscribe;
 import io.reactivex.rxjava3.schedulers.Schedulers;
 
+import static android.provider.MediaStore.Images.ImageColumns.DESCRIPTION;
+import static android.provider.MediaStore.MediaColumns.DATE_ADDED;
+import static android.provider.MediaStore.MediaColumns.DATE_MODIFIED;
+import static android.provider.MediaStore.MediaColumns.DISPLAY_NAME;
+import static android.provider.MediaStore.MediaColumns.MIME_TYPE;
+import static android.provider.MediaStore.MediaColumns.TITLE;
+
 public class ImageWriter {
     final ContentResolver resolver;
 
@@ -34,14 +41,14 @@ public class ImageWriter {
                     }
 
                     ContentValues imageDetails = new ContentValues();
-                    imageDetails.put(MediaStore.Images.Media.TITLE, name);
-                    imageDetails.put(MediaStore.Images.Media.DISPLAY_NAME, name);
-                    imageDetails.put(MediaStore.Images.Media.MIME_TYPE, "image/jpeg");
-                    imageDetails.put(MediaStore.Images.Media.DESCRIPTION, "Stickman application media.");
+                    imageDetails.put(TITLE, name);
+                    imageDetails.put(DISPLAY_NAME, name);
+                    imageDetails.put(MIME_TYPE, "image/jpeg");
+                    imageDetails.put(DESCRIPTION, "Stickman application media.");
 
                     long now = System.currentTimeMillis() / 1000;
-                    imageDetails.put(MediaStore.Images.Media.DATE_ADDED, now);
-                    imageDetails.put(MediaStore.Images.Media.DATE_MODIFIED, now);
+                    imageDetails.put(DATE_ADDED, now);
+                    imageDetails.put(DATE_MODIFIED, now);
 
                     Uri imageContentUri = resolver.insert(imageCollection, imageDetails);
                     if (imageContentUri == null || imageContentUri.getPath() == null) {

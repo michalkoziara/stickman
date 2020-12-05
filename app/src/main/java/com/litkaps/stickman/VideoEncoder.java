@@ -14,6 +14,14 @@ import java.io.IOException;
 
 import io.reactivex.rxjava3.schedulers.Schedulers;
 
+import static android.provider.MediaStore.MediaColumns.DATE_ADDED;
+import static android.provider.MediaStore.MediaColumns.DATE_MODIFIED;
+import static android.provider.MediaStore.MediaColumns.DISPLAY_NAME;
+import static android.provider.MediaStore.MediaColumns.IS_PENDING;
+import static android.provider.MediaStore.MediaColumns.MIME_TYPE;
+import static android.provider.MediaStore.MediaColumns.TITLE;
+import static android.provider.MediaStore.Video.VideoColumns.DESCRIPTION;
+
 
 public class VideoEncoder {
     public interface VideoEncoderCallback extends BitmapToVideoEncoder.IBitmapToVideoEncoderCallback {
@@ -39,17 +47,17 @@ public class VideoEncoder {
         }
 
         videoDetails = new ContentValues();
-        videoDetails.put(MediaStore.Video.Media.TITLE, name + ".mp4");
-        videoDetails.put(MediaStore.Video.Media.DISPLAY_NAME, name + ".mp4");
-        videoDetails.put(MediaStore.Video.Media.MIME_TYPE, "video/mp4");
-        videoDetails.put(MediaStore.Video.Media.DESCRIPTION, "Stickman application media.");
+        videoDetails.put(TITLE, name + ".mp4");
+        videoDetails.put(DISPLAY_NAME, name + ".mp4");
+        videoDetails.put(MIME_TYPE, "video/mp4");
+        videoDetails.put(DESCRIPTION, "Stickman application media.");
 
         long now = System.currentTimeMillis() / 1000;
-        videoDetails.put(MediaStore.Video.Media.DATE_ADDED, now);
-        videoDetails.put(MediaStore.Video.Media.DATE_MODIFIED, now);
+        videoDetails.put(DATE_ADDED, now);
+        videoDetails.put(DATE_MODIFIED, now);
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-            videoDetails.put(MediaStore.Video.Media.IS_PENDING, 1);
+            videoDetails.put(IS_PENDING, 1);
         }
 
         Schedulers.io().createWorker().schedule(() -> {
@@ -77,7 +85,7 @@ public class VideoEncoder {
             bitmapToVideoEncoder.stopEncoding();
 
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-                videoDetails.put(MediaStore.Video.Media.IS_PENDING, 0);
+                videoDetails.put(IS_PENDING, 0);
             }
 
             Schedulers.io().createWorker().schedule(

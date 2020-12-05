@@ -32,6 +32,9 @@ import java.nio.ByteBuffer;
 public class BitmapUtils {
     private static final String TAG = "BitmapUtils";
 
+    private BitmapUtils() {
+    }
+
     /**
      * Converts NV21 format byte buffer to bitmap.
      */

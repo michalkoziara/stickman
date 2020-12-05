@@ -85,14 +85,14 @@ public class MediaViewerActivity extends AppCompatActivity implements LoaderMana
     }
 
     @Override
-    public void OnClickImage(Uri imageUri) {
+    public void onClickImage(Uri imageUri) {
         Intent imageViewIntent = new Intent(this, ImageViewActivity.class);
         imageViewIntent.setData(imageUri);
         startActivity(imageViewIntent);
     }
 
     @Override
-    public void OnClickVideo(Uri videoUri) {
+    public void onClickVideo(Uri videoUri) {
         Intent videoPlayIntent = new Intent(this, VideoViewActivity.class);
         videoPlayIntent.setData(videoUri);
         startActivity(videoPlayIntent);

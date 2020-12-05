@@ -1,6 +1,5 @@
 package com.litkaps.stickman;
 
-import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageInfo;
@@ -65,6 +64,9 @@ import java.util.List;
 import io.reactivex.rxjava3.core.SingleObserver;
 import io.reactivex.rxjava3.disposables.Disposable;
 
+import static com.google.android.material.snackbar.BaseTransientBottomBar.LENGTH_LONG;
+import static com.google.android.material.snackbar.BaseTransientBottomBar.LENGTH_SHORT;
+
 @KeepName
 @RequiresApi(VERSION_CODES.LOLLIPOP)
 public class MainActivity extends AppCompatActivity implements ActivityCompat.OnRequestPermissionsResultCallback,
@@ -75,7 +77,6 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
 
     private static final String STATE_LENS_FACING = "lens_facing";
 
-    private PreviewView previewView;
     private GraphicOverlay graphicOverlay;
 
     private Uri imageUri;
@@ -200,36 +201,33 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
         }
     };
 
-    View.OnClickListener takePhotoListener = new View.OnClickListener() {
-        @Override
-        public void onClick(View view) {
-            Bitmap bitmap = graphicOverlay.getGraphicBitmap();
-            ImageWriter imageWriter = new ImageWriter(getContentResolver());
+    View.OnClickListener takePhotoListener = (View view) -> {
+        Bitmap bitmap = graphicOverlay.getGraphicBitmap();
+        ImageWriter imageWriter = new ImageWriter(getContentResolver());
 
-            String uniqueName = "Stickman " + System.currentTimeMillis();
-            imageWriter.saveBitmapToImage(bitmap, uniqueName).safeSubscribe(
-                    new SingleObserver<Boolean>() {
-                        @Override
-                        public void onSubscribe(@NonNull Disposable d) {
-                        }
-
-                        @Override
-                        public void onSuccess(@NonNull Boolean result) {
-                            String resultText = result
-                                    ? "Zdjęcie zostało zapisane!"
-                                    : "Spróbuj ponownie!";
-
-                            Snackbar.make(view.getRootView(), resultText, Snackbar.LENGTH_SHORT)
-                                    .setAnchorView(recordButton)
-                                    .show();
-                        }
-
-                        @Override
-                        public void onError(@NonNull Throwable e) {
-                        }
+        String uniqueName = "Stickman " + System.currentTimeMillis();
+        imageWriter.saveBitmapToImage(bitmap, uniqueName).safeSubscribe(
+                new SingleObserver<Boolean>() {
+                    @Override
+                    public void onSubscribe(@NonNull Disposable d) {
                     }
-            );
-        }
+
+                    @Override
+                    public void onSuccess(@NonNull Boolean result) {
+                        String resultText = result
+                                ? "Zdjęcie zostało zapisane!"
+                                : "Spróbuj ponownie!";
+
+                        Snackbar.make(view.getRootView(), resultText, LENGTH_SHORT)
+                                .setAnchorView(recordButton)
+                                .show();
+                    }
+
+                    @Override
+                    public void onError(@NonNull Throwable e) {
+                    }
+                }
+        );
     };
 
     View.OnClickListener recordListener = new View.OnClickListener() {
@@ -273,7 +271,7 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
                         outputFile -> {
                             String resultText = "Film został zapisany!";
 
-                            Snackbar.make(view.getRootView(), resultText, Snackbar.LENGTH_SHORT)
+                            Snackbar.make(view.getRootView(), resultText, LENGTH_SHORT)
                                     .setAnchorView(recordButton)
                                     .show();
                         });
@@ -284,18 +282,17 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
     };
 
     // toggle between recording a video or taking a photo
-    CompoundButton.OnCheckedChangeListener changeRecordModeListener = new CompoundButton.OnCheckedChangeListener() {
-        public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-            // switch to video recording
-            if (isChecked) {
-                recordButton.setBackground(getDrawable(R.drawable.record_video_button));
-                recordButton.setOnClickListener(recordListener);
-            } else { // switch to taking photos
-                recordButton.setBackground(getDrawable(R.drawable.take_photo_button));
-                recordButton.setOnClickListener(takePhotoListener);
-            }
-        }
-    };
+    CompoundButton.OnCheckedChangeListener changeRecordModeListener =
+            (CompoundButton buttonView, boolean isChecked) -> {
+                // switch to video recording
+                if (isChecked) {
+                    recordButton.setBackground(getDrawable(R.drawable.record_video_button));
+                    recordButton.setOnClickListener(recordListener);
+                } else { // switch to taking photos
+                    recordButton.setBackground(getDrawable(R.drawable.take_photo_button));
+                    recordButton.setOnClickListener(takePhotoListener);
+                }
+            };
 
     class OptionsAdapter extends RecyclerView.Adapter<OptionsAdapter.OptionViewHolder> {
         ArrayList<OptionModel> options;
@@ -373,6 +370,7 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
                 });
             }
         }
+
     }
 
     @Override
@@ -417,7 +415,7 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
             String errorMessage = "CameraX is only supported on SDK version >=21. Current SDK version is "
                     + VERSION.SDK_INT;
 
-            Snackbar.make(getWindow().getDecorView().getRootView(), errorMessage, Snackbar.LENGTH_LONG)
+            Snackbar.make(getWindow().getDecorView().getRootView(), errorMessage, LENGTH_LONG)
                     .show();
             return;
         }
@@ -450,13 +448,12 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
         });
 
         ((CompoundButton) findViewById(R.id.record_mode_toggle)).setOnCheckedChangeListener(changeRecordModeListener);
-        findViewById(R.id.media_viewer_button).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Intent intent = new Intent(getApplicationContext(), MediaViewerActivity.class);
-                startActivity(intent);
-            }
-        });
+        findViewById(R.id.media_viewer_button).setOnClickListener(
+                (View view) -> {
+                    Intent intent = new Intent(getApplicationContext(), MediaViewerActivity.class);
+                    startActivity(intent);
+                }
+        );
 
         lineWidthBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
@@ -475,7 +472,7 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
             }
         });
 
-        previewView = findViewById(R.id.preview_view);
+        PreviewView previewView = findViewById(R.id.preview_view);
         if (previewView == null) {
             Log.d(TAG, "previewView is null");
         }
@@ -548,7 +545,7 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
 
         Snackbar.make(buttonView.getRootView(),
                 "This device does not have lens with facing: " + newLensFacing,
-                Snackbar.LENGTH_SHORT
+                LENGTH_SHORT
         ).setAnchorView(buttonView).show();
     }
 
@@ -629,7 +626,7 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
         } catch (Exception e) {
             Snackbar.make(getWindow().getDecorView().getRootView(),
                     "Can not create image processor: " + e.getLocalizedMessage(),
-                    Snackbar.LENGTH_LONG
+                    LENGTH_LONG
             ).show();
 
             return;
@@ -670,7 +667,7 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
                                 ? "Failed to process image."
                                 : e.getLocalizedMessage();
 
-                        Snackbar.make(getWindow().getDecorView().getRootView(), localizedMessage, Snackbar.LENGTH_SHORT)
+                        Snackbar.make(getWindow().getDecorView().getRootView(), localizedMessage, LENGTH_SHORT)
                                 .show();
                     }
                 });
