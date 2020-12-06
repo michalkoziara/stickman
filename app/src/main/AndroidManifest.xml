@@ -61,6 +61,10 @@
             />
 
         <activity
+            android:name=".editor.EditorActivity"
+            />
+
+        <activity
             android:name=".preference.SettingsActivity"
             android:exported="false" />
 

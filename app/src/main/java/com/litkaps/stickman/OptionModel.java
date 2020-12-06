@@ -3,25 +3,18 @@ package com.litkaps.stickman;
 class OptionModel {
     String name;
     int imageResourceID;
-    String accessoryType;
+    int accessoryType;
     int accessoryID;
     int tint = -1;
 
-    OptionModel(String name, int iconResourceID) {
-        this.name = name;
-        this.imageResourceID = iconResourceID;
-    }
-
     // Figure accessory
-    OptionModel(String name, int iconResourceID, int accessoryID, String accessoryType) {
-        this.name = name;
+    OptionModel(int iconResourceID, int accessoryID, int accessoryType) {
         this.imageResourceID = iconResourceID;
         this.accessoryType = accessoryType;
         this.accessoryID = accessoryID;
     }
 
-    OptionModel(String name, int iconResourceID, int tint) {
-        this.name = name;
+    OptionModel(int iconResourceID, int tint) {
         this.imageResourceID = iconResourceID;
         this.tint = tint;
     }

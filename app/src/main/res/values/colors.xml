@@ -12,11 +12,6 @@
     <color name="blue">#4286f4</color>
     <color name="red">#f44242</color>
 
-    <!-- canvas background colors -->
     <color name="color1">#277E8A</color>
-    <color name="color2">#38BEA3</color>
-    <color name="color3">#F7B536</color>
-    <color name="color4">#22201E</color>
-    <color name="color5">#F6532D</color>
 
 </resources>

@@ -50,6 +50,7 @@ public class VideoViewActivity extends AppCompatActivity {
                 case PlaybackStateCompat.STATE_SKIPPING_TO_NEXT:
                 case PlaybackStateCompat.STATE_SKIPPING_TO_PREVIOUS:
                 case PlaybackStateCompat.STATE_SKIPPING_TO_QUEUE_ITEM:
+                default:
                     break;
             }
         }
@@ -196,6 +197,8 @@ public class VideoViewActivity extends AppCompatActivity {
                 case AudioManager.AUDIOFOCUS_GAIN:
                     mediaPlay();
                     break;
+                default:
+                    break;
             }
         }
     }
@@ -219,6 +222,8 @@ public class VideoViewActivity extends AppCompatActivity {
         mPBuilder = new PlaybackStateCompat.Builder();
         mController = new MediaControllerCompat(this, mSession);
         mControllerTransportControls = mController.getTransportControls();
+
+        findViewById(R.id.videoPlayPauseButton).setOnClickListener(this::playPauseClick);
     }
 
     public void playPauseClick(View view) {

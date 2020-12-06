@@ -10,6 +10,7 @@ import android.provider.MediaStore;
 import java.io.IOException;
 import java.io.OutputStream;
 
+import androidx.annotation.NonNull;
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers;
 import io.reactivex.rxjava3.core.Single;
 import io.reactivex.rxjava3.core.SingleOnSubscribe;
@@ -29,9 +30,10 @@ public class ImageWriter {
         this.resolver = resolver;
     }
 
-    public Single<Boolean> saveBitmapToImage(Bitmap bitmap, String name) {
+    @NonNull
+    public Single<Object> saveBitmapToImage(Bitmap bitmap, String name) {
         return Single
-                .create((SingleOnSubscribe<Boolean>) emitter -> {
+                .create(emitter -> {
                     Uri imageCollection;
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
                         imageCollection = MediaStore.Images.Media

@@ -25,7 +25,7 @@ public class BitmapToVideoEncoder {
 
     private final IBitmapToVideoEncoderCallback mCallback;
     private File mOutputFile;
-    private Queue<Bitmap> mEncodeQueue = new ConcurrentLinkedQueue();
+    private Queue<Bitmap> mEncodeQueue = new ConcurrentLinkedQueue<>();
     private MediaCodec mediaCodec;
     private MediaMuxer mediaMuxer;
 
@@ -122,7 +122,7 @@ public class BitmapToVideoEncoder {
 
         mNoMoreFrames = true;
         mAbort = true;
-        mEncodeQueue = new ConcurrentLinkedQueue(); // Drop all frames
+        mEncodeQueue = new ConcurrentLinkedQueue<>(); // Drop all frames
 
         synchronized (mFrameSync) {
             if ((mNewFrameLatch != null) && (mNewFrameLatch.getCount() > 0)) {

@@ -12,6 +12,7 @@ import android.util.Log;
 import com.google.mlkit.vision.pose.Pose;
 import com.google.mlkit.vision.pose.PoseLandmark;
 import com.litkaps.stickman.GraphicOverlay;
+import com.litkaps.stickman.MainActivity;
 
 /**
  * Base class for stickman drawing.
@@ -73,7 +74,7 @@ abstract class StickmanGraphic extends GraphicOverlay.Graphic {
         Matrix matrix = null;
         try {
             switch (accessoryType) {
-                case 0: // hat
+                case MainActivity.HAT:
                     matrix = calculateTransformMatrix(
                             getPositionX(PoseLandmark.RIGHT_EYE_INNER),
                             getPositionY(PoseLandmark.RIGHT_EYE_INNER),
@@ -89,7 +90,7 @@ abstract class StickmanGraphic extends GraphicOverlay.Graphic {
 
                     break;
 
-                case 1: // handheld
+                case MainActivity.HANDHELD: // handheld
                     float scaleX = (
                             getDistance(
                                     getPosition(PoseLandmark.RIGHT_HIP, false),
@@ -112,7 +113,7 @@ abstract class StickmanGraphic extends GraphicOverlay.Graphic {
 
                     break;
 
-                case 3: // glasses
+                case MainActivity.GLASSES: // glasses
                     matrix = calculateTransformMatrix(
                             getPositionX(PoseLandmark.RIGHT_EYE_INNER),
                             getPositionY(PoseLandmark.RIGHT_EYE_INNER),
@@ -126,6 +127,8 @@ abstract class StickmanGraphic extends GraphicOverlay.Graphic {
                             0
                     );
 
+                    break;
+                default:
                     break;
             }
         } catch (PoseLandmarkException poseLandmarkException) {

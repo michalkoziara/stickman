@@ -24,7 +24,6 @@
         android:adjustViewBounds="false"
         android:background="@drawable/round_button_bg"
         android:cropToPadding="false"
-        android:onClick="playPauseClick"
         android:scaleType="fitCenter"
         android:tint="@color/colorPrimaryDark"
         app:layout_constraintBottom_toBottomOf="parent"

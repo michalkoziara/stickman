@@ -60,6 +60,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 
 import io.reactivex.rxjava3.core.SingleObserver;
 import io.reactivex.rxjava3.disposables.Disposable;
@@ -104,12 +105,24 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
 
     private CountUpTimer timer;
 
+    private static final String COLOR_1 = "#277E8A";
+    private static final String COLOR_2 = "#38BEA3";
+    private static final String COLOR_3 = "#F7B536";
+    private static final String COLOR_4 = "#22201E";
+    private static final String COLOR_5 = "#F6532D";
+    private static final String COLOR_6 = "#000000";
+    private static final String COLOR_7 = "#0E5475";
+    private static final String COLOR_8 = "#66C3BE";
+    private static final String COLOR_9 = "#AFB582";
+    private static final String COLOR_10 = "#DB8D37";
+
+
     /**
      * change background image options
      */
     final OptionModel[] backgroundImageOptionsArray = {
-            new OptionModel("none", R.drawable.ic_baseline_close_24, Color.parseColor("#277E8A")),
-            new OptionModel("custom_graphic", R.drawable.ic_baseline_add_photo_alternate_24, Color.parseColor("#277E8A"))
+            new OptionModel(R.drawable.ic_baseline_close_24, Color.parseColor(COLOR_1)),
+            new OptionModel(R.drawable.ic_baseline_add_photo_alternate_24, Color.parseColor(COLOR_2))
     };
 
     final ArrayList<OptionModel> backgroundImageOptions = new ArrayList<>(Arrays.asList(backgroundImageOptionsArray));
@@ -118,12 +131,12 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
      * change background color options
      */
     final OptionModel[] backgroundColorOptionsArray = {
-            new OptionModel("none", R.drawable.ic_baseline_close_24, Color.parseColor("#277E8A")), // clear background icon
-            new OptionModel(Color.parseColor("#277E8A")),
-            new OptionModel(Color.parseColor("#38BEA3")),
-            new OptionModel(Color.parseColor("#F7B536")),
-            new OptionModel(Color.parseColor("#22201E")),
-            new OptionModel(Color.parseColor("#F6532D"))
+            new OptionModel(R.drawable.ic_baseline_close_24, Color.parseColor(COLOR_1)), // clear background icon
+            new OptionModel(Color.parseColor(COLOR_1)),
+            new OptionModel(Color.parseColor(COLOR_2)),
+            new OptionModel(Color.parseColor(COLOR_3)),
+            new OptionModel(Color.parseColor(COLOR_4)),
+            new OptionModel(Color.parseColor(COLOR_5))
     };
 
     final ArrayList<OptionModel> backgroundColorOptions = new ArrayList<>(Arrays.asList(backgroundColorOptionsArray));
@@ -132,10 +145,9 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
      * change figure(stickman type) options
      */
     final OptionModel[] figureOptionsArray = {
-            new OptionModel("classic_stickman", R.drawable.classic_stickman, Color.DKGRAY),
-            new OptionModel("comic_stickman", R.drawable.comic_stickman, Color.DKGRAY),
-            new OptionModel("flexible_comic_stickman", R.drawable.flexible_comic_stickman, Color.DKGRAY)
-
+            new OptionModel(R.drawable.classic_stickman, Color.DKGRAY),
+            new OptionModel(R.drawable.comic_stickman, Color.DKGRAY),
+            new OptionModel(R.drawable.flexible_comic_stickman, Color.DKGRAY)
     };
 
     final ArrayList<OptionModel> figureOptions = new ArrayList<>(Arrays.asList(figureOptionsArray));
@@ -144,12 +156,12 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
      * change figure color options
      */
     final OptionModel[] figureColorOptionsArray = {
-            new OptionModel("none", R.drawable.ic_baseline_close_24, Color.parseColor("#277E8A")),
-            new OptionModel(Color.parseColor("#000000")),
-            new OptionModel(Color.parseColor("#0E5475")),
-            new OptionModel(Color.parseColor("#66C3BE")),
-            new OptionModel(Color.parseColor("#AFB582")),
-            new OptionModel(Color.parseColor("#DB8D37"))
+            new OptionModel(R.drawable.ic_baseline_close_24, Color.parseColor(COLOR_1)),
+            new OptionModel(Color.parseColor(COLOR_6)),
+            new OptionModel(Color.parseColor(COLOR_7)),
+            new OptionModel(Color.parseColor(COLOR_8)),
+            new OptionModel(Color.parseColor(COLOR_9)),
+            new OptionModel(Color.parseColor(COLOR_10))
     };
 
     final ArrayList<OptionModel> figureColorOptions = new ArrayList<>(Arrays.asList(figureColorOptionsArray));
@@ -157,15 +169,21 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
     /**
      * change accessory
      */
+
+    public static final int HAT = 0;
+    public static final int HANDHELD = 1;
+    public static final int HELMET = 2;
+    public static final int GLASSES = 3;
+
     final OptionModel[] accessoryOptionsArray = {
-            new OptionModel("none", R.drawable.ic_baseline_close_24, Color.parseColor("#277E8A")),
-            new OptionModel("glasses", R.drawable.icon_glasses, -1, "glasses"),
-            new OptionModel("helmet", R.drawable.icon_helmet, -1, "hat"),
-            new OptionModel("indiana_jones", R.drawable.icon_indiana_jones, R.drawable.accessory_indiana_jones, "hat"),
-            new OptionModel("shield", R.drawable.icon_shield, -1, "handheld"),
-            new OptionModel("sword", R.drawable.icon_sword, R.drawable.accessory_sword, "handheld"),
-            new OptionModel("witch_hat", R.drawable.icon_witch_hat, R.drawable.accessory_witch_hat, "hat"),
-            new OptionModel("graduation_hat", R.drawable.icon_graduation_hat, R.drawable.accessory_graduation_hat, "hat"),
+            new OptionModel(R.drawable.ic_baseline_close_24, Color.parseColor(COLOR_1)),
+            new OptionModel(R.drawable.icon_glasses, -1, GLASSES),
+            new OptionModel(R.drawable.icon_helmet, -1, HAT),
+            new OptionModel(R.drawable.icon_indiana_jones, R.drawable.accessory_indiana_jones, HAT),
+            new OptionModel(R.drawable.icon_shield, -1, HANDHELD),
+            new OptionModel(R.drawable.icon_sword, R.drawable.accessory_sword, HANDHELD),
+            new OptionModel(R.drawable.icon_witch_hat, R.drawable.accessory_witch_hat, HAT),
+            new OptionModel(R.drawable.icon_graduation_hat, R.drawable.accessory_graduation_hat, HAT)
     };
 
     final ArrayList<OptionModel> accessoryOptions = new ArrayList<>(Arrays.asList(accessoryOptionsArray));
@@ -207,14 +225,14 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
 
         String uniqueName = "Stickman " + System.currentTimeMillis();
         imageWriter.saveBitmapToImage(bitmap, uniqueName).safeSubscribe(
-                new SingleObserver<Boolean>() {
+                new SingleObserver<Object>() {
                     @Override
                     public void onSubscribe(@NonNull Disposable d) {
                     }
 
                     @Override
-                    public void onSuccess(@NonNull Boolean result) {
-                        String resultText = result
+                    public void onSuccess(@NonNull Object result) {
+                        String resultText = (boolean) result
                                 ? "Zdjęcie zostało zapisane!"
                                 : "Spróbuj ponownie!";
 
@@ -230,9 +248,7 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
         );
     };
 
-    View.OnClickListener recordListener = new View.OnClickListener() {
-        @Override
-        public void onClick(View view) {
+    View.OnClickListener recordListener = view -> {
             if (isRecording) {
                 isRecording = false;
                 view.setBackground(
@@ -255,7 +271,7 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
 
                 timer = new CountUpTimer(7200000) {
                     public void onTick(int msSecond) {
-                        SimpleDateFormat dateFormat = new SimpleDateFormat("mm:ss");
+                        SimpleDateFormat dateFormat = new SimpleDateFormat("mm:ss", Locale.getDefault());
                         recordTime.setText(dateFormat.format(new Date(msSecond)));
                     }
                 };
@@ -278,7 +294,6 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
 
                 stickmanImageDrawer.setVideoEncoder(videoEncoder);
             }
-        }
     };
 
     // toggle between recording a video or taking a photo
@@ -286,10 +301,10 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
             (CompoundButton buttonView, boolean isChecked) -> {
                 // switch to video recording
                 if (isChecked) {
-                    recordButton.setBackground(getDrawable(R.drawable.record_video_button));
+                    recordButton.setBackground(ContextCompat.getDrawable(MainActivity.this, R.drawable.record_video_button));
                     recordButton.setOnClickListener(recordListener);
                 } else { // switch to taking photos
-                    recordButton.setBackground(getDrawable(R.drawable.take_photo_button));
+                    recordButton.setBackground(ContextCompat.getDrawable(MainActivity.this, R.drawable.take_photo_button));
                     recordButton.setOnClickListener(takePhotoListener);
                 }
             };
@@ -319,7 +334,7 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
             OptionModel option = options.get(position);
             holder.optionButton.setImageResource(option.imageResourceID);
 
-            // set tint for the color icons
+            // set tint of the icon
             if (option.tint != -1)
                 ImageViewCompat.setImageTintList(holder.optionButton, ColorStateList.valueOf(option.tint));
             else
@@ -368,6 +383,56 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
                             );
                     }
                 });
+            }
+
+            private void startChooseImageIntentForResult() {
+                Intent intent = new Intent();
+                intent.setType("image/*");
+                intent.setAction(Intent.ACTION_GET_CONTENT);
+                startActivityForResult(Intent.createChooser(intent, "Select Picture"), REQUEST_CHOOSE_IMAGE);
+            }
+
+            private void setFigure(String name) {
+                if (stickmanImageDrawer != null) {
+                    switch (name) {
+                        case "classic_stickman": {
+                            stickmanImageDrawer.setFigureID(0);
+                            break;
+                        }
+                        case "comic_stickman": {
+                            stickmanImageDrawer.setFigureID(1);
+                            break;
+                        }
+                        case "flexible_comic_stickman": {
+                            stickmanImageDrawer.setFigureID(2);
+                            break;
+                        }
+                    }
+                }
+            }
+
+            private void setFigureColor(int colorValue) {
+                if (stickmanImageDrawer != null) {
+                    stickmanImageDrawer.setFigureColor(colorValue);
+                }
+            }
+
+            private void setFigureAccessory(int accessoryID, int accessoryType) {
+                if (stickmanImageDrawer != null) {
+                    stickmanImageDrawer.setFigureAccessory(accessoryID, accessoryType);
+                }
+            }
+
+            private void removeAccessory() {
+                if (stickmanImageDrawer != null) {
+                    stickmanImageDrawer.setFigureAccessory(0, -1);
+                }
+            }
+
+            private void removeBackground() {
+                imageUri = null;
+                colorValue = -1;
+                setBackgroundImage(null);
             }
         }
 
@@ -693,7 +758,7 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
 
     private boolean allPermissionsGranted() {
         for (String permission : getRequiredPermissions()) {
-            if (!isPermissionGranted(this, permission)) {
+            if (isPermissionNotGranted(this, permission)) {
                 return false;
             }
         }
@@ -703,7 +768,7 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
     private void getRuntimePermissions() {
         List<String> allNeededPermissions = new ArrayList<>();
         for (String permission : getRequiredPermissions()) {
-            if (!isPermissionGranted(this, permission)) {
+            if (isPermissionNotGranted(this, permission)) {
                 allNeededPermissions.add(permission);
             }
         }
@@ -724,14 +789,14 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
     }
 
-    private static boolean isPermissionGranted(Context context, String permission) {
+    private static boolean isPermissionNotGranted(Context context, String permission) {
         if (ContextCompat.checkSelfPermission(context, permission)
                 == PackageManager.PERMISSION_GRANTED) {
             Log.i(TAG, "Permission granted: " + permission);
-            return true;
+            return false;
         }
         Log.i(TAG, "Permission NOT granted: " + permission);
-        return false;
+        return true;
     }
 
     private void setBackgroundColor(int colorValue) {
@@ -741,82 +806,10 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
         setBackgroundImage(backgroundImage);
     }
 
-    private void removeBackground() {
-        imageUri = null;
-        colorValue = -1;
-        setBackgroundImage(null);
-    }
-
     private void setBackgroundImage(Bitmap backgroundImage) {
         if (stickmanImageDrawer != null) {
             stickmanImageDrawer.setBackgroundImage(backgroundImage);
         }
     }
 
-    private void startChooseImageIntentForResult() {
-        Intent intent = new Intent();
-        intent.setType("image/*");
-        intent.setAction(Intent.ACTION_GET_CONTENT);
-        startActivityForResult(Intent.createChooser(intent, "Select Picture"), REQUEST_CHOOSE_IMAGE);
-    }
-
-    private void setFigure(String name) {
-        if (stickmanImageDrawer != null) {
-            switch (name) {
-                case "classic_stickman": {
-                    stickmanImageDrawer.setFigureID(0);
-                    break;
-                }
-                case "comic_stickman": {
-                    stickmanImageDrawer.setFigureID(1);
-                    break;
-                }
-                case "flexible_comic_stickman": {
-                    stickmanImageDrawer.setFigureID(2);
-                    break;
-                }
-            }
-        }
-    }
-
-    private void setFigureColor(int colorValue) {
-        if (stickmanImageDrawer != null) {
-            stickmanImageDrawer.setFigureColor(colorValue);
-        }
-    }
-
-    private void setFigureAccessory(int accessoryID, String accessoryType) {
-        int type;
-        switch (accessoryType) {
-            case "hat": {
-                type = 0;
-                break;
-            }
-            case "handheld": {
-                type = 1;
-                break;
-            }
-            case "helmet": {
-                type = 2;
-                break;
-            }
-            case "glasses": {
-                type = 3;
-                break;
-            }
-            default: {
-                type = 0;
-            }
-        }
-
-        if (stickmanImageDrawer != null) {
-            stickmanImageDrawer.setFigureAccessory(accessoryID, type);
-        }
-    }
-
-    private void removeAccessory() {
-        if (stickmanImageDrawer != null) {
-            stickmanImageDrawer.setFigureAccessory(0, -1);
-        }
-    }
 }

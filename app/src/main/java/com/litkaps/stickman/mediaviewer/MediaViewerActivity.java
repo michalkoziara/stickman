@@ -18,8 +18,9 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.litkaps.stickman.R;
 
 public class MediaViewerActivity extends AppCompatActivity implements LoaderManager.LoaderCallbacks<Cursor>, MediaStoreAdapter.OnClickThumbListener {
-    private final static int READ_EXTERNAL_STORAGE_PERMISSION_RESULT = 0;
-    private final static int MEDIASTORE_LOADER_ID = 0;
+    private static final int READ_EXTERNAL_STORAGE_PERMISSION_RESULT = 0;
+    private static final int MEDIASTORE_LOADER_ID = 0;
+
     private MediaStoreAdapter mMediaStoreAdapter;
 
     @Override
