@@ -16,6 +16,7 @@ import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.litkaps.stickman.R;
+import com.litkaps.stickman.editor.EditorActivity;
 
 public class MediaViewerActivity extends AppCompatActivity implements LoaderManager.LoaderCallbacks<Cursor>, MediaStoreAdapter.OnClickThumbListener {
     private static final int READ_EXTERNAL_STORAGE_PERMISSION_RESULT = 0;
@@ -94,7 +95,9 @@ public class MediaViewerActivity extends AppCompatActivity implements LoaderMana
 
     @Override
     public void onClickVideo(Uri videoUri) {
-        Intent videoPlayIntent = new Intent(this, VideoViewActivity.class);
+        Intent videoPlayIntent = new Intent(this, EditorActivity.class);
+
+        //Intent videoPlayIntent = new Intent(this, VideoViewActivity.class);
         videoPlayIntent.setData(videoUri);
         startActivity(videoPlayIntent);
     }
