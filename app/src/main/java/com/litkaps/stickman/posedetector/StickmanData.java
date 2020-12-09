@@ -9,7 +9,7 @@ public class StickmanData implements Serializable {
     public final int accessoryId;
     public final int accessoryType;
     public final int stickmanColor;
-    public final double stickmanLineSize;
+    public final double stickmanLineThickness;
     public final float[] poseLandmarkPositionX;
     public final float[] poseLandmarkPositionY;
 
@@ -18,14 +18,14 @@ public class StickmanData implements Serializable {
             int accessoryId,
             int accessoryType,
             int stickmanColor,
-            double stickmanLineSize,
+            double stickmanLineThickness,
             float[] poseLandmarkPositionX,
             float[] poseLandmarkPositionY) {
         this.stickmanTypeId = stickmanTypeId;
         this.accessoryId = accessoryId;
         this.accessoryType = accessoryType;
         this.stickmanColor = stickmanColor;
-        this.stickmanLineSize = stickmanLineSize;
+        this.stickmanLineThickness = stickmanLineThickness;
         this.poseLandmarkPositionX = poseLandmarkPositionX;
         this.poseLandmarkPositionY = poseLandmarkPositionY;
     }
@@ -38,7 +38,7 @@ public class StickmanData implements Serializable {
                 ", accessoryId=" + accessoryId +
                 ", accessoryType=" + accessoryType +
                 ", stickmanColor=" + stickmanColor +
-                ", stickmanLineSize=" + stickmanLineSize +
+                ", stickmanLineSize=" + stickmanLineThickness +
                 '}';
     }
 }

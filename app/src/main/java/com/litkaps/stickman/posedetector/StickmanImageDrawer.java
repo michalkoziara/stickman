@@ -32,13 +32,15 @@ public class StickmanImageDrawer {
 
     private VideoEncoder encoder;
 
-    public StickmanImageDrawer(PoseDetectorProcessor poseDetectorProcessor) {
+    public StickmanImageDrawer() {
         stickmanPaint.setStrokeWidth(16);
-
-        poseDetectorProcessor.computePoseOnSuccess(this::draw);
     }
 
-    public void draw(@NonNull Pose pose, @NonNull GraphicOverlay graphicOverlay, Bitmap cameraImage) {
+    public void setPoseDetectCallback(PoseDetectorProcessor poseDetectorProcessor) {
+        poseDetectorProcessor.setPoseDetectCallback(this::draw);
+    }
+
+    public void draw(@NonNull PosePositions posePositions, @NonNull GraphicOverlay graphicOverlay, Bitmap cameraImage) {
         if (backgroundImage != null) {
             if (isUpdated) {
                 scaledBackgroundImage = Bitmap.createScaledBitmap(
@@ -57,24 +59,14 @@ public class StickmanImageDrawer {
         }
 
         if (figureID == 0) {
-            graphicOverlay.add(new ClassicStickmanGraphic(graphicOverlay, pose, accessoryID, accessoryType, stickmanPaint));
+            graphicOverlay.add(new ClassicStickmanGraphic(graphicOverlay, posePositions, accessoryID, accessoryType, stickmanPaint));
         } else if (figureID == 1) {
-            graphicOverlay.add(new ComicStickmanGraphic(graphicOverlay, pose, accessoryID, accessoryType, stickmanPaint));
+            graphicOverlay.add(new ComicStickmanGraphic(graphicOverlay, posePositions, accessoryID, accessoryType, stickmanPaint));
         } else if (figureID == 2) {
-            graphicOverlay.add(new FlexibleComicStickmanGraphic(graphicOverlay, pose, accessoryID, accessoryType, stickmanPaint));
+            graphicOverlay.add(new FlexibleComicStickmanGraphic(graphicOverlay, posePositions, accessoryID, accessoryType, stickmanPaint));
         }
 
         if (encoder != null) {
-            List<PoseLandmark> poseLandmarks = pose.getAllPoseLandmarks();
-            float[] poseLandmarkPositionX = new float[poseLandmarks.size()];
-            float[] poseLandmarkPositionY = new float[poseLandmarks.size()];
-
-            for (int i = 0; i < poseLandmarks.size(); i++) {
-                PointF poseLandmarkPosition = poseLandmarks.get(i).getPosition();
-                poseLandmarkPositionX[i] = poseLandmarkPosition.x;
-                poseLandmarkPositionY[i] = poseLandmarkPosition.y;
-            }
-
             encoder.queueFrame(
                     new StickmanImage(
                             graphicOverlay.getGraphicBitmap(),
@@ -83,8 +75,8 @@ public class StickmanImageDrawer {
                             accessoryType,
                             stickmanPaint.getColor(),
                             stickmanPaint.getStrokeWidth(),
-                            poseLandmarkPositionX,
-                            poseLandmarkPositionY
+                            posePositions.poseLandmarkPositionX,
+                            posePositions.poseLandmarkPositionY
                     )
             );
         }

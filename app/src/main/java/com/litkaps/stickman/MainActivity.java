@@ -685,9 +685,10 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
                     PreferenceUtils.getPoseDetectorOptionsForLivePreview(this);
             imageProcessor =
                     new PoseDetectorProcessor(this, poseDetectorOptions);
-            stickmanImageDrawer = new StickmanImageDrawer(
-                    (PoseDetectorProcessor) imageProcessor
-            );
+            stickmanImageDrawer = new StickmanImageDrawer();
+
+            stickmanImageDrawer.setPoseDetectCallback((PoseDetectorProcessor) imageProcessor);
+
         } catch (Exception e) {
             Snackbar.make(getWindow().getDecorView().getRootView(),
                     "Can not create image processor: " + e.getLocalizedMessage(),

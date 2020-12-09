@@ -9,7 +9,6 @@ import android.graphics.Paint;
 import android.graphics.PointF;
 import android.util.Log;
 
-import com.google.mlkit.vision.pose.Pose;
 import com.google.mlkit.vision.pose.PoseLandmark;
 import com.litkaps.stickman.GraphicOverlay;
 import com.litkaps.stickman.MainActivity;
@@ -21,14 +20,14 @@ abstract class StickmanGraphic extends GraphicOverlay.Graphic {
     protected int accessoryID;
     protected int accessoryType;
 
-    protected Pose pose;
+    protected PosePositions posePositions;
     protected Paint stickmanPaint;
     protected Paint whitePaint;
     protected Paint facePaint;
 
     private static final String TAG = "StickmanGraphic";
 
-    StickmanGraphic(GraphicOverlay overlay, Pose pose, int accessoryID, int accessoryType, Paint stickmanPaint) {
+    StickmanGraphic(GraphicOverlay overlay, PosePositions posePositions, int accessoryID, int accessoryType, Paint stickmanPaint) {
         super(overlay);
 
         whitePaint = new Paint();
@@ -38,7 +37,7 @@ abstract class StickmanGraphic extends GraphicOverlay.Graphic {
         facePaint.setStrokeWidth(5);
         facePaint.setColor(Color.BLACK);
 
-        this.pose = pose;
+        this.posePositions = posePositions;
         this.accessoryID = accessoryID;
         this.accessoryType = accessoryType;
         this.stickmanPaint = stickmanPaint;
@@ -239,13 +238,7 @@ abstract class StickmanGraphic extends GraphicOverlay.Graphic {
     }
 
     public PointF getPosition(int poseLandmarkIndex, boolean translateCoordinate) {
-        PoseLandmark poseLandmark = pose.getPoseLandmark(poseLandmarkIndex);
-
-        if (poseLandmark == null) {
-            return null;
-        }
-
-        PointF positionPoint = poseLandmark.getPosition();
+        PointF positionPoint = posePositions.getLandmarkPosition(poseLandmarkIndex);
 
         if (translateCoordinate) {
             return translatePoint(positionPoint);

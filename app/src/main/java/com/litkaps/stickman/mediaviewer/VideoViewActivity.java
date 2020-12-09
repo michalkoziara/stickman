@@ -208,7 +208,7 @@ public class VideoViewActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_view_video);
 
-        mPlayPauseButton = findViewById(R.id.videoPlayPauseButton);
+        mPlayPauseButton = findViewById(R.id.video_play_pause_button);
         mSurfaceView = findViewById(R.id.videoSurfaceView);
 
         Intent callingIntent = this.getIntent();
@@ -223,7 +223,7 @@ public class VideoViewActivity extends AppCompatActivity {
         mController = new MediaControllerCompat(this, mSession);
         mControllerTransportControls = mController.getTransportControls();
 
-        findViewById(R.id.videoPlayPauseButton).setOnClickListener(this::playPauseClick);
+        findViewById(R.id.video_play_pause_button).setOnClickListener(this::playPauseClick);
     }
 
     public void playPauseClick(View view) {

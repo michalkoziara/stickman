@@ -15,14 +15,13 @@ import java.util.List;
  */
 public class ComicStickmanGraphic extends StickmanGraphic {
 
-    ComicStickmanGraphic(GraphicOverlay overlay, Pose pose, int accessoryID, int accessoryType, Paint stickmanPaint) {
-        super(overlay, pose, accessoryID, accessoryType, stickmanPaint);
+    ComicStickmanGraphic(GraphicOverlay overlay, PosePositions posePositions, int accessoryID, int accessoryType, Paint stickmanPaint) {
+        super(overlay, posePositions, accessoryID, accessoryType, stickmanPaint);
     }
 
     @Override
     public void draw(Canvas canvas) {
-        List<PoseLandmark> landmarks = pose.getAllPoseLandmarks();
-        if (landmarks.isEmpty()) {
+        if (posePositions.isEmpty()) {
             return;
         }
 

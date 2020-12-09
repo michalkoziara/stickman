@@ -23,9 +23,12 @@ import androidx.recyclerview.widget.DefaultItemAnimator;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.litkaps.stickman.GraphicOverlay;
 import com.litkaps.stickman.R;
 import com.litkaps.stickman.SerializationUtils;
+import com.litkaps.stickman.posedetector.PosePositions;
 import com.litkaps.stickman.posedetector.StickmanData;
+import com.litkaps.stickman.posedetector.StickmanImageDrawer;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
@@ -36,7 +39,7 @@ import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers;
 import io.reactivex.rxjava3.core.Observable;
 import io.reactivex.rxjava3.schedulers.Schedulers;
 
-public class EditorActivity extends AppCompatActivity implements SurfaceHolder.Callback {
+public class EditorActivity extends AppCompatActivity {
     MediaMetadataRetriever mediaMetadataRetriever;
 
     private Uri mVideoUri;
@@ -46,7 +49,9 @@ public class EditorActivity extends AppCompatActivity implements SurfaceHolder.C
     private int frameCount;
     private int videoLength;
 
+    private GraphicOverlay graphicOverlay;
     private RecyclerView framesRecyclerView;
+    private StickmanImageDrawer stickmanImageDrawer = new StickmanImageDrawer();
 
     class FrameAdapter extends RecyclerView.Adapter<FrameAdapter.FrameViewHolder> {
         ArrayList<Frame> frames;
@@ -104,9 +109,11 @@ public class EditorActivity extends AppCompatActivity implements SurfaceHolder.C
         }
 
         framesRecyclerView = findViewById(R.id.frames_recycler_view);
-        mSurfaceView = findViewById(R.id.videoSurfaceView);
-        SurfaceHolder holder = mSurfaceView.getHolder();
-        holder.addCallback(this);
+        graphicOverlay = findViewById(R.id.graphic_overlay);
+
+        View rootView = findViewById(R.id.root);
+//        graphicOverlay.setImageSourceInfo(rootView.getWidth(), rootView.getHeight(), false);
+        graphicOverlay.setImageSourceInfo(720, 1280, false);
 
         mediaMetadataRetriever = new MediaMetadataRetriever();
 
@@ -114,28 +121,21 @@ public class EditorActivity extends AppCompatActivity implements SurfaceHolder.C
         mLayoutManager.setOrientation(LinearLayoutManager.HORIZONTAL);
         framesRecyclerView.setLayoutManager(mLayoutManager);
         framesRecyclerView.setItemAnimator(new DefaultItemAnimator());
-    }
 
-    @Override
-    public void surfaceCreated(@NonNull SurfaceHolder holder) {
         Observable.zip(loadFrames(), loadStickmanData(), Pair::new)
                 .subscribe(
                         result -> {
                             ArrayList<Frame> frames = (ArrayList<Frame>) result.first;
                             ArrayList<StickmanData> stickmanData = (ArrayList<StickmanData>) result.second;
                             framesRecyclerView.setAdapter(new FrameAdapter(frames));
+
+                            stickmanImageDrawer.draw(new PosePositions(stickmanData.get(0).poseLandmarkPositionX, stickmanData.get(0).poseLandmarkPositionY), graphicOverlay, mediaMetadataRetriever.getFrameAtTime(0));
                         }
                 );
-    }
 
-    @Override
-    public void surfaceChanged(@NonNull SurfaceHolder holder, int format, int width, int height) {
-
-    }
-
-    @Override
-    public void surfaceDestroyed(@NonNull SurfaceHolder holder) {
-
+        findViewById(R.id.save_as_video_button).setOnClickListener(v -> {
+            // TODO: export to video
+        });
     }
 
     @NonNull
