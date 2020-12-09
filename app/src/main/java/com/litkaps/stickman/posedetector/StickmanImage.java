@@ -12,14 +12,18 @@ public class StickmanImage {
             int accessoryId,
             int accessoryType,
             int stickmanColor,
-            double stickmanLineSize) {
+            double stickmanLineSize,
+            float[] poseLandmarkPositionX,
+            float[] poseLandmarkPositionY) {
         this.bitmap = bitmap;
         this.metadata = new StickmanData(
                 stickmanTypeId,
                 accessoryId,
                 accessoryType,
                 stickmanColor,
-                stickmanLineSize
+                stickmanLineSize,
+                poseLandmarkPositionX,
+                poseLandmarkPositionY
         );
     }
 }

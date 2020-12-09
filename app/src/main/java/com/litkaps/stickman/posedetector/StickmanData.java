@@ -10,18 +10,24 @@ public class StickmanData implements Serializable {
     public final int accessoryType;
     public final int stickmanColor;
     public final double stickmanLineSize;
+    public final float[] poseLandmarkPositionX;
+    public final float[] poseLandmarkPositionY;
 
     public StickmanData(
             int stickmanTypeId,
             int accessoryId,
             int accessoryType,
             int stickmanColor,
-            double stickmanLineSize) {
+            double stickmanLineSize,
+            float[] poseLandmarkPositionX,
+            float[] poseLandmarkPositionY) {
         this.stickmanTypeId = stickmanTypeId;
         this.accessoryId = accessoryId;
         this.accessoryType = accessoryType;
         this.stickmanColor = stickmanColor;
         this.stickmanLineSize = stickmanLineSize;
+        this.poseLandmarkPositionX = poseLandmarkPositionX;
+        this.poseLandmarkPositionY = poseLandmarkPositionY;
     }
 
     @NonNull

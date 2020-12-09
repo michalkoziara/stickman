@@ -179,7 +179,7 @@ public class EditorActivity extends AppCompatActivity implements SurfaceHolder.C
                             }
                         }
 
-                        ByteBuffer inputBuffer = ByteBuffer.allocate(180);
+                        ByteBuffer inputBuffer = ByteBuffer.allocate(550);
                         while (extractor.readSampleData(inputBuffer, 0) >= 0) {
                             try {
                                 StickmanData stickmanData =

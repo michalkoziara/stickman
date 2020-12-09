@@ -3,13 +3,17 @@ package com.litkaps.stickman.posedetector;
 import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.graphics.Paint;
+import android.graphics.PointF;
 
 import androidx.annotation.NonNull;
 
 import com.google.mlkit.vision.pose.Pose;
+import com.google.mlkit.vision.pose.PoseLandmark;
 import com.litkaps.stickman.GraphicOverlay;
 import com.litkaps.stickman.ImageGraphic;
 import com.litkaps.stickman.VideoEncoder;
+
+import java.util.List;
 
 /**
  * The class {@code StickmanImageDrawer} draws a stickman image basing
@@ -61,6 +65,16 @@ public class StickmanImageDrawer {
         }
 
         if (encoder != null) {
+            List<PoseLandmark> poseLandmarks = pose.getAllPoseLandmarks();
+            float[] poseLandmarkPositionX = new float[poseLandmarks.size()];
+            float[] poseLandmarkPositionY = new float[poseLandmarks.size()];
+
+            for (int i = 0; i < poseLandmarks.size(); i++) {
+                PointF poseLandmarkPosition = poseLandmarks.get(i).getPosition();
+                poseLandmarkPositionX[i] = poseLandmarkPosition.x;
+                poseLandmarkPositionY[i] = poseLandmarkPosition.y;
+            }
+
             encoder.queueFrame(
                     new StickmanImage(
                             graphicOverlay.getGraphicBitmap(),
@@ -68,7 +82,9 @@ public class StickmanImageDrawer {
                             accessoryID,
                             accessoryType,
                             stickmanPaint.getColor(),
-                            stickmanPaint.getStrokeWidth()
+                            stickmanPaint.getStrokeWidth(),
+                            poseLandmarkPositionX,
+                            poseLandmarkPositionY
                     )
             );
         }
