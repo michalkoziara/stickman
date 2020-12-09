@@ -8,6 +8,8 @@ import android.media.MediaFormat;
 import android.media.MediaMuxer;
 import android.util.Log;
 
+import com.litkaps.stickman.posedetector.StickmanImage;
+
 import java.io.File;
 import java.io.FileDescriptor;
 import java.io.IOException;
@@ -20,12 +22,14 @@ import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers;
 import io.reactivex.rxjava3.core.Completable;
 import io.reactivex.rxjava3.schedulers.Schedulers;
 
+import static android.media.MediaFormat.KEY_MIME;
+
 public class BitmapToVideoEncoder {
     private static final String TAG = BitmapToVideoEncoder.class.getSimpleName();
 
     private final IBitmapToVideoEncoderCallback mCallback;
     private File mOutputFile;
-    private Queue<Bitmap> mEncodeQueue = new ConcurrentLinkedQueue<>();
+    private Queue<StickmanImage> mEncodeQueue = new ConcurrentLinkedQueue<>();
     private MediaCodec mediaCodec;
     private MediaMuxer mediaMuxer;
 
@@ -42,6 +46,7 @@ public class BitmapToVideoEncoder {
     private int mTrackIndex;
     private boolean mNoMoreFrames = false;
     private boolean mAbort = false;
+    private int metadataTrackIndex;
 
     public interface IBitmapToVideoEncoderCallback {
         void onEncodingComplete(File outputFile);
@@ -84,6 +89,10 @@ public class BitmapToVideoEncoder {
         mediaCodec.start();
         try {
             mediaMuxer = new MediaMuxer(fileDescriptor, MediaMuxer.OutputFormat.MUXER_OUTPUT_MPEG_4);
+
+            MediaFormat metadataFormat = new MediaFormat();
+            metadataFormat.setString(KEY_MIME, "application/pose");
+            metadataTrackIndex = mediaMuxer.addTrack(metadataFormat);
         } catch (IOException e) {
             Log.e(TAG, "MediaMuxer creation failed. " + e.getMessage());
             return;
@@ -131,14 +140,14 @@ public class BitmapToVideoEncoder {
         }
     }
 
-    public void queueFrame(Bitmap bitmap) {
+    public void queueFrame(StickmanImage image) {
         if (mediaCodec == null || mediaMuxer == null) {
             Log.d(TAG, "Failed to queue frame. Encoding not started");
             return;
         }
 
         Log.d(TAG, "Queueing frame");
-        mEncodeQueue.add(bitmap);
+        mEncodeQueue.add(image);
 
         synchronized (mFrameSync) {
             if ((mNewFrameLatch != null) && (mNewFrameLatch.getCount() > 0)) {
@@ -152,8 +161,8 @@ public class BitmapToVideoEncoder {
 
         while (!mNoMoreFrames || !mEncodeQueue.isEmpty()) {
 
-            Bitmap bitmap = mEncodeQueue.poll();
-            if (bitmap == null) {
+            StickmanImage image = mEncodeQueue.poll();
+            if (image == null) {
                 synchronized (mFrameSync) {
                     mNewFrameLatch = new CountDownLatch(1);
                 }
@@ -163,12 +172,12 @@ public class BitmapToVideoEncoder {
                 } catch (InterruptedException e) {
                 }
 
-                bitmap = mEncodeQueue.poll();
+                image = mEncodeQueue.poll();
             }
 
-            if (bitmap == null) continue;
+            if (image == null) continue;
 
-            byte[] byteConvertFrame = getNV21(bitmap.getWidth(), bitmap.getHeight(), bitmap);
+            byte[] byteConvertFrame = getNV21(image.bitmap.getWidth(), image.bitmap.getHeight(), image.bitmap);
 
             long timeoutUsec = 500000;
             int inputBufIndex = mediaCodec.dequeueInputBuffer(timeoutUsec);
@@ -180,6 +189,14 @@ public class BitmapToVideoEncoder {
                 mediaCodec.queueInputBuffer(inputBufIndex, 0, byteConvertFrame.length, ptsUsec, 0);
                 mGenerateIndex++;
             }
+
+            byte[] imageMetadata = new byte[]{};
+            try {
+                imageMetadata = SerializationUtils.convertToBytes(image.metadata);
+            } catch (IOException ioException) {
+                ioException.printStackTrace();
+            }
+
             MediaCodec.BufferInfo mBufferInfo = new MediaCodec.BufferInfo();
             int encoderStatus = mediaCodec.dequeueOutputBuffer(mBufferInfo, timeoutUsec);
             if (encoderStatus == MediaCodec.INFO_TRY_AGAIN_LATER) {
@@ -200,6 +217,19 @@ public class BitmapToVideoEncoder {
                     encodedData.position(mBufferInfo.offset);
                     encodedData.limit(mBufferInfo.offset + mBufferInfo.size);
                     mediaMuxer.writeSampleData(mTrackIndex, encodedData, mBufferInfo);
+
+                    ByteBuffer metaData = ByteBuffer.allocate(imageMetadata.length);
+                    metaData.put(imageMetadata);
+
+                    MediaCodec.BufferInfo metaInfo = new MediaCodec.BufferInfo();
+                    // Associate this metadata with the video frame by setting
+                    // the same timestamp as the video frame.
+                    metaInfo.presentationTimeUs = ptsUsec;
+                    metaInfo.offset = 0;
+                    metaInfo.flags = 0;
+                    metaInfo.size = imageMetadata.length;
+                    mediaMuxer.writeSampleData(metadataTrackIndex, metaData, metaInfo);
+
                     mediaCodec.releaseOutputBuffer(encoderStatus, false);
                 }
             }

@@ -61,7 +61,16 @@ public class StickmanImageDrawer {
         }
 
         if (encoder != null) {
-            encoder.queueFrame(graphicOverlay.getGraphicBitmap());
+            encoder.queueFrame(
+                    new StickmanImage(
+                            graphicOverlay.getGraphicBitmap(),
+                            figureID,
+                            accessoryID,
+                            accessoryType,
+                            stickmanPaint.getColor(),
+                            stickmanPaint.getStrokeWidth()
+                    )
+            );
         }
     }
 

@@ -2,11 +2,12 @@ package com.litkaps.stickman;
 
 import android.content.ContentResolver;
 import android.content.ContentValues;
-import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Build;
 import android.os.ParcelFileDescriptor;
 import android.provider.MediaStore;
+
+import com.litkaps.stickman.posedetector.StickmanImage;
 
 import java.io.File;
 import java.io.FileDescriptor;
@@ -74,7 +75,7 @@ public class VideoEncoder {
         });
     }
 
-    public void queueFrame(Bitmap frame) {
+    public void queueFrame(StickmanImage frame) {
         if (frame != null && bitmapToVideoEncoder != null) {
             bitmapToVideoEncoder.queueFrame(frame);
         }

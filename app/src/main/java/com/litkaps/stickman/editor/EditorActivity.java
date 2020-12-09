@@ -1,20 +1,13 @@
 package com.litkaps.stickman.editor;
 
-import android.content.ContentValues;
 import android.content.Intent;
-import android.content.res.ColorStateList;
 import android.graphics.Bitmap;
-import android.graphics.Canvas;
-import android.graphics.Color;
-import android.media.MediaDataSource;
 import android.media.MediaExtractor;
 import android.media.MediaFormat;
 import android.media.MediaMetadataRetriever;
 import android.net.Uri;
-import android.os.Build;
 import android.os.Bundle;
-import android.provider.MediaStore;
-import android.util.Log;
+import android.util.Pair;
 import android.view.LayoutInflater;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
@@ -24,39 +17,31 @@ import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.litkaps.stickman.R;
-
-import java.io.IOException;
-import java.io.OutputStream;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
-
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.widget.ImageViewCompat;
 import androidx.recyclerview.widget.DefaultItemAnimator;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+
+import com.litkaps.stickman.R;
+import com.litkaps.stickman.SerializationUtils;
+import com.litkaps.stickman.posedetector.StickmanData;
+
+import java.io.IOException;
+import java.nio.ByteBuffer;
+import java.util.ArrayList;
+import java.util.List;
+
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers;
-import io.reactivex.rxjava3.core.Single;
-import io.reactivex.rxjava3.core.SingleObserver;
-import io.reactivex.rxjava3.disposables.Disposable;
+import io.reactivex.rxjava3.core.Observable;
 import io.reactivex.rxjava3.schedulers.Schedulers;
 
-import static android.provider.MediaStore.Images.ImageColumns.DESCRIPTION;
-import static android.provider.MediaStore.MediaColumns.DATE_ADDED;
-import static android.provider.MediaStore.MediaColumns.DATE_MODIFIED;
-import static android.provider.MediaStore.MediaColumns.DISPLAY_NAME;
-import static android.provider.MediaStore.MediaColumns.MIME_TYPE;
-import static android.provider.MediaStore.MediaColumns.TITLE;
-import static com.google.android.material.snackbar.BaseTransientBottomBar.LENGTH_SHORT;
-
 public class EditorActivity extends AppCompatActivity implements SurfaceHolder.Callback {
+    MediaMetadataRetriever mediaMetadataRetriever;
+
     private Uri mVideoUri;
     private ImageButton mPlayPauseButton;
     private SurfaceView mSurfaceView;
-    MediaMetadataRetriever mediaMetadataRetriever;
     private int frameRate;
     private int frameCount;
     private int videoLength;
@@ -97,6 +82,7 @@ public class EditorActivity extends AppCompatActivity implements SurfaceHolder.C
         class FrameViewHolder extends RecyclerView.ViewHolder {
             ImageView framePreview;
             TextView frameIndex;
+
             FrameViewHolder(View view) {
                 super(view);
                 framePreview = view.findViewById(R.id.frame_preview);
@@ -104,7 +90,6 @@ public class EditorActivity extends AppCompatActivity implements SurfaceHolder.C
 
             }
         }
-
     }
 
     @Override
@@ -122,7 +107,6 @@ public class EditorActivity extends AppCompatActivity implements SurfaceHolder.C
         mSurfaceView = findViewById(R.id.videoSurfaceView);
         SurfaceHolder holder = mSurfaceView.getHolder();
         holder.addCallback(this);
-//        Canvas canvas = holder.lockCanvas();
 
         mediaMetadataRetriever = new MediaMetadataRetriever();
 
@@ -130,28 +114,18 @@ public class EditorActivity extends AppCompatActivity implements SurfaceHolder.C
         mLayoutManager.setOrientation(LinearLayoutManager.HORIZONTAL);
         framesRecyclerView.setLayoutManager(mLayoutManager);
         framesRecyclerView.setItemAnimator(new DefaultItemAnimator());
-
-
     }
 
     @Override
     public void surfaceCreated(@NonNull SurfaceHolder holder) {
-        loadFrames().safeSubscribe(new SingleObserver<Object>() {
-            @Override
-            public void onSubscribe(@io.reactivex.rxjava3.annotations.NonNull Disposable d) {
-
-            }
-
-            @Override
-            public void onSuccess(@io.reactivex.rxjava3.annotations.NonNull Object o) {
-                framesRecyclerView.setAdapter(new FrameAdapter((ArrayList<Frame>) o));
-            }
-
-            @Override
-            public void onError(@io.reactivex.rxjava3.annotations.NonNull Throwable e) {
-
-            }
-        });
+        Observable.zip(loadFrames(), loadStickmanData(), Pair::new)
+                .subscribe(
+                        result -> {
+                            ArrayList<Frame> frames = (ArrayList<Frame>) result.first;
+                            ArrayList<StickmanData> stickmanData = (ArrayList<StickmanData>) result.second;
+                            framesRecyclerView.setAdapter(new FrameAdapter(frames));
+                        }
+                );
     }
 
     @Override
@@ -165,22 +139,67 @@ public class EditorActivity extends AppCompatActivity implements SurfaceHolder.C
     }
 
     @NonNull
-    public Single<Object> loadFrames() {
-        return Single
+    private Observable<Object> loadFrames() {
+        return Observable
                 .create(emitter -> {
                     mediaMetadataRetriever.setDataSource(this, mVideoUri);
 
-                    videoLength = Integer.valueOf(mediaMetadataRetriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION));
-                    frameCount = Integer.valueOf(mediaMetadataRetriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_VIDEO_FRAME_COUNT));
-                    frameRate = (int) (frameCount / (videoLength/1000f));
+                    videoLength = Integer.parseInt(mediaMetadataRetriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION));
+                    frameCount = Integer.parseInt(mediaMetadataRetriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_VIDEO_FRAME_COUNT));
+                    frameRate = (int) (frameCount / (videoLength / 1000f));
 
                     ArrayList<Frame> frames = new ArrayList<>();
-                    float secondsPerFrame = 1f/frameRate;
-                    for(int i = 0; i < frameCount; i++) {
-                        frames.add(new Frame(i, (long)(i * secondsPerFrame * 1000)));
+                    float secondsPerFrame = 1f / frameRate;
+                    for (int i = 0; i < frameCount; i++) {
+                        frames.add(new Frame(i, (long) (i * secondsPerFrame * 1000)));
                     }
 
-                    emitter.onSuccess(frames);
+                    emitter.onNext(frames);
+                })
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread());
+    }
+
+    @NonNull
+    private Observable<Object> loadStickmanData() {
+        return Observable
+                .create(emitter -> {
+                    MediaExtractor extractor = new MediaExtractor();
+                    List<StickmanData> stickmanDataList = new ArrayList<>();
+
+                    try {
+                        extractor.setDataSource(getApplicationContext(), mVideoUri, null);
+
+                        int numTracks = extractor.getTrackCount();
+                        for (int i = 0; i < numTracks; ++i) {
+                            MediaFormat format = extractor.getTrackFormat(i);
+                            String mime = format.getString(MediaFormat.KEY_MIME);
+                            if ("application/pose".equals(mime)) {
+                                extractor.selectTrack(i);
+                            }
+                        }
+
+                        ByteBuffer inputBuffer = ByteBuffer.allocate(180);
+                        while (extractor.readSampleData(inputBuffer, 0) >= 0) {
+                            try {
+                                StickmanData stickmanData =
+                                        (StickmanData) SerializationUtils.convertFromBytes(inputBuffer.array());
+                                stickmanDataList.add(stickmanData);
+                                SerializationUtils.convertFromBytes(inputBuffer.array());
+                            } catch (IOException | ClassNotFoundException exception) {
+                                exception.printStackTrace();
+                                emitter.onError(exception);
+                            }
+
+                            extractor.advance();
+                        }
+
+                        extractor.release();
+                        emitter.onNext(stickmanDataList);
+                    } catch (IOException ioException) {
+                        ioException.printStackTrace();
+                        emitter.onError(ioException);
+                    }
                 })
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread());

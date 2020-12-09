@@ -7,13 +7,13 @@ import android.net.Uri;
 import android.os.Build;
 import android.provider.MediaStore;
 
+import androidx.annotation.NonNull;
+
 import java.io.IOException;
 import java.io.OutputStream;
 
-import androidx.annotation.NonNull;
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers;
 import io.reactivex.rxjava3.core.Single;
-import io.reactivex.rxjava3.core.SingleOnSubscribe;
 import io.reactivex.rxjava3.schedulers.Schedulers;
 
 import static android.provider.MediaStore.Images.ImageColumns.DESCRIPTION;
