@@ -358,14 +358,14 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
 
                     if (options == backgroundColorOptions) {
                         if (position == 0) {
-                            removeBackground();
+                            removeBackgroundColor();
                         } else {
                             setBackgroundColor(options.get(position).tint);
                             colorValue = options.get(position).tint;
                         }
                     } else if (options == backgroundImageOptions) {
                         if (position == 0) {
-                            removeBackground();
+                            removeBackgroundImage();
                         } else {
                             startChooseImageIntentForResult();
                         }
@@ -429,9 +429,13 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
                 }
             }
 
-            private void removeBackground() {
-                imageUri = null;
+            private void removeBackgroundColor() {
                 colorValue = -1;
+                setBackgroundColor(-1);
+            }
+
+            private void removeBackgroundImage() {
+                imageUri = null;
                 setBackgroundImage(null);
             }
         }
@@ -619,9 +623,7 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
         super.onResume();
         bindAllCameraUseCases();
 
-        if (colorValue != -1) {
-            setBackgroundColor(colorValue);
-        } else if (optionsAdapter.options == backgroundImageOptions) {
+        if (optionsAdapter.options == backgroundImageOptions) {
             tryReloadAndDetectInImage();
         }
     }
@@ -685,10 +687,12 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
                     PreferenceUtils.getPoseDetectorOptionsForLivePreview(this);
             imageProcessor =
                     new PoseDetectorProcessor(this, poseDetectorOptions);
-            stickmanImageDrawer = new StickmanImageDrawer();
+
+            if (stickmanImageDrawer == null) {
+                stickmanImageDrawer = new StickmanImageDrawer();
+            }
 
             stickmanImageDrawer.setPoseDetectCallback((PoseDetectorProcessor) imageProcessor);
-
         } catch (Exception e) {
             Snackbar.make(getWindow().getDecorView().getRootView(),
                     "Can not create image processor: " + e.getLocalizedMessage(),
@@ -801,10 +805,9 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
     }
 
     private void setBackgroundColor(int colorValue) {
-        Bitmap backgroundImage = Bitmap.createBitmap(1, 1, Bitmap.Config.ARGB_8888);
-        backgroundImage.eraseColor(colorValue);
-
-        setBackgroundImage(backgroundImage);
+        if (stickmanImageDrawer != null) {
+            stickmanImageDrawer.setBackgroundColor(colorValue);
+        }
     }
 
     private void setBackgroundImage(Bitmap backgroundImage) {

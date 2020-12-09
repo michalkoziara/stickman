@@ -27,8 +27,11 @@ public class StickmanImageDrawer {
     private int accessoryType = -1;
 
     private Bitmap backgroundImage;
+    private int backgroundColor = -1;
     private Bitmap scaledBackgroundImage;
-    private boolean isUpdated;
+    private Bitmap scaledBackgroundColor;
+    private boolean isBackgroundImageUpdated;
+    private boolean isBackgroundColorUpdated;
 
     private VideoEncoder encoder;
 
@@ -42,20 +45,38 @@ public class StickmanImageDrawer {
 
     public void draw(@NonNull PosePositions posePositions, @NonNull GraphicOverlay graphicOverlay, Bitmap cameraImage) {
         if (backgroundImage != null) {
-            if (isUpdated) {
+            if (isBackgroundImageUpdated) {
                 scaledBackgroundImage = Bitmap.createScaledBitmap(
                         backgroundImage,
                         cameraImage.getWidth(),
                         cameraImage.getHeight(),
                         true);
 
-                isUpdated = false;
+                isBackgroundImageUpdated = false;
             }
 
             graphicOverlay.add(new ImageGraphic(graphicOverlay, scaledBackgroundImage));
         } else {
             scaledBackgroundImage = null;
             graphicOverlay.add(new ImageGraphic(graphicOverlay, cameraImage));
+        }
+
+        if (backgroundColor != -1) {
+            if (isBackgroundColorUpdated) {
+                Bitmap backgroundColorImage = Bitmap.createBitmap(1, 1, Bitmap.Config.ARGB_8888);
+                backgroundColorImage.eraseColor(backgroundColor);
+                scaledBackgroundColor = Bitmap.createScaledBitmap(
+                        backgroundColorImage,
+                        cameraImage.getWidth(),
+                        cameraImage.getHeight(),
+                        true);
+
+                isBackgroundColorUpdated = false;
+            }
+
+            graphicOverlay.add(new ImageGraphic(graphicOverlay, scaledBackgroundColor));
+        } else {
+            scaledBackgroundColor = null;
         }
 
         if (figureID == 0) {
@@ -73,6 +94,7 @@ public class StickmanImageDrawer {
                             figureID,
                             accessoryID,
                             accessoryType,
+                            backgroundColor,
                             stickmanPaint.getColor(),
                             stickmanPaint.getStrokeWidth(),
                             posePositions.poseLandmarkPositionX,
@@ -84,7 +106,12 @@ public class StickmanImageDrawer {
 
     public void setBackgroundImage(Bitmap bitmap) {
         backgroundImage = bitmap;
-        isUpdated = true;
+        isBackgroundImageUpdated = true;
+    }
+
+    public void setBackgroundColor(int colorValue) {
+        this.backgroundColor = colorValue;
+        isBackgroundColorUpdated = true;
     }
 
     public void setFigureID(int figureID) {

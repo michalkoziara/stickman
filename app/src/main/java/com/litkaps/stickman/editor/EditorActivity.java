@@ -179,7 +179,7 @@ public class EditorActivity extends AppCompatActivity {
                             }
                         }
 
-                        ByteBuffer inputBuffer = ByteBuffer.allocate(550);
+                        ByteBuffer inputBuffer = ByteBuffer.allocate(1000);
                         while (extractor.readSampleData(inputBuffer, 0) >= 0) {
                             try {
                                 StickmanData stickmanData =

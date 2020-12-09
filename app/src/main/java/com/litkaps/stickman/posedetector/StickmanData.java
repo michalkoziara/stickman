@@ -8,6 +8,7 @@ public class StickmanData implements Serializable {
     public final int stickmanTypeId;
     public final int accessoryId;
     public final int accessoryType;
+    public final int backgroundColor;
     public final int stickmanColor;
     public final double stickmanLineThickness;
     public final float[] poseLandmarkPositionX;
@@ -17,6 +18,7 @@ public class StickmanData implements Serializable {
             int stickmanTypeId,
             int accessoryId,
             int accessoryType,
+            int backgroundColor,
             int stickmanColor,
             double stickmanLineThickness,
             float[] poseLandmarkPositionX,
@@ -24,6 +26,7 @@ public class StickmanData implements Serializable {
         this.stickmanTypeId = stickmanTypeId;
         this.accessoryId = accessoryId;
         this.accessoryType = accessoryType;
+        this.backgroundColor = backgroundColor;
         this.stickmanColor = stickmanColor;
         this.stickmanLineThickness = stickmanLineThickness;
         this.poseLandmarkPositionX = poseLandmarkPositionX;

@@ -339,9 +339,7 @@ public class GraphicOverlay extends View {
         synchronized (lock) {
             updateTransformationIfNeeded();
 
-            for (GraphicOverlay.Graphic graphic : graphics) {
-                graphic.draw(canvas);
-            }
+            graphics.get(0).draw(canvas);
             bitmap = getResizedBitmap(bitmap, getImageWidth(), getImageHeight());
             return bitmap;
         }
