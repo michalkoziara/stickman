@@ -6,6 +6,7 @@ import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
+import android.provider.OpenableColumns;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
@@ -57,7 +58,8 @@ public class MediaViewerActivity extends AppCompatActivity implements LoaderMana
                 MediaStore.Files.FileColumns._ID,
                 MediaStore.Files.FileColumns.DATE_MODIFIED,
                 MediaStore.Files.FileColumns.DATA,
-                MediaStore.Files.FileColumns.MEDIA_TYPE
+                MediaStore.Files.FileColumns.MEDIA_TYPE,
+                OpenableColumns.DISPLAY_NAME
         };
         String selection = "(" + MediaStore.Files.FileColumns.MEDIA_TYPE + "="
                 + MediaStore.Files.FileColumns.MEDIA_TYPE_IMAGE
@@ -94,12 +96,16 @@ public class MediaViewerActivity extends AppCompatActivity implements LoaderMana
     }
 
     @Override
-    public void onClickVideo(Uri videoUri) {
+    public void onClickRawVideo(Uri videoUri) {
         Intent videoPlayIntent = new Intent(this, EditorActivity.class);
-
-        //Intent videoPlayIntent = new Intent(this, VideoViewActivity.class);
         videoPlayIntent.setData(videoUri);
         startActivity(videoPlayIntent);
     }
 
+    @Override
+    public void onClickVideo(Uri videoUri) {
+        Intent videoPlayIntent = new Intent(this, VideoViewActivity.class);
+        videoPlayIntent.setData(videoUri);
+        startActivity(videoPlayIntent);
+    }
 }

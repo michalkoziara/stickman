@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.database.Cursor;
 import android.net.Uri;
 import android.provider.MediaStore;
+import android.provider.OpenableColumns;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -34,6 +35,8 @@ public class MediaStoreAdapter extends RecyclerView.Adapter<MediaStoreAdapter.Vi
 
     public interface OnClickThumbListener {
         void onClickImage(Uri imageUri);
+
+        void onClickRawVideo(Uri videoUri);
 
         void onClickVideo(Uri videoUri);
     }
@@ -101,9 +104,11 @@ public class MediaStoreAdapter extends RecyclerView.Adapter<MediaStoreAdapter.Vi
         private void getOnClickUri(int position) {
             int mediaTypeIndex = mMediaStoreCursor.getColumnIndex(MediaStore.Files.FileColumns.MEDIA_TYPE);
             int dataIndex = mMediaStoreCursor.getColumnIndex(DATA);
+            int displayNameIndex = mMediaStoreCursor.getColumnIndex(OpenableColumns.DISPLAY_NAME);
 
             mMediaStoreCursor.moveToPosition(position);
             String dataString = mMediaStoreCursor.getString(dataIndex);
+            String displayName = mMediaStoreCursor.getString(displayNameIndex);
             String authorities = BuildConfig.APPLICATION_ID + ".provider";
             Uri mediaUri = FileProvider.getUriForFile(mActivity, authorities, new File(dataString));
 
@@ -112,9 +117,14 @@ public class MediaStoreAdapter extends RecyclerView.Adapter<MediaStoreAdapter.Vi
                     mOnClickThumbListener.onClickImage(mediaUri);
                     break;
                 case MediaStore.Files.FileColumns.MEDIA_TYPE_VIDEO:
-                    mOnClickThumbListener.onClickVideo(mediaUri);
+                    if (displayName.startsWith("StickmanRaw")) {
+                        mOnClickThumbListener.onClickRawVideo(mediaUri);
+                    } else {
+                        mOnClickThumbListener.onClickVideo(mediaUri);
+                    }
                     break;
                 default:
+                    break;
             }
         }
     }

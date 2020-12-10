@@ -8,6 +8,7 @@ import android.media.MediaMetadataRetriever;
 import android.net.Uri;
 import android.os.Bundle;
 import android.util.Pair;
+import android.util.Size;
 import android.view.LayoutInflater;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
@@ -19,25 +20,34 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.DefaultItemAnimator;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.google.android.material.snackbar.Snackbar;
+import com.litkaps.stickman.CountUpTimer;
 import com.litkaps.stickman.GraphicOverlay;
 import com.litkaps.stickman.R;
 import com.litkaps.stickman.SerializationUtils;
+import com.litkaps.stickman.VideoEncoder;
 import com.litkaps.stickman.posedetector.PosePositions;
 import com.litkaps.stickman.posedetector.StickmanData;
 import com.litkaps.stickman.posedetector.StickmanImageDrawer;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers;
 import io.reactivex.rxjava3.core.Observable;
 import io.reactivex.rxjava3.schedulers.Schedulers;
+
+import static com.google.android.material.snackbar.BaseTransientBottomBar.LENGTH_SHORT;
 
 public class EditorActivity extends AppCompatActivity {
     MediaMetadataRetriever mediaMetadataRetriever;
@@ -56,6 +66,10 @@ public class EditorActivity extends AppCompatActivity {
     private StickmanImageDrawer stickmanImageDrawer = new StickmanImageDrawer();
     private ArrayList<StickmanData> stickmanData;
     private ArrayList<Frame> frames;
+
+    private Size targetResolution;
+
+    private boolean isRecording = false;
 
     class FrameAdapter extends RecyclerView.Adapter<FrameAdapter.FrameViewHolder> {
         ArrayList<Frame> frames;
@@ -76,14 +90,11 @@ public class EditorActivity extends AppCompatActivity {
         @Override
         public void onBindViewHolder(@NonNull FrameViewHolder holder, int position) {
             Frame frame = frames.get(position);
-//            Bitmap bmFrame = mediaMetadataRetriever.getFrameAtTime(frame.frameTime * 1000); // to microseconds
             Bitmap bmFrame = mediaMetadataRetriever.getFrameAtIndex(position);
-            thumbnailsGraphicOverlay.clear();
-            stickmanImageDrawer.draw(new PosePositions(stickmanData.get(position).poseLandmarkPositionX, stickmanData.get(position).poseLandmarkPositionY), thumbnailsGraphicOverlay, bmFrame);
-            thumbnailsGraphicOverlay.postInvalidate();
+            drawStickmanData(thumbnailsGraphicOverlay, bmFrame, position);
 
             holder.framePreview.setImageBitmap(thumbnailsGraphicOverlay.getGraphicBitmap());
-            holder.frameIndex.setText(frame.frameTime/1000f + "s");
+            holder.frameIndex.setText(frame.frameTime / 1000f + "s");
         }
 
         @Override
@@ -105,13 +116,35 @@ public class EditorActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 Bitmap bmFrame = mediaMetadataRetriever.getFrameAtIndex(getAdapterPosition());
-                thumbnailsGraphicOverlay.clear();
-                StickmanData currentData = stickmanData.get(getAdapterPosition());
-                stickmanImageDrawer.draw(new PosePositions(currentData.poseLandmarkPositionX, currentData.poseLandmarkPositionY), graphicOverlay, bmFrame);
-                graphicOverlay.postInvalidate();
+                drawStickmanData(graphicOverlay, bmFrame, getAdapterPosition());
             }
         }
     }
+
+    View.OnClickListener recordListener = view -> {
+        String uniqueName = "Stickman " + System.currentTimeMillis();
+        VideoEncoder videoEncoder = new VideoEncoder(
+                uniqueName,
+                targetResolution.getWidth(),
+                targetResolution.getHeight(),
+                getContentResolver(),
+                outputFile -> {
+                    String resultText = "Film został zapisany!";
+
+                    Snackbar.make(view.getRootView(), resultText, LENGTH_SHORT)
+                            .setAnchorView(framesRecyclerView)
+                            .show();
+                });
+        stickmanImageDrawer.setVideoEncoder(videoEncoder);
+        stickmanImageDrawer.setEncodeStickmanData();
+
+        for (int i = 0; i < frameCount; i++) {
+            Bitmap bmFrame = mediaMetadataRetriever.getFrameAtIndex(i);
+            drawStickmanData(thumbnailsGraphicOverlay, bmFrame, i);
+        }
+
+        stickmanImageDrawer.clearVideoEncoder();
+    };
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -146,19 +179,16 @@ public class EditorActivity extends AppCompatActivity {
 
                             Bitmap firstFrame = mediaMetadataRetriever.getFrameAtTime(0);
 
-//                             Bitmap firstFrame = mediaMetadataRetriever.getFrameAtIndex(0);
+                            targetResolution = new Size(firstFrame.getWidth(), firstFrame.getHeight());
 
-                            graphicOverlay.setImageSourceInfo(firstFrame.getWidth(), firstFrame.getHeight(), false);
-                            stickmanImageDrawer.draw(new PosePositions(stickmanData.get(4).poseLandmarkPositionX, stickmanData.get(4).poseLandmarkPositionY), graphicOverlay, firstFrame);
-
+                            graphicOverlay.setImageSourceInfo(targetResolution.getWidth(), targetResolution.getHeight(), false);
                             thumbnailsGraphicOverlay.setImageSourceInfo(firstFrame.getWidth(), firstFrame.getHeight(), false);
 
+                            drawStickmanData(graphicOverlay, firstFrame, 0);
                         }
                 );
 
-        findViewById(R.id.save_as_video_button).setOnClickListener(v -> {
-            // TODO: export to video
-        });
+        findViewById(R.id.save_as_video_button).setOnClickListener(recordListener);
     }
 
     @NonNull
@@ -226,5 +256,24 @@ public class EditorActivity extends AppCompatActivity {
                 })
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread());
+    }
+
+    private void drawStickmanData(GraphicOverlay graphicOverlay, Bitmap frame, int index) {
+        graphicOverlay.clear();
+
+        stickmanImageDrawer.setFigureID(stickmanData.get(index).stickmanTypeId);
+        stickmanImageDrawer.setFigureAccessory(stickmanData.get(index).accessoryId, stickmanData.get(index).accessoryType);
+        stickmanImageDrawer.setBackgroundColor(stickmanData.get(index).backgroundColor);
+        stickmanImageDrawer.setFigureColor(stickmanData.get(index).stickmanColor);
+        stickmanImageDrawer.setFigureLineWidth(stickmanData.get(index).stickmanLineThickness);
+
+        stickmanImageDrawer.draw(
+                new PosePositions(
+                        stickmanData.get(index).poseLandmarkPositionX,
+                        stickmanData.get(index).poseLandmarkPositionY),
+                graphicOverlay, frame
+        );
+
+        graphicOverlay.postInvalidate();
     }
 }

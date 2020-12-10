@@ -277,7 +277,7 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
                 };
                 timer.start();
 
-                String uniqueName = "Stickman " + System.currentTimeMillis();
+                String uniqueName = "StickmanRaw " + System.currentTimeMillis();
 
                 VideoEncoder videoEncoder = new VideoEncoder(
                         uniqueName,

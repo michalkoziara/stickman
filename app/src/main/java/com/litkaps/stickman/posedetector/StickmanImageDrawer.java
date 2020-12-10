@@ -34,6 +34,7 @@ public class StickmanImageDrawer {
     private boolean isBackgroundColorUpdated;
 
     private VideoEncoder encoder;
+    private boolean encodeStickmanData = false;
 
     public StickmanImageDrawer() {
         stickmanPaint.setStrokeWidth(16);
@@ -88,19 +89,35 @@ public class StickmanImageDrawer {
         }
 
         if (encoder != null) {
-            encoder.queueFrame(
-                    new StickmanImage(
-                            graphicOverlay.getBackgroundGraphicBitmap(),
-                            figureID,
-                            accessoryID,
-                            accessoryType,
-                            backgroundColor,
-                            stickmanPaint.getColor(),
-                            stickmanPaint.getStrokeWidth(),
-                            posePositions.poseLandmarkPositionX,
-                            posePositions.poseLandmarkPositionY
-                    )
-            );
+            if (encodeStickmanData) {
+                encoder.queueFrame(
+                        new StickmanImage(
+                                graphicOverlay.getGraphicBitmap(),
+                                figureID,
+                                accessoryID,
+                                accessoryType,
+                                backgroundColor,
+                                stickmanPaint.getColor(),
+                                stickmanPaint.getStrokeWidth(),
+                                posePositions.poseLandmarkPositionX,
+                                posePositions.poseLandmarkPositionY
+                        )
+                );
+            } else {
+                encoder.queueFrame(
+                        new StickmanImage(
+                                graphicOverlay.getBackgroundGraphicBitmap(),
+                                figureID,
+                                accessoryID,
+                                accessoryType,
+                                backgroundColor,
+                                stickmanPaint.getColor(),
+                                stickmanPaint.getStrokeWidth(),
+                                posePositions.poseLandmarkPositionX,
+                                posePositions.poseLandmarkPositionY
+                        )
+                );
+            }
         }
     }
 
@@ -122,7 +139,7 @@ public class StickmanImageDrawer {
         stickmanPaint.setColor(color);
     }
 
-    public void setFigureLineWidth(int width) {
+    public void setFigureLineWidth(float width) {
         stickmanPaint.setStrokeWidth(width);
     }
 
@@ -138,5 +155,9 @@ public class StickmanImageDrawer {
     public void clearVideoEncoder() {
         this.encoder.stopEncoding();
         this.encoder = null;
+    }
+
+    public void setEncodeStickmanData() {
+        encodeStickmanData = true;
     }
 }

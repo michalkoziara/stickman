@@ -13,7 +13,7 @@ public class StickmanImage {
             int accessoryType,
             int backgroundColor,
             int stickmanColor,
-            double stickmanLineThickness,
+            float stickmanLineThickness,
             float[] poseLandmarkPositionX,
             float[] poseLandmarkPositionY) {
         this.bitmap = bitmap;
