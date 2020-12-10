@@ -52,7 +52,8 @@
         app:layout_constraintBottom_toTopOf="@+id/frames_recycler_view"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:srcCompat="@drawable/ic_baseline_play_circle_filled_24" />
+        app:srcCompat="@drawable/ic_baseline_play_circle_filled_24"
+        tools:visibility="gone" />
 
     <ImageButton
         android:id="@+id/save_as_video_button"

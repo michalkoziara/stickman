@@ -116,7 +116,6 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
     private static final String COLOR_9 = "#AFB582";
     private static final String COLOR_10 = "#DB8D37";
 
-
     /**
      * change background image options
      */
@@ -156,7 +155,6 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
      * change figure color options
      */
     final OptionModel[] figureColorOptionsArray = {
-            new OptionModel(R.drawable.ic_baseline_close_24, Color.parseColor(COLOR_1)),
             new OptionModel(Color.parseColor(COLOR_6)),
             new OptionModel(Color.parseColor(COLOR_7)),
             new OptionModel(Color.parseColor(COLOR_8)),
