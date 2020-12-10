@@ -50,8 +50,12 @@ public class EditorActivity extends AppCompatActivity {
     private int videoLength;
 
     private GraphicOverlay graphicOverlay;
+    private GraphicOverlay thumbnailsGraphicOverlay;
+
     private RecyclerView framesRecyclerView;
     private StickmanImageDrawer stickmanImageDrawer = new StickmanImageDrawer();
+    private ArrayList<StickmanData> stickmanData;
+    private ArrayList<Frame> frames;
 
     class FrameAdapter extends RecyclerView.Adapter<FrameAdapter.FrameViewHolder> {
         ArrayList<Frame> frames;
@@ -72,11 +76,14 @@ public class EditorActivity extends AppCompatActivity {
         @Override
         public void onBindViewHolder(@NonNull FrameViewHolder holder, int position) {
             Frame frame = frames.get(position);
+//            Bitmap bmFrame = mediaMetadataRetriever.getFrameAtTime(frame.frameTime * 1000); // to microseconds
+            Bitmap bmFrame = mediaMetadataRetriever.getFrameAtIndex(position);
+            thumbnailsGraphicOverlay.clear();
+            stickmanImageDrawer.draw(new PosePositions(stickmanData.get(position).poseLandmarkPositionX, stickmanData.get(position).poseLandmarkPositionY), thumbnailsGraphicOverlay, bmFrame);
+            thumbnailsGraphicOverlay.postInvalidate();
 
-            Bitmap bmFrame = mediaMetadataRetriever.getFrameAtTime(frame.frameTime * 1000); // to microseconds
-            holder.framePreview.setImageBitmap(bmFrame);
-            holder.frameIndex.setText(Float.toString(frame.frameTime));
-
+            holder.framePreview.setImageBitmap(thumbnailsGraphicOverlay.getGraphicBitmap());
+            holder.frameIndex.setText(frame.frameTime/1000f + "s");
         }
 
         @Override
@@ -84,7 +91,7 @@ public class EditorActivity extends AppCompatActivity {
             return frames.size();
         }
 
-        class FrameViewHolder extends RecyclerView.ViewHolder {
+        class FrameViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
             ImageView framePreview;
             TextView frameIndex;
 
@@ -92,7 +99,16 @@ public class EditorActivity extends AppCompatActivity {
                 super(view);
                 framePreview = view.findViewById(R.id.frame_preview);
                 frameIndex = view.findViewById(R.id.frame_index);
+                view.setOnClickListener(this);
+            }
 
+            @Override
+            public void onClick(View v) {
+                Bitmap bmFrame = mediaMetadataRetriever.getFrameAtIndex(getAdapterPosition());
+                thumbnailsGraphicOverlay.clear();
+                StickmanData currentData = stickmanData.get(getAdapterPosition());
+                stickmanImageDrawer.draw(new PosePositions(currentData.poseLandmarkPositionX, currentData.poseLandmarkPositionY), graphicOverlay, bmFrame);
+                graphicOverlay.postInvalidate();
             }
         }
     }
@@ -111,9 +127,6 @@ public class EditorActivity extends AppCompatActivity {
         framesRecyclerView = findViewById(R.id.frames_recycler_view);
         graphicOverlay = findViewById(R.id.graphic_overlay);
 
-        View rootView = findViewById(R.id.root);
-//        graphicOverlay.setImageSourceInfo(rootView.getWidth(), rootView.getHeight(), false);
-        graphicOverlay.setImageSourceInfo(720, 1280, false);
 
         mediaMetadataRetriever = new MediaMetadataRetriever();
 
@@ -122,14 +135,24 @@ public class EditorActivity extends AppCompatActivity {
         framesRecyclerView.setLayoutManager(mLayoutManager);
         framesRecyclerView.setItemAnimator(new DefaultItemAnimator());
 
+        thumbnailsGraphicOverlay = findViewById(R.id.thumbnails_graphic_overlay);
+
         Observable.zip(loadFrames(), loadStickmanData(), Pair::new)
                 .subscribe(
                         result -> {
-                            ArrayList<Frame> frames = (ArrayList<Frame>) result.first;
-                            ArrayList<StickmanData> stickmanData = (ArrayList<StickmanData>) result.second;
+                            frames = (ArrayList<Frame>) result.first;
+                            stickmanData = (ArrayList<StickmanData>) result.second;
                             framesRecyclerView.setAdapter(new FrameAdapter(frames));
 
-                            stickmanImageDrawer.draw(new PosePositions(stickmanData.get(0).poseLandmarkPositionX, stickmanData.get(0).poseLandmarkPositionY), graphicOverlay, mediaMetadataRetriever.getFrameAtTime(0));
+                            Bitmap firstFrame = mediaMetadataRetriever.getFrameAtTime(0);
+
+//                             Bitmap firstFrame = mediaMetadataRetriever.getFrameAtIndex(0);
+
+                            graphicOverlay.setImageSourceInfo(firstFrame.getWidth(), firstFrame.getHeight(), false);
+                            stickmanImageDrawer.draw(new PosePositions(stickmanData.get(4).poseLandmarkPositionX, stickmanData.get(4).poseLandmarkPositionY), graphicOverlay, firstFrame);
+
+                            thumbnailsGraphicOverlay.setImageSourceInfo(firstFrame.getWidth(), firstFrame.getHeight(), false);
+
                         }
                 );
 

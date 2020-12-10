@@ -332,7 +332,7 @@ public class GraphicOverlay extends View {
         }
     }
 
-    public Bitmap getGraphicBitmap() {
+    public Bitmap getBackgroundGraphicBitmap() {
         Bitmap bitmap = Bitmap.createBitmap(getWidth(), getHeight(), Bitmap.Config.ARGB_8888);
         Canvas canvas = new Canvas(bitmap);
 
@@ -340,6 +340,21 @@ public class GraphicOverlay extends View {
             updateTransformationIfNeeded();
 
             graphics.get(0).draw(canvas);
+            bitmap = getResizedBitmap(bitmap, getImageWidth(), getImageHeight());
+            return bitmap;
+        }
+    }
+
+    public Bitmap getGraphicBitmap() {
+        Bitmap bitmap = Bitmap.createBitmap(getWidth(), getHeight(), Bitmap.Config.ARGB_8888);
+        Canvas canvas = new Canvas(bitmap);
+
+        synchronized (lock) {
+            updateTransformationIfNeeded();
+
+            for (GraphicOverlay.Graphic graphic : graphics) {
+                graphic.draw(canvas);
+            }
             bitmap = getResizedBitmap(bitmap, getImageWidth(), getImageHeight());
             return bitmap;
         }

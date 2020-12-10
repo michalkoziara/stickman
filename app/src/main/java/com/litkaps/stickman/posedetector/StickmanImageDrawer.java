@@ -90,7 +90,7 @@ public class StickmanImageDrawer {
         if (encoder != null) {
             encoder.queueFrame(
                     new StickmanImage(
-                            graphicOverlay.getGraphicBitmap(),
+                            graphicOverlay.getBackgroundGraphicBitmap(),
                             figureID,
                             accessoryID,
                             accessoryType,
