@@ -58,8 +58,6 @@ public class MediaStoreAdapter extends RecyclerView.Adapter<MediaStoreAdapter.Vi
     public void onBindViewHolder(ViewHolder holder, int position) {
         Glide.with(mActivity)
                 .load(getUriFromMediaStore(position))
-                .centerCrop()
-                .override(200, 200)
                 .into(holder.getImageView());
 
         DateFormat dateFormat = getDateInstance();
@@ -73,7 +71,8 @@ public class MediaStoreAdapter extends RecyclerView.Adapter<MediaStoreAdapter.Vi
             if (!mMediaStoreCursor.getString(4).startsWith("StickmanRaw"))
                 holder.thumbnailLabel.setCompoundDrawablesWithIntrinsicBounds(R.drawable.ic_baseline_movie_24, 0, 0, 0);
             else
-                holder.thumbnailLabel.setCompoundDrawablesWithIntrinsicBounds(0, 0, 0, 0);
+                holder.thumbnailLabel.setCompoundDrawablesWithIntrinsicBounds(R.drawable.ic_baseline_emoji_people_24, 0, 0, 0);
+
         }
     }
 

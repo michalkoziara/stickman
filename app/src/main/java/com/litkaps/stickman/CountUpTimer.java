@@ -11,6 +11,11 @@ public abstract class CountUpTimer extends CountDownTimer {
         this.duration = durationMs;
     }
 
+    protected CountUpTimer(long durationMs, long intervalMs) {
+        super(durationMs, intervalMs);
+        this.duration = durationMs;
+    }
+
     public abstract void onTick(int msSecond);
 
     @Override

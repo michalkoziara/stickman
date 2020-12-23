@@ -5,10 +5,21 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:id="@+id/root">
+    android:id="@+id/root"
+    android:animateLayoutChanges="true">
 
     <com.litkaps.stickman.GraphicOverlay
         android:id="@+id/thumbnails_graphic_overlay"
+        android:layout_width="60dp"
+        android:layout_height="100dp"
+        android:visibility="invisible"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <com.litkaps.stickman.GraphicOverlay
+        android:id="@+id/background_graphic_overlay"
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:visibility="invisible"
@@ -31,7 +42,6 @@
         android:id="@+id/frames_recycler_view"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@color/white"
         android:orientation="horizontal"
         android:visibility="visible"
         app:layout_constraintBottom_toBottomOf="parent"
@@ -48,28 +58,170 @@
         android:background="@drawable/round_button_bg"
         android:cropToPadding="false"
         android:scaleType="fitCenter"
+        android:visibility="gone"
         android:tint="@color/colorPrimaryDark"
         app:layout_constraintBottom_toTopOf="@+id/frames_recycler_view"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:srcCompat="@drawable/ic_baseline_play_circle_filled_24"
-        tools:visibility="gone" />
+        app:srcCompat="@drawable/ic_baseline_play_circle_filled_24" />
 
-    <ImageButton
-        android:id="@+id/save_as_video_button"
-        android:layout_width="58dp"
-        android:layout_height="58dp"
-        android:layout_marginTop="8dp"
-        android:adjustViewBounds="false"
-        android:background="@drawable/round_button_bg"
-        android:cropToPadding="true"
-        android:padding="10dp"
-        android:scaleType="fitCenter"
-        android:tint="@color/colorPrimaryDark"
+    <LinearLayout
+        android:id="@+id/control_level0"
+        android:layout_width="match_parent"
+        android:layout_height="60dp"
+        android:background="@android:color/white"
+        android:orientation="horizontal"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.97"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:srcCompat="@drawable/ic_baseline_save_alt_24" />
+        app:layout_constraintTop_toTopOf="parent">
+
+        <Space
+            android:layout_width="0dp"
+            android:layout_height="1dp"
+            android:layout_weight="1" >
+        </Space>
+
+        <Button
+            android:id="@+id/change_figure_button"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:layout_gravity="center_vertical"
+            android:backgroundTint="@color/colorPrimary"
+            android:layout_margin="5dp"
+            android:background="@drawable/ic_baseline_emoji_people_24" />
+
+        <Space
+            android:layout_width="0dp"
+            android:layout_height="1dp"
+            android:layout_weight="1" >
+        </Space>
+
+        <Button
+            android:id="@+id/change_color_button"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:layout_gravity="center_vertical"
+            android:backgroundTint="@color/colorPrimary"
+            android:layout_margin="5dp"
+            android:background="@drawable/ic_baseline_color_lens_24" />
+
+        <Space
+            android:layout_width="0dp"
+            android:layout_height="1dp"
+            android:layout_weight="1" >
+        </Space>
+
+        <Button
+            android:id="@+id/change_background_image_button"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:layout_gravity="center_vertical"
+            android:backgroundTint="@color/colorPrimary"
+            android:layout_margin="5dp"
+            android:background="@drawable/ic_baseline_image_24" />
+
+        <Space
+            android:layout_width="0dp"
+            android:layout_height="1dp"
+            android:layout_weight="1" >
+        </Space>
+
+        <Button
+            android:id="@+id/change_accessory_button"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:layout_gravity="center_vertical"
+            android:backgroundTint="@color/colorPrimary"
+            android:layout_margin="5dp"
+            android:background="@drawable/ic_hat" />
+
+        <Space
+            android:layout_width="0dp"
+            android:layout_height="1dp"
+            android:layout_weight="1" >
+        </Space>
+
+        <Button
+            android:id="@+id/change_style_button"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:layout_gravity="center_vertical"
+            android:backgroundTint="@color/colorPrimary"
+            android:layout_margin="5dp"
+            android:background="@drawable/ic_width" />
+
+        <Space
+            android:layout_width="0dp"
+            android:layout_height="1dp"
+            android:layout_weight="1" >
+        </Space>
+
+        <ImageButton
+            android:id="@+id/save_as_video_button"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_gravity="center_vertical"
+            android:adjustViewBounds="false"
+            android:background="@drawable/save_to_video_button_shape"
+            android:scaleType="fitCenter"
+            android:tint="@color/white"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:srcCompat="@drawable/ic_baseline_save_alt_24"
+            android:padding="8dp"/>
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/control_level1"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/light_grey_400"
+        android:orientation="horizontal"
+        android:visibility="gone"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/control_level0">
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/control_level1_recycler"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:visibility="visible" />
+
+    </LinearLayout>
+
+    <SeekBar
+        android:id="@+id/line_width_seekbar"
+        android:layout_width="141dp"
+        android:layout_height="33dp"
+        android:layout_marginTop="190dp"
+        android:max="36"
+        android:progress="12"
+        android:progressTint="@color/colorPrimary"
+        android:rotation="-90"
+        android:scaleX="1.6"
+        android:scaleY="1.6"
+        android:thumbTint="@color/colorPrimaryDark"
+        android:translationX="40dp"
+        android:translationY="-100dp"
+        android:visibility="gone"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/control_level1" />
+
+    <TextView
+        android:id="@+id/record_time"
+        android:layout_width="60dp"
+        android:layout_height="30dp"
+        android:layout_marginBottom="10dp"
+        android:background="@drawable/record_time"
+        android:visibility="gone"
+        android:gravity="center"
+        app:layout_constraintBottom_toTopOf="@+id/video_play_pause_button"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        tools:visibility="visible" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -161,7 +161,7 @@
         android:layout_height="33dp"
         android:layout_marginTop="190dp"
         android:max="36"
-        android:progress="16"
+        android:progress="12"
         android:progressTint="@color/colorPrimary"
         android:rotation="-90"
         android:scaleX="1.6"

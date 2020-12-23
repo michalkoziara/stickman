@@ -1,7 +1,6 @@
 package com.litkaps.stickman.editor;
 
 class Frame {
-    int backgroundColor;
     long frameIndex;
     long frameTime;
 

@@ -1,18 +1,21 @@
 package com.litkaps.stickman.posedetector;
 
+import android.net.Uri;
+
 import androidx.annotation.NonNull;
 
 import java.io.Serializable;
 
 public class StickmanData implements Serializable {
-    public final int stickmanTypeId;
-    public final int accessoryId;
-    public final int accessoryType;
-    public final int backgroundColor;
-    public final int stickmanColor;
-    public final float stickmanLineThickness;
-    public final float[] poseLandmarkPositionX;
-    public final float[] poseLandmarkPositionY;
+    public int stickmanTypeId;
+    public int accessoryId;
+    public int accessoryType;
+    public int backgroundColor;
+    public int stickmanColor;
+    public Uri imageUri;
+    public float stickmanLineThickness;
+    public float[] poseLandmarkPositionX;
+    public float[] poseLandmarkPositionY;
 
     public StickmanData(
             int stickmanTypeId,
@@ -41,7 +44,7 @@ public class StickmanData implements Serializable {
                 ", accessoryId=" + accessoryId +
                 ", accessoryType=" + accessoryType +
                 ", stickmanColor=" + stickmanColor +
-                ", stickmanLineSize=" + stickmanLineThickness +
+                ", stickmanLineThickness=" + stickmanLineThickness +
                 '}';
     }
 }

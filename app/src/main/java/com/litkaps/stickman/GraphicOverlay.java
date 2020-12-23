@@ -46,7 +46,7 @@ public class GraphicOverlay extends View {
     private int imageHeight;
     // The factor of overlay View size to image size. Anything in the image coordinates need to be
     // scaled by this amount to fit with the area of overlay View.
-    private float scaleFactor = 1.0f;
+    public float scaleFactor = 1.0f;
     // The number of horizontal pixels needed to be cropped on each side to fit the image with the
     // area of overlay View after scaling.
     private float postScaleWidthOffset;
@@ -146,14 +146,6 @@ public class GraphicOverlay extends View {
                 paint.setStyle(Paint.Style.FILL);
             }
             canvas.drawCircle(point.x, point.y, radius, paint);
-        }
-
-        public void drawPoint(Canvas canvas, @Nullable PointF point, Paint paint) {
-            if (point == null) {
-                return;
-            }
-
-            drawCircle(canvas, point, DOT_RADIUS, paint, true);
         }
 
         public void drawLine(Canvas canvas, @Nullable PointF start, @Nullable PointF end, Paint paint) {
@@ -276,6 +268,7 @@ public class GraphicOverlay extends View {
             this.isImageFlipped = isFlipped;
             needUpdateTransformation = true;
         }
+        updateTransformationIfNeeded();
         postInvalidate();
     }
 

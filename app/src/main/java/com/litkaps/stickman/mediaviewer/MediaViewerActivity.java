@@ -108,4 +108,9 @@ public class MediaViewerActivity extends AppCompatActivity implements LoaderMana
         videoPlayIntent.setData(videoUri);
         startActivity(videoPlayIntent);
     }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+    }
 }

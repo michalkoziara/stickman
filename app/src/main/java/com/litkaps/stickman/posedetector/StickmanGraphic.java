@@ -34,7 +34,7 @@ abstract class StickmanGraphic extends GraphicOverlay.Graphic {
         whitePaint.setColor(Color.WHITE);
 
         facePaint = new Paint();
-        facePaint.setStrokeWidth(5);
+        facePaint.setStrokeWidth(scale(5));
         facePaint.setColor(Color.BLACK);
 
         this.posePositions = posePositions;

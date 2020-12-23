@@ -105,8 +105,8 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
 
     private CountUpTimer timer;
 
-    private static final String COLOR_1 = "#277E8A";
-    private static final String COLOR_2 = "#38BEA3";
+    public static final String COLOR_1 = "#277E8A";
+    public static final String COLOR_2 = "#38BEA3";
     private static final String COLOR_3 = "#F7B536";
     private static final String COLOR_4 = "#22201E";
     private static final String COLOR_5 = "#F6532D";
@@ -119,17 +119,17 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
     /**
      * change background image options
      */
-    final OptionModel[] backgroundImageOptionsArray = {
+    public static final OptionModel[] backgroundImageOptionsArray = {
             new OptionModel(R.drawable.ic_baseline_close_24, Color.parseColor(COLOR_1)),
             new OptionModel(R.drawable.ic_baseline_add_photo_alternate_24, Color.parseColor(COLOR_2))
     };
 
-    final ArrayList<OptionModel> backgroundImageOptions = new ArrayList<>(Arrays.asList(backgroundImageOptionsArray));
+    public static final ArrayList<OptionModel> backgroundImageOptions = new ArrayList<>(Arrays.asList(backgroundImageOptionsArray));
 
     /**
      * change background color options
      */
-    final OptionModel[] backgroundColorOptionsArray = {
+    public static final OptionModel[] backgroundColorOptionsArray = {
             new OptionModel(R.drawable.ic_baseline_close_24, Color.parseColor(COLOR_1)), // clear background icon
             new OptionModel(Color.parseColor(COLOR_1)),
             new OptionModel(Color.parseColor(COLOR_2)),
@@ -138,23 +138,23 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
             new OptionModel(Color.parseColor(COLOR_5))
     };
 
-    final ArrayList<OptionModel> backgroundColorOptions = new ArrayList<>(Arrays.asList(backgroundColorOptionsArray));
+    public static final ArrayList<OptionModel> backgroundColorOptions = new ArrayList<>(Arrays.asList(backgroundColorOptionsArray));
 
     /**
      * change figure(stickman type) options
      */
-    final OptionModel[] figureOptionsArray = {
-            new OptionModel(R.drawable.classic_stickman, Color.DKGRAY),
-            new OptionModel(R.drawable.comic_stickman, Color.DKGRAY),
-            new OptionModel(R.drawable.flexible_comic_stickman, Color.DKGRAY)
+    public static final OptionModel[] figureOptionsArray = {
+            new OptionModel(R.drawable.classic_stickman, Color.DKGRAY, "classic_stickman"),
+            new OptionModel(R.drawable.comic_stickman, Color.DKGRAY, "comic_stickman"),
+            new OptionModel(R.drawable.flexible_comic_stickman, Color.DKGRAY, "flexible_comic_stickman")
     };
 
-    final ArrayList<OptionModel> figureOptions = new ArrayList<>(Arrays.asList(figureOptionsArray));
+    public static final ArrayList<OptionModel> figureOptions = new ArrayList<>(Arrays.asList(figureOptionsArray));
 
     /**
      * change figure color options
      */
-    final OptionModel[] figureColorOptionsArray = {
+    public static final OptionModel[] figureColorOptionsArray = {
             new OptionModel(Color.parseColor(COLOR_6)),
             new OptionModel(Color.parseColor(COLOR_7)),
             new OptionModel(Color.parseColor(COLOR_8)),
@@ -162,7 +162,7 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
             new OptionModel(Color.parseColor(COLOR_10))
     };
 
-    final ArrayList<OptionModel> figureColorOptions = new ArrayList<>(Arrays.asList(figureColorOptionsArray));
+    public static final ArrayList<OptionModel> figureColorOptions = new ArrayList<>(Arrays.asList(figureColorOptionsArray));
 
     /**
      * change accessory
@@ -173,8 +173,8 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
     public static final int HELMET = 2;
     public static final int GLASSES = 3;
 
-    final OptionModel[] accessoryOptionsArray = {
-            new OptionModel(R.drawable.ic_baseline_close_24, Color.parseColor(COLOR_1)),
+    public static final OptionModel[] accessoryOptionsArray = {
+            new OptionModel(R.drawable.ic_baseline_close_24, Color.parseColor(COLOR_1)), // clear
             new OptionModel(R.drawable.icon_glasses, -1, GLASSES),
             new OptionModel(R.drawable.icon_helmet, -1, HAT),
             new OptionModel(R.drawable.icon_indiana_jones, R.drawable.accessory_indiana_jones, HAT),
@@ -184,7 +184,7 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
             new OptionModel(R.drawable.icon_graduation_hat, R.drawable.accessory_graduation_hat, HAT)
     };
 
-    final ArrayList<OptionModel> accessoryOptions = new ArrayList<>(Arrays.asList(accessoryOptionsArray));
+    public static final ArrayList<OptionModel> accessoryOptions = new ArrayList<>(Arrays.asList(accessoryOptionsArray));
 
     View.OnClickListener unrollOptionsListener = view -> {
         lineWidthBar.setVisibility(View.GONE);
@@ -307,7 +307,7 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
                 }
             };
 
-    class OptionsAdapter extends RecyclerView.Adapter<OptionsAdapter.OptionViewHolder> {
+    public class OptionsAdapter extends RecyclerView.Adapter<OptionsAdapter.OptionViewHolder> {
         ArrayList<OptionModel> options;
 
         OptionsAdapter(ArrayList<OptionModel> options) {
@@ -526,7 +526,7 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
             @Override
             public void onProgressChanged(SeekBar seekBar, int i, boolean b) {
                 if (stickmanImageDrawer != null && i >= 1) {
-                    stickmanImageDrawer.setFigureLineWidth(i);
+                    stickmanImageDrawer.setFigureStrokeWidth(i);
                 }
             }
 

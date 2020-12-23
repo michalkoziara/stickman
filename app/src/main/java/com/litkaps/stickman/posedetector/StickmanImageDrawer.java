@@ -11,6 +11,8 @@ import com.google.mlkit.vision.pose.Pose;
 import com.google.mlkit.vision.pose.PoseLandmark;
 import com.litkaps.stickman.GraphicOverlay;
 import com.litkaps.stickman.ImageGraphic;
+import com.litkaps.stickman.MainActivity;
+import com.litkaps.stickman.R;
 import com.litkaps.stickman.VideoEncoder;
 
 import java.util.List;
@@ -33,11 +35,13 @@ public class StickmanImageDrawer {
     private boolean isBackgroundImageUpdated;
     private boolean isBackgroundColorUpdated;
 
+    private float stickmanStrokeWidth = 12;
+
     private VideoEncoder encoder;
     private boolean encodeStickmanData = false;
 
     public StickmanImageDrawer() {
-        stickmanPaint.setStrokeWidth(16);
+        stickmanPaint.setStrokeWidth(stickmanStrokeWidth);
     }
 
     public void setPoseDetectCallback(PoseDetectorProcessor poseDetectorProcessor) {
@@ -79,6 +83,8 @@ public class StickmanImageDrawer {
         } else {
             scaledBackgroundColor = null;
         }
+
+        stickmanPaint.setStrokeWidth(graphicOverlay.scaleFactor * stickmanStrokeWidth);
 
         if (figureID == 0) {
             graphicOverlay.add(new ClassicStickmanGraphic(graphicOverlay, posePositions, accessoryID, accessoryType, stickmanPaint));
@@ -139,8 +145,8 @@ public class StickmanImageDrawer {
         stickmanPaint.setColor(color);
     }
 
-    public void setFigureLineWidth(float width) {
-        stickmanPaint.setStrokeWidth(width);
+    public void setFigureStrokeWidth(float width) {
+        stickmanStrokeWidth = width;
     }
 
     public void setFigureAccessory(int accessoryID, int accessoryType) {
