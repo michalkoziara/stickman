@@ -710,7 +710,7 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
         ImageAnalysis.Builder builder = new ImageAnalysis.Builder();
         targetResolution = PreferenceUtils.getCameraXTargetResolution(this);
         if (targetResolution == null) {
-            targetResolution = new Size(720, 1280);
+            targetResolution = new Size(960, 1280);
         }
 
         builder.setTargetResolution(targetResolution);

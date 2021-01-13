@@ -30,17 +30,9 @@ public class LivePreviewPreferenceFragment extends PreferenceFragment {
                 (ListPreference) findPreference(getString(R.string.pref_key_camera_target_resolution));
         String[] entries =
                 new String[]{
-                        "1080x1920",
-                        "1080x1440",
                         "960x1280",
-                        "720x1280",
-                        "480x1280",
-                        "400x1280",
-                        "480x864",
-                        "800x800",
-                        "320x480",
-                        "160x240",
-                        "120x160"
+                        "480x640",
+                        "240x320"
                 };
 
         pref.setEntries(entries);
