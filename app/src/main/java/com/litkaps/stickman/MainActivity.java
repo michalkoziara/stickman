@@ -15,6 +15,7 @@ import android.os.StrictMode;
 import android.util.Log;
 import android.util.Size;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
@@ -578,6 +579,12 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
         recyclerView.setLayoutManager(mLayoutManager);
         recyclerView.setItemAnimator(new DefaultItemAnimator());
         recyclerView.setAdapter(optionsAdapter);
+
+        findViewById(R.id.root).setOnTouchListener((v, event) -> {
+            rollOptions();
+            v.performClick();
+            return false;
+        });
     }
 
     @Override
@@ -814,4 +821,7 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
         }
     }
 
+    private void rollOptions() {
+        secondLevelControl.setVisibility(View.GONE);
+    }
 }

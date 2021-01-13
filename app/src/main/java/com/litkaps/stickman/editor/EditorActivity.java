@@ -1,5 +1,6 @@
 package com.litkaps.stickman.editor;
 
+import android.content.Context;
 import android.content.Intent;
 import android.content.res.ColorStateList;
 import android.graphics.Bitmap;
@@ -16,8 +17,10 @@ import android.util.Log;
 import android.util.Pair;
 import android.util.Size;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
@@ -99,6 +102,8 @@ public class EditorActivity extends AppCompatActivity {
     private int previousFramePreviewIndex;
     private int currentFramePreviewIndex = 0;
     private Size targetResolution;
+
+    private ConstraintLayout root;
 
     private Uri imageUri;
     private int colorValue = -1;
@@ -406,7 +411,6 @@ public class EditorActivity extends AppCompatActivity {
                 if(prevClickedView != null)
                     prevClickedView.setBackgroundColor(Color.WHITE);
                 v.setBackgroundColor(getColor(R.color.colorPrimaryDark));
-
             }
         }
     }
@@ -467,6 +471,7 @@ public class EditorActivity extends AppCompatActivity {
             mVideoUri = callingIntent.getData();
         }
 
+        root = findViewById(R.id.root);
         framesRemoved = 0;
         graphicOverlay = findViewById(R.id.graphic_overlay);
         thumbnailsGraphicOverlay = findViewById(R.id.thumbnails_graphic_overlay);
@@ -537,11 +542,11 @@ public class EditorActivity extends AppCompatActivity {
             }
         });
 
-
         recordTime = findViewById(R.id.record_time);
 
         findViewById(R.id.delete_frame_button).setOnClickListener(deleteFrameListener);
         findViewById(R.id.change_frame_rate_button).setOnClickListener(changeFrameRateListener);
+
         findViewById(R.id.change_frame_cancel).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -549,19 +554,42 @@ public class EditorActivity extends AppCompatActivity {
                 changeFrameRateView.setVisibility(View.GONE);
             }
         });
+
         findViewById(R.id.change_frame_confirm).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 if(!frameRateEdit.getText().toString().isEmpty()) {
                     userSetFrameRate = Integer.parseInt(frameRateEdit.getText().toString());
+                    root.requestFocus();
+                    hideSoftInput();
                     changeFrameRateView.setVisibility(View.GONE);
                 }
             }
         });
 
-
         //        mPlayPauseButton = findViewById(R.id.video_play_pause_button);
         //        mPlayPauseButton.setOnClickListener(playOnClickListener);
+
+        framesRecyclerView.setOnFocusChangeListener(new View.OnFocusChangeListener() {
+            @Override
+            public void onFocusChange(View v, boolean hasFocus) {
+                if(!hasFocus) {
+                    View prevClickedView = framesRecyclerView.getLayoutManager().findViewByPosition(previousFramePreviewIndex);
+                    if(prevClickedView != null)
+                        prevClickedView.setBackgroundColor(Color.WHITE);
+                }
+            }
+        });
+
+        root.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                rollOptions();
+                hideSoftInput();
+                v.performClick();
+                return false;
+            }
+        });
     }
 
     @NonNull
@@ -666,7 +694,6 @@ public class EditorActivity extends AppCompatActivity {
         drawStickmanData(thumbnailsGraphicOverlay, bmFrame, position, stickmanThumbnailImageDrawer);
 
         return thumbnailsGraphicOverlay.getGraphicBitmap();
-
     }
 
     private void updatePreview(int frameIndex) {
@@ -687,5 +714,14 @@ public class EditorActivity extends AppCompatActivity {
         } else {
             super.onActivityResult(requestCode, resultCode, data);
         }
+    }
+
+    private void rollOptions() {
+        secondLevelControl.setVisibility(View.GONE);
+    }
+
+    private void hideSoftInput() {
+        InputMethodManager imm = (InputMethodManager)getSystemService(Context.INPUT_METHOD_SERVICE);
+        imm.hideSoftInputFromWindow(root.getWindowToken(), 0);
     }
 }
