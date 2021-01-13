@@ -250,16 +250,13 @@ public class EditorActivity extends AppCompatActivity {
                             setBackgroundColor(options.get(position).tint);
                             colorValue = options.get(position).tint;
                         }
-                    }
-                    else if (options == backgroundImageOptions) {
+                    } else if (options == backgroundImageOptions) {
                         if (position == 0) {
                             removeBackgroundImage();
-                        }
-                        else {
+                        } else {
                             startChooseImageIntentForResult();
                         }
-                    }
-                    else if (options == figureOptions) {
+                    } else if (options == figureOptions) {
                         setFigure(options.get(position).name);
                     } else if (options == figureColorOptions) {
                         setFigureColor(options.get(position).tint);
@@ -289,32 +286,32 @@ public class EditorActivity extends AppCompatActivity {
         private void setFigure(String name) {
             switch (name) {
                 case "classic_stickman": {
-                    stickmanData.get((int)frames.get(currentFramePreviewIndex).frameIndex).stickmanTypeId = 0;
+                    stickmanData.get((int) frames.get(currentFramePreviewIndex).frameIndex).stickmanTypeId = 0;
                     break;
                 }
                 case "comic_stickman": {
-                    stickmanData.get((int)frames.get(currentFramePreviewIndex).frameIndex).stickmanTypeId = 1;
+                    stickmanData.get((int) frames.get(currentFramePreviewIndex).frameIndex).stickmanTypeId = 1;
                     break;
                 }
                 case "flexible_comic_stickman": {
-                    stickmanData.get((int)frames.get(currentFramePreviewIndex).frameIndex).stickmanTypeId = 2;
+                    stickmanData.get((int) frames.get(currentFramePreviewIndex).frameIndex).stickmanTypeId = 2;
                     break;
                 }
             }
         }
 
         private void setFigureColor(int colorValue) {
-            stickmanData.get((int)frames.get(currentFramePreviewIndex).frameIndex).stickmanColor = colorValue;
+            stickmanData.get((int) frames.get(currentFramePreviewIndex).frameIndex).stickmanColor = colorValue;
         }
 
         private void setFigureAccessory(int accessoryID, int accessoryType) {
-            stickmanData.get((int)frames.get(currentFramePreviewIndex).frameIndex).accessoryId = accessoryID;
-            stickmanData.get((int)frames.get(currentFramePreviewIndex).frameIndex).accessoryType = accessoryType;
+            stickmanData.get((int) frames.get(currentFramePreviewIndex).frameIndex).accessoryId = accessoryID;
+            stickmanData.get((int) frames.get(currentFramePreviewIndex).frameIndex).accessoryType = accessoryType;
         }
 
         private void removeAccessory() {
-            stickmanData.get((int)frames.get(currentFramePreviewIndex).frameIndex).accessoryId = 0;
-            stickmanData.get((int)frames.get(currentFramePreviewIndex).frameIndex).accessoryType = -1;
+            stickmanData.get((int) frames.get(currentFramePreviewIndex).frameIndex).accessoryId = 0;
+            stickmanData.get((int) frames.get(currentFramePreviewIndex).frameIndex).accessoryType = -1;
         }
 
         private void removeBackgroundColor() {
@@ -332,7 +329,7 @@ public class EditorActivity extends AppCompatActivity {
         }
 
         private void setBackgroundColor(int colorValue) {
-            stickmanData.get((int)frames.get(currentFramePreviewIndex).frameIndex).backgroundColor = colorValue;
+            stickmanData.get((int) frames.get(currentFramePreviewIndex).frameIndex).backgroundColor = colorValue;
         }
 
     }
@@ -355,11 +352,11 @@ public class EditorActivity extends AppCompatActivity {
 
         @Override
         public void onBindViewHolder(@NonNull FrameViewHolder holder, int position) {
-            final int framePosition = (int)frames.get(position).frameIndex;
+            final int framePosition = (int) frames.get(position).frameIndex;
 
             holder.framePreview.setImageBitmap(null);
 
-            if(holder.disposable != null)
+            if (holder.disposable != null)
                 holder.disposable.dispose();
 
             holder.disposable = Observable.create(emitter -> {
@@ -368,12 +365,11 @@ public class EditorActivity extends AppCompatActivity {
             })
                     .subscribeOn(Schedulers.io())
                     .observeOn(AndroidSchedulers.mainThread())
-                    .subscribe(bitmap -> holder.framePreview.setImageBitmap((Bitmap)bitmap));
+                    .subscribe(bitmap -> holder.framePreview.setImageBitmap((Bitmap) bitmap));
 
-            if(position == currentFramePreviewIndex) {
+            if (position == currentFramePreviewIndex) {
                 holder.itemView.setBackgroundColor(getColor(R.color.colorPrimaryDark));
-            }
-            else {
+            } else {
                 holder.itemView.setBackgroundColor(Color.WHITE);
             }
 
@@ -399,16 +395,16 @@ public class EditorActivity extends AppCompatActivity {
 
             @Override
             public void onClick(View v) {
-                int frameIndex = (int)frames.get(getAdapterPosition()).frameIndex;
+                int frameIndex = (int) frames.get(getAdapterPosition()).frameIndex;
                 Bitmap bmFrame = mediaMetadataRetriever.getFrameAtIndex(frameIndex);
                 drawStickmanData(graphicOverlay, bmFrame, frameIndex, stickmanImageDrawer);
                 previousFramePreviewIndex = currentFramePreviewIndex;
                 currentFramePreviewIndex = getAdapterPosition();
 
-                lineWidthBar.setProgress((int)stickmanData.get(currentFramePreviewIndex).stickmanLineThickness);
+                lineWidthBar.setProgress((int) stickmanData.get(currentFramePreviewIndex).stickmanLineThickness);
 
                 View prevClickedView = framesRecyclerView.getLayoutManager().findViewByPosition(previousFramePreviewIndex);
-                if(prevClickedView != null)
+                if (prevClickedView != null)
                     prevClickedView.setBackgroundColor(Color.WHITE);
                 v.setBackgroundColor(getColor(R.color.colorPrimaryDark));
             }
@@ -428,22 +424,24 @@ public class EditorActivity extends AppCompatActivity {
                     Snackbar.make(view.getRootView(), resultText, LENGTH_SHORT)
                             .setAnchorView(framesRecyclerView)
                             .show();
-                });
+                },
+                userSetFrameRate
+        );
 
         StickmanImageDrawer tempDrawer = new StickmanImageDrawer();
         tempDrawer.setVideoEncoder(videoEncoder);
         tempDrawer.setEncodeStickmanData();
 
-        for(Frame frame : frameAdapter.frames) {
-            Bitmap bmFrame = mediaMetadataRetriever.getFrameAtIndex((int)frame.frameIndex);
-            drawStickmanData(backgroundGraphicOverlay, bmFrame, (int)frame.frameIndex, tempDrawer);
+        for (Frame frame : frameAdapter.frames) {
+            Bitmap bmFrame = mediaMetadataRetriever.getFrameAtIndex((int) frame.frameIndex);
+            drawStickmanData(backgroundGraphicOverlay, bmFrame, (int) frame.frameIndex, tempDrawer);
         }
 
         tempDrawer.clearVideoEncoder();
     };
 
     View.OnClickListener deleteFrameListener = view -> {
-        if(currentFramePreviewIndex != -1) {
+        if (currentFramePreviewIndex != -1) {
             frames.remove(currentFramePreviewIndex);
             frameAdapter.notifyItemRemoved(currentFramePreviewIndex);
             frameAdapter.notifyItemRangeChanged(currentFramePreviewIndex, frames.size());
@@ -453,10 +451,19 @@ public class EditorActivity extends AppCompatActivity {
     };
 
     View.OnClickListener changeFrameRateListener = view -> {
-        if(changeFrameRateView.getVisibility() == View.GONE)
+        if (changeFrameRateView.getVisibility() == View.GONE) {
             changeFrameRateView.setVisibility(View.VISIBLE);
-        else
+            findViewById(R.id.save_as_video_button).setEnabled(false);
+
+            findViewById(R.id.save_as_video_button).setBackgroundTintList(
+                    ColorStateList.valueOf(getColor(android.R.color.darker_gray))
+            );
+        } else {
             changeFrameRateView.setVisibility(View.GONE);
+            findViewById(R.id.save_as_video_button).setEnabled(true);
+
+            findViewById(R.id.save_as_video_button).setBackgroundTintList(null);
+        }
 
     };
 
@@ -503,7 +510,7 @@ public class EditorActivity extends AppCompatActivity {
                             frameAdapter = new FrameAdapter(frames);
                             framesRecyclerView.setAdapter(frameAdapter);
 
-                            lineWidthBar.setProgress((int)stickmanData.get(0).stickmanLineThickness);
+                            lineWidthBar.setProgress((int) stickmanData.get(0).stickmanLineThickness);
                         }
                 );
 
@@ -529,7 +536,7 @@ public class EditorActivity extends AppCompatActivity {
         lineWidthBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
             public void onProgressChanged(SeekBar seekBar, int i, boolean b) {
-                stickmanData.get((int)frames.get(currentFramePreviewIndex).frameIndex).stickmanLineThickness = i;
+                stickmanData.get((int) frames.get(currentFramePreviewIndex).frameIndex).stickmanLineThickness = i;
                 updatePreview(currentFramePreviewIndex);
             }
 
@@ -552,17 +559,23 @@ public class EditorActivity extends AppCompatActivity {
             public void onClick(View v) {
                 frameRateEdit.setText(userSetFrameRate + "");
                 changeFrameRateView.setVisibility(View.GONE);
+
+                findViewById(R.id.save_as_video_button).setEnabled(true);
+                findViewById(R.id.save_as_video_button).setBackgroundTintList(null);
             }
         });
 
         findViewById(R.id.change_frame_confirm).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if(!frameRateEdit.getText().toString().isEmpty()) {
+                if (!frameRateEdit.getText().toString().isEmpty()) {
                     userSetFrameRate = Integer.parseInt(frameRateEdit.getText().toString());
                     root.requestFocus();
                     hideSoftInput();
                     changeFrameRateView.setVisibility(View.GONE);
+
+                    findViewById(R.id.save_as_video_button).setEnabled(true);
+                    findViewById(R.id.save_as_video_button).setBackgroundTintList(null);
                 }
             }
         });
@@ -667,15 +680,14 @@ public class EditorActivity extends AppCompatActivity {
         stickmanImageDrawer.setFigureColor(stickmanData.get(index).stickmanColor);
         stickmanImageDrawer.setFigureStrokeWidth(stickmanData.get(index).stickmanLineThickness);
 
-        if(stickmanData.get(index).imageUri != null) {
+        if (stickmanData.get(index).imageUri != null) {
             try {
                 Bitmap imageBitmap = BitmapUtils.getBitmapFromContentUri(getContentResolver(), stickmanData.get(index).imageUri);
                 stickmanImageDrawer.setBackgroundImage(imageBitmap);
             } catch (IOException e) {
                 e.printStackTrace();
             }
-        }
-        else
+        } else
             stickmanImageDrawer.setBackgroundImage(null);
 
 
@@ -698,9 +710,9 @@ public class EditorActivity extends AppCompatActivity {
 
     private void updatePreview(int frameIndex) {
         // update preview
-        Bitmap frameBitmap = mediaMetadataRetriever.getFrameAtIndex((int)frames.get(frameIndex).frameIndex);
+        Bitmap frameBitmap = mediaMetadataRetriever.getFrameAtIndex((int) frames.get(frameIndex).frameIndex);
         frameAdapter.notifyItemChanged(frameIndex);
-        drawStickmanData(graphicOverlay, frameBitmap, (int)frames.get(frameIndex).frameIndex, stickmanImageDrawer);
+        drawStickmanData(graphicOverlay, frameBitmap, (int) frames.get(frameIndex).frameIndex, stickmanImageDrawer);
     }
 
     @Override

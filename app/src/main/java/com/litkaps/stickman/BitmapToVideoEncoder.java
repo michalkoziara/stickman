@@ -38,7 +38,6 @@ public class BitmapToVideoEncoder {
 
     private static final String MIME_TYPE = "video/avc"; // H.264 Advanced Video Coding
     private static final int BIT_RATE = 16000000;
-    private static final int FRAME_RATE = 5; // Frames per second
 
     private static final int I_FRAME_INTERVAL = 1;
 
@@ -47,12 +46,14 @@ public class BitmapToVideoEncoder {
     private boolean mNoMoreFrames = false;
     private boolean mAbort = false;
     private int metadataTrackIndex;
+    private int frameRate = 5; // Frames per second
 
     public interface IBitmapToVideoEncoderCallback {
         void onEncodingComplete(File outputFile);
     }
 
-    public BitmapToVideoEncoder(IBitmapToVideoEncoderCallback callback) {
+    public BitmapToVideoEncoder(IBitmapToVideoEncoderCallback callback, int frameRate) {
+        this.frameRate = frameRate > 0 ? frameRate : this.frameRate;
         mCallback = callback;
     }
 
@@ -82,7 +83,7 @@ public class BitmapToVideoEncoder {
 
         MediaFormat mediaFormat = MediaFormat.createVideoFormat(MIME_TYPE, width, height);
         mediaFormat.setInteger(MediaFormat.KEY_BIT_RATE, BIT_RATE);
-        mediaFormat.setInteger(MediaFormat.KEY_FRAME_RATE, FRAME_RATE);
+        mediaFormat.setInteger(MediaFormat.KEY_FRAME_RATE, frameRate);
         mediaFormat.setInteger(MediaFormat.KEY_COLOR_FORMAT, MediaCodecInfo.CodecCapabilities.COLOR_FormatYUV420SemiPlanar);
         mediaFormat.setInteger(MediaFormat.KEY_I_FRAME_INTERVAL, I_FRAME_INTERVAL);
         mediaCodec.configure(mediaFormat, null, null, MediaCodec.CONFIGURE_FLAG_ENCODE);
@@ -331,6 +332,6 @@ public class BitmapToVideoEncoder {
     }
 
     private long computePresentationTime(long frameIndex) {
-        return 132 + frameIndex * 1000000 / BitmapToVideoEncoder.FRAME_RATE;
+        return 132 + frameIndex * 1000000 / frameRate;
     }
 }

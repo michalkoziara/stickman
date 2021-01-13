@@ -36,7 +36,11 @@ public class VideoEncoder {
     private Uri videoContentUri;
 
     public VideoEncoder(String name, int width, int height, ContentResolver resolver, VideoEncoderCallback onSuccess) {
-        bitmapToVideoEncoder = new BitmapToVideoEncoder(onSuccess);
+        this(name, width, height, resolver, onSuccess, 5);
+    }
+
+    public VideoEncoder(String name, int width, int height, ContentResolver resolver, VideoEncoderCallback onSuccess, int frameRate) {
+        bitmapToVideoEncoder = new BitmapToVideoEncoder(onSuccess, frameRate);
         this.resolver = resolver;
 
         Uri videoCollection;
