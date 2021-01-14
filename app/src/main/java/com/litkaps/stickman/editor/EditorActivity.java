@@ -366,6 +366,7 @@ public class EditorActivity extends AppCompatActivity {
                     .subscribeOn(Schedulers.io())
                     .observeOn(AndroidSchedulers.mainThread())
                     .subscribe(bitmap -> holder.framePreview.setImageBitmap((Bitmap) bitmap));
+            
 
             if (position == currentFramePreviewIndex) {
                 holder.itemView.setBackgroundColor(getColor(R.color.colorPrimaryDark));
