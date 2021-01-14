@@ -67,6 +67,9 @@ public class BitmapToVideoEncoder {
     }
 
     public void startEncoding(int width, int height, FileDescriptor fileDescriptor) {
+        if (frameRate == 0) {
+            frameRate = 15;
+        }
 
         MediaCodecInfo codecInfo = selectCodec();
         if (codecInfo == null) {
@@ -333,6 +336,10 @@ public class BitmapToVideoEncoder {
     }
 
     private long computePresentationTime(long frameIndex) {
+        if (frameRate == 0) {
+            frameRate = 15;
+        }
+
         return 132 + frameIndex * 1000000 / frameRate;
     }
 }

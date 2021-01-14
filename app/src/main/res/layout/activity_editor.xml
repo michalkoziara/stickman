@@ -21,6 +21,16 @@
         app:layout_constraintTop_toTopOf="parent" />
 
     <com.litkaps.stickman.GraphicOverlay
+        android:id="@+id/thumbnails_graphic_overlay_second"
+        android:layout_width="60dp"
+        android:layout_height="100dp"
+        android:visibility="invisible"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <com.litkaps.stickman.GraphicOverlay
         android:id="@+id/background_graphic_overlay"
         android:layout_width="960px"
         android:layout_height="1280px"

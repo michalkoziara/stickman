@@ -89,7 +89,7 @@ public class EditorActivity extends AppCompatActivity {
     private SeekBar lineWidthBar;
     private OptionsAdapter optionsAdapter;
 
-    private GraphicOverlay graphicOverlay, thumbnailsGraphicOverlay, backgroundGraphicOverlay;
+    private GraphicOverlay graphicOverlay, thumbnailsGraphicOverlay, thumbnailsGraphicOverlaySecond, backgroundGraphicOverlay;
 
     private RecyclerView framesRecyclerView;
     private StickmanImageDrawer stickmanImageDrawer = new StickmanImageDrawer();
@@ -355,17 +355,19 @@ public class EditorActivity extends AppCompatActivity {
 
             holder.framePreview.setImageBitmap(null);
 
-            if (holder.disposable != null)
-                holder.disposable.dispose();
+//            if (holder.disposable != null)
+//                holder.disposable.dispose();
+//
+//            holder.disposable = Observable.create(emitter -> {
+//                Bitmap bitmap = loadStickmanImageThumbnail(framePosition);
+//                emitter.onNext(bitmap);
+//            })
+//                    .subscribeOn(Schedulers.io())
+//                    .observeOn(AndroidSchedulers.mainThread())
+//                    .subscribe(bitmap -> holder.framePreview.setImageBitmap((Bitmap) bitmap));
 
-            holder.disposable = Observable.create(emitter -> {
-                Bitmap bitmap = loadStickmanImageThumbnail(framePosition);
-                emitter.onNext(bitmap);
-            })
-                    .subscribeOn(Schedulers.io())
-                    .observeOn(AndroidSchedulers.mainThread())
-                    .subscribe(bitmap -> holder.framePreview.setImageBitmap((Bitmap) bitmap));
-            
+            Bitmap bitmap = loadStickmanImageThumbnail(framePosition);
+            holder.framePreview.setImageBitmap(bitmap);
 
             if (position == currentFramePreviewIndex) {
                 holder.itemView.setBackgroundColor(getColor(R.color.colorPrimaryDark));
@@ -384,7 +386,7 @@ public class EditorActivity extends AppCompatActivity {
         class FrameViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
             ImageView framePreview;
             TextView frameIndex;
-            Disposable disposable;
+//            Disposable disposable;
 
             FrameViewHolder(View view) {
                 super(view);
@@ -430,6 +432,7 @@ public class EditorActivity extends AppCompatActivity {
 
         StickmanImageDrawer tempDrawer = new StickmanImageDrawer();
         tempDrawer.setVideoEncoder(videoEncoder);
+        tempDrawer.setVideoEncoderFrameRate(userSetFrameRate);
         tempDrawer.setEncodeStickmanData();
 
         for (Frame frame : frameAdapter.frames) {
@@ -482,6 +485,7 @@ public class EditorActivity extends AppCompatActivity {
         framesRemoved = 0;
         graphicOverlay = findViewById(R.id.graphic_overlay);
         thumbnailsGraphicOverlay = findViewById(R.id.thumbnails_graphic_overlay);
+        thumbnailsGraphicOverlaySecond = findViewById(R.id.thumbnails_graphic_overlay_second);
         backgroundGraphicOverlay = findViewById(R.id.background_graphic_overlay);
         changeFrameRateView = findViewById(R.id.change_frame_rate_view);
         frameRateEdit = findViewById(R.id.frame_rate_edit);
@@ -503,6 +507,7 @@ public class EditorActivity extends AppCompatActivity {
 
                             targetResolution = new Size(firstFrame.getWidth(), firstFrame.getHeight());
                             thumbnailsGraphicOverlay.setImageSourceInfo(targetResolution.getWidth(), targetResolution.getHeight(), false);
+                            thumbnailsGraphicOverlaySecond.setImageSourceInfo(targetResolution.getWidth(), targetResolution.getHeight(), false);
                             graphicOverlay.setImageSourceInfo(targetResolution.getWidth(), targetResolution.getHeight(), false);
                             backgroundGraphicOverlay.setImageSourceInfo(targetResolution.getWidth(), targetResolution.getHeight(), false);
 
@@ -712,9 +717,14 @@ public class EditorActivity extends AppCompatActivity {
 
     private Bitmap loadStickmanImageThumbnail(int position) {
         Bitmap bmFrame = mediaMetadataRetriever.getFrameAtIndex(position);
-        drawStickmanData(thumbnailsGraphicOverlay, bmFrame, position, stickmanThumbnailImageDrawer);
 
-        return thumbnailsGraphicOverlay.getGraphicBitmap();
+        if (position % 2 == 0) {
+            drawStickmanData(thumbnailsGraphicOverlay, bmFrame, position, stickmanThumbnailImageDrawer);
+            return thumbnailsGraphicOverlay.getGraphicBitmap();
+        } else {
+            drawStickmanData(thumbnailsGraphicOverlaySecond, bmFrame, position, stickmanThumbnailImageDrawer);
+            return thumbnailsGraphicOverlaySecond.getGraphicBitmap();
+        }
     }
 
     private void updatePreview(int frameIndex) {

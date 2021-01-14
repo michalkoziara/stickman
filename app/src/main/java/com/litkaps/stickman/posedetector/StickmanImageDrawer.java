@@ -163,6 +163,10 @@ public class StickmanImageDrawer {
         this.encoder = encoder;
     }
 
+    public void setVideoEncoderFrameRate(int frameRate) {
+        encoder.setFrameRate(frameRate);
+    }
+
     public void clearVideoEncoder() {
         this.encoder.stopEncoding();
         this.encoder = null;
