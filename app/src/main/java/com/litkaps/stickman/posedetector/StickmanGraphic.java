@@ -187,7 +187,7 @@ abstract class StickmanGraphic extends GraphicOverlay.Graphic {
     public void drawSmile(Canvas canvas) {
         Paint paint = new Paint(stickmanPaint.getColor());
         paint.setStyle(Paint.Style.STROKE);
-        paint.setStrokeWidth(scale(5));
+        paint.setStrokeWidth(5);
 
         try {
             // upper lip

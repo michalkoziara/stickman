@@ -370,7 +370,7 @@ public class EditorActivity extends AppCompatActivity {
             if (position == currentFramePreviewIndex) {
                 holder.itemView.setBackgroundColor(getColor(R.color.colorPrimaryDark));
             } else {
-                holder.itemView.setBackgroundResource(0);
+                holder.itemView.setBackgroundColor(Color.WHITE);
             }
 
             holder.frameIndex.setText(String.format("%.01f s", position * frameInterval / 1000f));
@@ -405,7 +405,7 @@ public class EditorActivity extends AppCompatActivity {
 
                 View prevClickedView = framesRecyclerView.getLayoutManager().findViewByPosition(previousFramePreviewIndex);
                 if (prevClickedView != null)
-                    prevClickedView.setBackgroundResource(0);
+                    prevClickedView.setBackgroundColor(Color.WHITE);
                 v.setBackgroundColor(getColor(R.color.colorPrimaryDark));
             }
         }
@@ -589,7 +589,7 @@ public class EditorActivity extends AppCompatActivity {
                 if(!hasFocus) {
                     View prevClickedView = framesRecyclerView.getLayoutManager().findViewByPosition(previousFramePreviewIndex);
                     if(prevClickedView != null)
-                        prevClickedView.setBackgroundResource(0);
+                        prevClickedView.setBackgroundColor(Color.WHITE);
                 }
             }
         });

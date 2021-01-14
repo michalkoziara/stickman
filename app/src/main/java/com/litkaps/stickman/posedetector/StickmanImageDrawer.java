@@ -84,6 +84,7 @@ public class StickmanImageDrawer {
             scaledBackgroundColor = null;
         }
 
+
         stickmanPaint.setStrokeWidth(graphicOverlay.scaleFactor * stickmanStrokeWidth);
 
         if (figureID == 0) {
@@ -104,7 +105,7 @@ public class StickmanImageDrawer {
                                 accessoryType,
                                 backgroundColor,
                                 stickmanPaint.getColor(),
-                                stickmanPaint.getStrokeWidth(),
+                                stickmanStrokeWidth,
                                 posePositions.poseLandmarkPositionX,
                                 posePositions.poseLandmarkPositionY
                         )
@@ -118,7 +119,7 @@ public class StickmanImageDrawer {
                                 accessoryType,
                                 backgroundColor,
                                 stickmanPaint.getColor(),
-                                stickmanPaint.getStrokeWidth(),
+                                stickmanStrokeWidth,
                                 posePositions.poseLandmarkPositionX,
                                 posePositions.poseLandmarkPositionY
                         )

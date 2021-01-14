@@ -44,7 +44,8 @@
         android:id="@+id/frames_recycler_view"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="#D2FFFFFF"
+        android:orientation="horizontal"
+        android:visibility="visible"
         android:clickable="true"
         android:focusable="true"
         android:descendantFocusability="beforeDescendants"
@@ -52,6 +53,22 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent" />
+
+    <ImageButton
+        android:id="@+id/video_play_pause_button"
+        android:layout_width="58dp"
+        android:layout_height="58dp"
+        android:layout_marginBottom="8dp"
+        android:adjustViewBounds="false"
+        android:background="@drawable/round_button_bg"
+        android:cropToPadding="false"
+        android:scaleType="fitCenter"
+        android:visibility="gone"
+        android:tint="@color/colorPrimaryDark"
+        app:layout_constraintBottom_toTopOf="@+id/frames_recycler_view"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:srcCompat="@drawable/ic_baseline_play_circle_filled_24" />
 
     <LinearLayout
         android:id="@+id/control_level0"
@@ -66,77 +83,83 @@
         <Space
             android:layout_width="0dp"
             android:layout_height="1dp"
-            android:layout_weight="1"></Space>
+            android:layout_weight="1" >
+        </Space>
 
         <Button
             android:id="@+id/change_figure_button"
             android:layout_width="48dp"
             android:layout_height="48dp"
             android:layout_gravity="center_vertical"
+            android:backgroundTint="@color/colorPrimary"
             android:layout_margin="5dp"
-            android:background="@drawable/ic_baseline_emoji_people_24"
-            android:backgroundTint="@color/colorPrimary" />
+            android:background="@drawable/ic_baseline_emoji_people_24" />
 
         <Space
             android:layout_width="0dp"
             android:layout_height="1dp"
-            android:layout_weight="1"></Space>
+            android:layout_weight="1" >
+        </Space>
 
         <Button
             android:id="@+id/change_color_button"
             android:layout_width="48dp"
             android:layout_height="48dp"
             android:layout_gravity="center_vertical"
+            android:backgroundTint="@color/colorPrimary"
             android:layout_margin="5dp"
-            android:background="@drawable/ic_baseline_color_lens_24"
-            android:backgroundTint="@color/colorPrimary" />
+            android:background="@drawable/ic_baseline_color_lens_24" />
 
         <Space
             android:layout_width="0dp"
             android:layout_height="1dp"
-            android:layout_weight="1"></Space>
+            android:layout_weight="1" >
+        </Space>
 
         <Button
             android:id="@+id/change_background_image_button"
             android:layout_width="48dp"
             android:layout_height="48dp"
             android:layout_gravity="center_vertical"
+            android:backgroundTint="@color/colorPrimary"
             android:layout_margin="5dp"
-            android:background="@drawable/ic_baseline_image_24"
-            android:backgroundTint="@color/colorPrimary" />
+            android:background="@drawable/ic_baseline_image_24" />
 
         <Space
             android:layout_width="0dp"
             android:layout_height="1dp"
-            android:layout_weight="1"></Space>
+            android:layout_weight="1" >
+        </Space>
 
         <Button
             android:id="@+id/change_accessory_button"
             android:layout_width="40dp"
             android:layout_height="40dp"
             android:layout_gravity="center_vertical"
+            android:backgroundTint="@color/colorPrimary"
             android:layout_margin="5dp"
-            android:background="@drawable/ic_hat"
-            android:backgroundTint="@color/colorPrimary" />
+            android:background="@drawable/ic_hat" />
 
         <Space
             android:layout_width="0dp"
             android:layout_height="1dp"
-            android:layout_weight="1"></Space>
+            android:layout_weight="1" >
+        </Space>
 
         <Button
             android:id="@+id/change_style_button"
             android:layout_width="40dp"
             android:layout_height="40dp"
             android:layout_gravity="center_vertical"
+            android:backgroundTint="@color/colorPrimary"
             android:layout_margin="5dp"
-            android:background="@drawable/ic_width"
-            android:backgroundTint="@color/colorPrimary" />
+            android:background="@drawable/ic_width" />
 
         <Space
             android:layout_width="0dp"
             android:layout_height="1dp"
-            android:layout_weight="1"></Space>
+            android:layout_weight="1" >
+        </Space>
 
         <ImageButton
             android:id="@+id/save_as_video_button"
@@ -145,13 +168,13 @@
             android:layout_gravity="center_vertical"
             android:adjustViewBounds="false"
             android:background="@drawable/save_to_video_button_shape"
-            android:padding="8dp"
             android:scaleType="fitCenter"
             android:tint="@color/white"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
-            app:srcCompat="@drawable/ic_baseline_save_alt_24" />
+            app:srcCompat="@drawable/ic_baseline_save_alt_24"
+            android:padding="8dp"/>
 
     </LinearLayout>
 
@@ -212,9 +235,9 @@
         android:layout_height="40dp"
         android:layout_marginEnd="8dp"
         android:layout_marginBottom="8dp"
-        android:background="@drawable/round_button_bg"
+        android:background="@null"
         android:elevation="2dp"
-        android:scaleType="centerInside"
+        android:scaleType="fitCenter"
         android:src="@drawable/ic_baseline_delete_24"
         android:tint="@color/colorPrimaryDark"
         app:layout_constraintBottom_toTopOf="@+id/change_frame_rate_button"
@@ -226,10 +249,9 @@
         android:layout_height="40dp"
         android:layout_marginEnd="8dp"
         android:layout_marginBottom="8dp"
-        android:background="@drawable/round_button_bg"
+        android:background="@null"
         android:elevation="2dp"
-        android:scaleType="centerInside"
-        android:padding="8dp"
+        android:scaleType="fitCenter"
         android:src="@drawable/ic_baseline_access_time_24"
         android:tint="@color/colorPrimaryDark"
         app:layout_constraintBottom_toTopOf="@+id/change_frame_rate_view"
