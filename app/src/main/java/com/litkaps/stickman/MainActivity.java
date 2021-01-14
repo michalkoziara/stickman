@@ -15,7 +15,6 @@ import android.os.StrictMode;
 import android.util.Log;
 import android.util.Size;
 import android.view.LayoutInflater;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
@@ -82,7 +81,6 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
     private GraphicOverlay graphicOverlay;
 
     private Uri imageUri;
-    private int colorValue = -1;
     private Size targetResolution;
 
     private LinearLayout secondLevelControl;
@@ -206,7 +204,7 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
         }
 
         if (options == optionsAdapter.options && secondLevelControl.getVisibility() == View.VISIBLE) {
-            // hide the panel if the same option was clicked again
+            // Hide the panel if the same option was clicked again.
             secondLevelControl.setVisibility(View.GONE);
             lineWidthBar.setVisibility(View.GONE);
         } else {
@@ -248,61 +246,61 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
     };
 
     View.OnClickListener recordListener = view -> {
-            if (isRecording) {
-                isRecording = false;
-                view.setBackground(
-                        ContextCompat.getDrawable(getApplicationContext(),
-                                R.drawable.record_video_button)
-                );
+        if (isRecording) {
+            isRecording = false;
+            view.setBackground(
+                    ContextCompat.getDrawable(getApplicationContext(),
+                            R.drawable.record_video_button)
+            );
 
-                timer.cancel();
-                recordTime.setVisibility(View.GONE);
+            timer.cancel();
+            recordTime.setVisibility(View.GONE);
 
-                stickmanImageDrawer.clearVideoEncoder();
-            } else {
-                isRecording = true;
-                view.setBackground(
-                        ContextCompat.getDrawable(getApplicationContext(),
-                                R.drawable.stop_recording_button)
-                );
+            stickmanImageDrawer.clearVideoEncoder();
+        } else {
+            isRecording = true;
+            view.setBackground(
+                    ContextCompat.getDrawable(getApplicationContext(),
+                            R.drawable.stop_recording_button)
+            );
 
-                recordTime.setVisibility(View.VISIBLE);
+            recordTime.setVisibility(View.VISIBLE);
 
-                timer = new CountUpTimer(7200000) {
-                    public void onTick(int msSecond) {
-                        SimpleDateFormat dateFormat = new SimpleDateFormat("mm:ss", Locale.getDefault());
-                        recordTime.setText(dateFormat.format(new Date(msSecond)));
-                    }
-                };
-                timer.start();
+            timer = new CountUpTimer(7200000) {
+                public void onTick(int msSecond) {
+                    SimpleDateFormat dateFormat = new SimpleDateFormat("mm:ss", Locale.getDefault());
+                    recordTime.setText(dateFormat.format(new Date(msSecond)));
+                }
+            };
+            timer.start();
 
-                String uniqueName = "StickmanRaw " + System.currentTimeMillis();
+            String uniqueName = "StickmanRaw " + System.currentTimeMillis();
 
-                VideoEncoder videoEncoder = new VideoEncoder(
-                        uniqueName,
-                        targetResolution.getWidth(),
-                        targetResolution.getHeight(),
-                        getContentResolver(),
-                        outputFile -> {
-                            String resultText = "Film został zapisany!";
+            VideoEncoder videoEncoder = new VideoEncoder(
+                    uniqueName,
+                    targetResolution.getWidth(),
+                    targetResolution.getHeight(),
+                    getContentResolver(),
+                    outputFile -> {
+                        String resultText = "Film został zapisany!";
 
-                            Snackbar.make(view.getRootView(), resultText, LENGTH_SHORT)
-                                    .setAnchorView(recordButton)
-                                    .show();
-                        });
+                        Snackbar.make(view.getRootView(), resultText, LENGTH_SHORT)
+                                .setAnchorView(recordButton)
+                                .show();
+                    });
 
-                stickmanImageDrawer.setVideoEncoder(videoEncoder);
-            }
+            stickmanImageDrawer.setVideoEncoder(videoEncoder);
+        }
     };
 
-    // toggle between recording a video or taking a photo
+    // Toggle between recording a video or taking a photo.
     CompoundButton.OnCheckedChangeListener changeRecordModeListener =
             (CompoundButton buttonView, boolean isChecked) -> {
-                // switch to video recording
+                // Switch to video recording.
                 if (isChecked) {
                     recordButton.setBackground(ContextCompat.getDrawable(MainActivity.this, R.drawable.record_video_button));
                     recordButton.setOnClickListener(recordListener);
-                } else { // switch to taking photos
+                } else { // Switch to taking photos.
                     recordButton.setBackground(ContextCompat.getDrawable(MainActivity.this, R.drawable.take_photo_button));
                     recordButton.setOnClickListener(takePhotoListener);
                 }
@@ -333,11 +331,11 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
             OptionModel option = options.get(position);
             holder.optionButton.setImageResource(option.imageResourceID);
 
-            // set tint of the icon
+            // Set tint of the icon.
             if (option.tint != -1)
                 ImageViewCompat.setImageTintList(holder.optionButton, ColorStateList.valueOf(option.tint));
             else
-                ImageViewCompat.setImageTintList(holder.optionButton, null); // reset tint
+                ImageViewCompat.setImageTintList(holder.optionButton, null); // Reset tint.
 
         }
 
@@ -360,7 +358,6 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
                             removeBackgroundColor();
                         } else {
                             setBackgroundColor(options.get(position).tint);
-                            colorValue = options.get(position).tint;
                         }
                     } else if (options == backgroundImageOptions) {
                         if (position == 0) {
@@ -429,7 +426,6 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
             }
 
             private void removeBackgroundColor() {
-                colorValue = -1;
                 setBackgroundColor(-1);
             }
 

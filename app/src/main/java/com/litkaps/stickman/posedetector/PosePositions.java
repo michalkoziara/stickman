@@ -2,16 +2,10 @@ package com.litkaps.stickman.posedetector;
 
 import android.graphics.PointF;
 
-import com.google.mlkit.vision.mediapipe.pose.PoseHolder;
 import com.google.mlkit.vision.pose.Pose;
 import com.google.mlkit.vision.pose.PoseLandmark;
 
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
-
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 
 public class PosePositions {
     float[] poseLandmarkPositionX;

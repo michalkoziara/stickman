@@ -5,11 +5,8 @@ import android.graphics.Paint;
 import android.graphics.Path;
 import android.graphics.PointF;
 
-import com.google.mlkit.vision.pose.Pose;
 import com.google.mlkit.vision.pose.PoseLandmark;
 import com.litkaps.stickman.GraphicOverlay;
-
-import java.util.List;
 
 /**
  * Draw a "cyanide and happiness" style stickman
@@ -49,29 +46,29 @@ public class FlexibleComicStickmanGraphic extends StickmanGraphic {
         PointF pointBetweenMouthCorners = getPointBetween(leftMouth, rightMouth);
         PointF headCenterPoint = getPointBetween(pointBetweenEyes, pointBetweenMouthCorners);
 
-        // neck
+        // Neck.
         drawLine(canvas, neckPoint, headCenterPoint, stickmanPaint);
 
-        // Left body
+        // Left body.
         drawLine(canvas, leftShoulder, leftHip, stickmanPaint);
-        // Right body
+        // Right body.
         drawLine(canvas, rightShoulder, rightHip, stickmanPaint);
 
-        // shoulder line
+        // Shoulder line.
         drawLine(canvas, leftShoulder, rightShoulder, stickmanPaint);
-        // waist line
+        // Waist line.
         drawLine(canvas, leftHip, rightHip, stickmanPaint);
 
         Path path = new Path();
         stickmanPaint.setStyle(Paint.Style.STROKE);
 
-        // legs
+        // Legss
         path.moveTo(leftAnkle.x, leftAnkle.y);
         path.quadTo(leftKnee.x, leftKnee.y, leftHip.x, leftHip.y);
         path.moveTo(rightAnkle.x, rightAnkle.y);
         path.quadTo(rightKnee.x, rightKnee.y, rightHip.x, rightHip.y);
 
-        // arms
+        // Arms.
         path.moveTo(leftWrist.x, leftWrist.y);
         path.quadTo(leftElbow.x, leftElbow.y, leftShoulder.x, leftShoulder.y);
         path.moveTo(rightWrist.x, rightWrist.y);

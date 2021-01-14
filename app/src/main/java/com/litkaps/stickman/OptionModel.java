@@ -7,7 +7,7 @@ public class OptionModel {
     public int accessoryID;
     public int tint = -1;
 
-    // Figure accessory
+    // Figure accessory.
     public OptionModel(int iconResourceID, int accessoryID, int accessoryType) {
         this.imageResourceID = iconResourceID;
         this.accessoryType = accessoryType;

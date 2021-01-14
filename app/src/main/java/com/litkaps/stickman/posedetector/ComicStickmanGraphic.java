@@ -4,11 +4,8 @@ import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.graphics.PointF;
 
-import com.google.mlkit.vision.pose.Pose;
 import com.google.mlkit.vision.pose.PoseLandmark;
 import com.litkaps.stickman.GraphicOverlay;
-
-import java.util.List;
 
 /**
  * Draw a stickman.
@@ -48,26 +45,26 @@ public class ComicStickmanGraphic extends StickmanGraphic {
         PointF pointBetweenMouthCorners = getPointBetween(leftMouth, rightMouth);
         PointF headCenterPoint = getPointBetween(pointBetweenEyes, pointBetweenMouthCorners);
 
-        // Neck
+        // Neck.
         drawLine(canvas, neckPoint, headCenterPoint, stickmanPaint);
 
-        // Left body
+        // Left body.
         drawLine(canvas, leftShoulder, leftElbow, stickmanPaint);
         drawLine(canvas, leftElbow, leftWrist, stickmanPaint);
         drawLine(canvas, leftShoulder, leftHip, stickmanPaint);
         drawLine(canvas, leftHip, leftKnee, stickmanPaint);
         drawLine(canvas, leftKnee, leftAnkle, stickmanPaint);
 
-        // Right body
+        // Right body.
         drawLine(canvas, rightShoulder, rightElbow, stickmanPaint);
         drawLine(canvas, rightElbow, rightWrist, stickmanPaint);
         drawLine(canvas, rightShoulder, rightHip, stickmanPaint);
         drawLine(canvas, rightHip, rightKnee, stickmanPaint);
         drawLine(canvas, rightKnee, rightAnkle, stickmanPaint);
 
-        // Shoulder line
+        // Shoulder line.
         drawLine(canvas, leftShoulder, rightShoulder, stickmanPaint);
-        // Waist line
+        // Waist line.
         drawLine(canvas, leftHip, rightHip, stickmanPaint);
 
         drawHead(canvas);

@@ -89,7 +89,7 @@ abstract class StickmanGraphic extends GraphicOverlay.Graphic {
 
                     break;
 
-                case MainActivity.HANDHELD: // handheld
+                case MainActivity.HANDHELD: // Handheld accessory.
                     float scaleX = (
                             getDistance(
                                     getPosition(PoseLandmark.RIGHT_HIP, false),
@@ -112,7 +112,7 @@ abstract class StickmanGraphic extends GraphicOverlay.Graphic {
 
                     break;
 
-                case MainActivity.GLASSES: // glasses
+                case MainActivity.GLASSES: // Glasses.
                     matrix = calculateTransformMatrix(
                             getPositionX(PoseLandmark.RIGHT_EYE_INNER),
                             getPositionY(PoseLandmark.RIGHT_EYE_INNER),
@@ -190,7 +190,7 @@ abstract class StickmanGraphic extends GraphicOverlay.Graphic {
         paint.setStrokeWidth(5);
 
         try {
-            // upper lip
+            // Upper lip.
             drawLine(
                     canvas,
                     getPosition(PoseLandmark.LEFT_MOUTH),
@@ -198,7 +198,7 @@ abstract class StickmanGraphic extends GraphicOverlay.Graphic {
                     paint
             );
 
-            // lower lip
+            // Lower lip.
             drawCurvedLine(
                     canvas,
                     getPositionX(PoseLandmark.LEFT_MOUTH),

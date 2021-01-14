@@ -4,16 +4,12 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.res.ColorStateList;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.media.MediaExtractor;
 import android.media.MediaFormat;
 import android.media.MediaMetadataRetriever;
-import android.media.ThumbnailUtils;
 import android.net.Uri;
 import android.os.Bundle;
-import android.provider.MediaStore;
-import android.util.Log;
 import android.util.Pair;
 import android.util.Size;
 import android.view.LayoutInflater;
@@ -36,11 +32,8 @@ import androidx.recyclerview.widget.DefaultItemAnimator;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.bumptech.glide.Glide;
-import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.google.android.material.snackbar.Snackbar;
 import com.litkaps.stickman.BitmapUtils;
-import com.litkaps.stickman.CountUpTimer;
 import com.litkaps.stickman.GraphicOverlay;
 import com.litkaps.stickman.MainActivity;
 import com.litkaps.stickman.OptionModel;
@@ -51,28 +44,19 @@ import com.litkaps.stickman.posedetector.PosePositions;
 import com.litkaps.stickman.posedetector.StickmanData;
 import com.litkaps.stickman.posedetector.StickmanImageDrawer;
 
-import org.reactivestreams.Subscriber;
-
 import java.io.IOException;
 import java.nio.ByteBuffer;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
-import java.util.Date;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Locale;
 
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers;
 import io.reactivex.rxjava3.core.Observable;
-import io.reactivex.rxjava3.disposables.Disposable;
 import io.reactivex.rxjava3.schedulers.Schedulers;
 
 import static com.google.android.material.snackbar.BaseTransientBottomBar.LENGTH_SHORT;
 import static com.litkaps.stickman.MainActivity.accessoryOptions;
 import static com.litkaps.stickman.MainActivity.backgroundColorOptions;
-import static com.litkaps.stickman.MainActivity.backgroundImageOptions;
 import static com.litkaps.stickman.MainActivity.figureColorOptions;
 import static com.litkaps.stickman.MainActivity.figureOptions;
 
@@ -80,20 +64,22 @@ public class EditorActivity extends AppCompatActivity {
     MediaMetadataRetriever mediaMetadataRetriever;
 
     private Uri mVideoUri;
-    private ImageButton mPlayPauseButton;
     private int userSetFrameRate;
     private int frameCount;
-    private int frameInterval = 200; // 1000 ms / frameRate
+    private int frameInterval = 200;
     private int videoLength;
     private LinearLayout secondLevelControl;
     private SeekBar lineWidthBar;
     private OptionsAdapter optionsAdapter;
 
-    private GraphicOverlay graphicOverlay, thumbnailsGraphicOverlay, thumbnailsGraphicOverlaySecond, backgroundGraphicOverlay;
+    private GraphicOverlay graphicOverlay;
+    private GraphicOverlay thumbnailsGraphicOverlay;
+    private GraphicOverlay thumbnailsGraphicOverlaySecond;
+    private GraphicOverlay backgroundGraphicOverlay;
 
     private RecyclerView framesRecyclerView;
-    private StickmanImageDrawer stickmanImageDrawer = new StickmanImageDrawer();
-    private StickmanImageDrawer stickmanThumbnailImageDrawer = new StickmanImageDrawer();
+    private final StickmanImageDrawer stickmanImageDrawer = new StickmanImageDrawer();
+    private final StickmanImageDrawer stickmanThumbnailImageDrawer = new StickmanImageDrawer();
 
     private ArrayList<StickmanData> stickmanData;
     private ArrayList<Frame> frames;
@@ -104,65 +90,18 @@ public class EditorActivity extends AppCompatActivity {
 
     private ConstraintLayout root;
 
-    private Uri imageUri;
-    private int colorValue = -1;
-
-    private boolean isRecording = false;
-    private boolean isPlaying = false;
-    private CountUpTimer timer;
-
-    private TextView recordTime;
-
-    private int currentlyPlayedFrameIndex;
-    private int framesRemoved;
     private ConstraintLayout changeFrameRateView;
     private EditText frameRateEdit;
+
     /**
-     * change background image options
+     * Background image options.
      */
     private final OptionModel[] backgroundImageOptionsArray = {
             new OptionModel(R.drawable.ic_baseline_close_24, Color.parseColor(MainActivity.COLOR_1)),
             new OptionModel(R.drawable.ic_baseline_add_photo_alternate_24, Color.parseColor(MainActivity.COLOR_2))
     };
 
-    private ArrayList<OptionModel> backgroundImageOptions = new ArrayList<>(Arrays.asList(backgroundImageOptionsArray));
-
-
-//    View.OnClickListener playOnClickListener = view -> {
-//        if(isPlaying) {
-//            recordTime.setVisibility(View.GONE);
-//            framesRecyclerView.setVisibility(View.VISIBLE);
-//            timer.onFinish();
-//            framesRecyclerView.scrollToPosition(currentlyPlayedFrameIndex);
-//            framesRecyclerView.getLayoutManager().findViewByPosition(currentlyPlayedFrameIndex).callOnClick();
-//            mPlayPauseButton.setImageResource(R.drawable.ic_baseline_play_circle_filled_24);
-//            framesRecyclerView.setVisibility(View.VISIBLE);
-//        }
-//        else {
-//            framesRecyclerView.setVisibility(View.GONE);
-//            recordTime.setVisibility(View.VISIBLE);
-//            mPlayPauseButton.setImageResource(R.drawable.ic_baseline_pause_circle_filled_24);
-//            currentlyPlayedFrameIndex = 0;
-//            timer = new CountUpTimer(frameCount * frameInterval, frameInterval) {
-//                public void onTick(int msSecond) {
-//                    new Thread(new Runnable() {
-//                        @Override
-//                        public void run() {
-//                            Bitmap frameBitmap = mediaMetadataRetriever.getFrameAtIndex(currentlyPlayedFrameIndex);
-//                            drawStickmanData(graphicOverlay, frameBitmap, currentlyPlayedFrameIndex, stickmanImageDrawer);
-//                        }
-//                    }).start();
-//
-//                    SimpleDateFormat dateFormat = new SimpleDateFormat("mm:ss", Locale.getDefault());
-//                    recordTime.setText(dateFormat.format(new Date(msSecond)));
-//                    currentlyPlayedFrameIndex++;
-//                }
-//            };
-//            timer.start();
-//
-//        }
-//
-//    };
+    private final ArrayList<OptionModel> backgroundImageOptions = new ArrayList<>(Arrays.asList(backgroundImageOptionsArray));
 
     View.OnClickListener unrollOptionsListener = view -> {
         lineWidthBar.setVisibility(View.GONE);
@@ -183,7 +122,7 @@ public class EditorActivity extends AppCompatActivity {
         }
 
         if (options == optionsAdapter.options && secondLevelControl.getVisibility() == View.VISIBLE) {
-            // hide the panel if the same option was clicked again
+            // Hide the panel if the same option was clicked again.
             secondLevelControl.setVisibility(View.GONE);
             lineWidthBar.setVisibility(View.GONE);
         } else {
@@ -220,12 +159,11 @@ public class EditorActivity extends AppCompatActivity {
             OptionModel option = options.get(position);
             holder.optionButton.setImageResource(option.imageResourceID);
 
-            // set tint of the icon
+            // Set tint of the icon.
             if (option.tint != -1)
                 ImageViewCompat.setImageTintList(holder.optionButton, ColorStateList.valueOf(option.tint));
             else
-                ImageViewCompat.setImageTintList(holder.optionButton, null); // reset tint
-
+                ImageViewCompat.setImageTintList(holder.optionButton, null);
         }
 
         @Override
@@ -247,7 +185,6 @@ public class EditorActivity extends AppCompatActivity {
                             removeBackgroundColor();
                         } else {
                             setBackgroundColor(options.get(position).tint);
-                            colorValue = options.get(position).tint;
                         }
                     } else if (options == backgroundImageOptions) {
                         if (position == 0) {
@@ -314,7 +251,6 @@ public class EditorActivity extends AppCompatActivity {
         }
 
         private void removeBackgroundColor() {
-            colorValue = -1;
             setBackgroundColor(-1);
         }
 
@@ -323,7 +259,6 @@ public class EditorActivity extends AppCompatActivity {
         }
 
         private void removeBackgroundImage() {
-            imageUri = null;
             setBackgroundImage(null);
         }
 
@@ -355,17 +290,6 @@ public class EditorActivity extends AppCompatActivity {
 
             holder.framePreview.setImageBitmap(null);
 
-//            if (holder.disposable != null)
-//                holder.disposable.dispose();
-//
-//            holder.disposable = Observable.create(emitter -> {
-//                Bitmap bitmap = loadStickmanImageThumbnail(framePosition);
-//                emitter.onNext(bitmap);
-//            })
-//                    .subscribeOn(Schedulers.io())
-//                    .observeOn(AndroidSchedulers.mainThread())
-//                    .subscribe(bitmap -> holder.framePreview.setImageBitmap((Bitmap) bitmap));
-
             Bitmap bitmap = loadStickmanImageThumbnail(framePosition);
             holder.framePreview.setImageBitmap(bitmap);
 
@@ -386,7 +310,6 @@ public class EditorActivity extends AppCompatActivity {
         class FrameViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
             ImageView framePreview;
             TextView frameIndex;
-//            Disposable disposable;
 
             FrameViewHolder(View view) {
                 super(view);
@@ -449,7 +372,6 @@ public class EditorActivity extends AppCompatActivity {
             frameAdapter.notifyItemRemoved(currentFramePreviewIndex);
             frameAdapter.notifyItemRangeChanged(currentFramePreviewIndex, frames.size());
             currentFramePreviewIndex = -1;
-            framesRemoved++;
         }
     };
 
@@ -482,7 +404,6 @@ public class EditorActivity extends AppCompatActivity {
         }
 
         root = findViewById(R.id.root);
-        framesRemoved = 0;
         graphicOverlay = findViewById(R.id.graphic_overlay);
         thumbnailsGraphicOverlay = findViewById(R.id.thumbnails_graphic_overlay);
         thumbnailsGraphicOverlaySecond = findViewById(R.id.thumbnails_graphic_overlay_second);
@@ -554,7 +475,6 @@ public class EditorActivity extends AppCompatActivity {
             }
         });
 
-        recordTime = findViewById(R.id.record_time);
 
         findViewById(R.id.delete_frame_button).setOnClickListener(deleteFrameListener);
         findViewById(R.id.change_frame_rate_button).setOnClickListener(changeFrameRateListener);
@@ -585,15 +505,12 @@ public class EditorActivity extends AppCompatActivity {
             }
         });
 
-        //        mPlayPauseButton = findViewById(R.id.video_play_pause_button);
-        //        mPlayPauseButton.setOnClickListener(playOnClickListener);
-
         framesRecyclerView.setOnFocusChangeListener(new View.OnFocusChangeListener() {
             @Override
             public void onFocusChange(View v, boolean hasFocus) {
-                if(!hasFocus) {
+                if (!hasFocus) {
                     View prevClickedView = framesRecyclerView.getLayoutManager().findViewByPosition(previousFramePreviewIndex);
-                    if(prevClickedView != null)
+                    if (prevClickedView != null)
                         prevClickedView.setBackgroundColor(Color.WHITE);
                 }
             }
@@ -728,7 +645,6 @@ public class EditorActivity extends AppCompatActivity {
     }
 
     private void updatePreview(int frameIndex) {
-        // update preview
         Bitmap frameBitmap = mediaMetadataRetriever.getFrameAtIndex((int) frames.get(frameIndex).frameIndex);
         frameAdapter.notifyItemChanged(frameIndex);
         drawStickmanData(graphicOverlay, frameBitmap, (int) frames.get(frameIndex).frameIndex, stickmanImageDrawer);
@@ -752,7 +668,7 @@ public class EditorActivity extends AppCompatActivity {
     }
 
     private void hideSoftInput() {
-        InputMethodManager imm = (InputMethodManager)getSystemService(Context.INPUT_METHOD_SERVICE);
+        InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
         imm.hideSoftInputFromWindow(root.getWindowToken(), 0);
     }
 }

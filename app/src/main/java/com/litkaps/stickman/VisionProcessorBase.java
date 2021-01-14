@@ -100,7 +100,6 @@ public abstract class VisionProcessorBase<T> implements VisionImageProcessor {
                 .addOnCompleteListener(results -> image.close());
     }
 
-    // -----------------Common processing logic-------------------------------------------------------
     private Task<T> requestDetectInImage(
             final InputImage image,
             final GraphicOverlay graphicOverlay,

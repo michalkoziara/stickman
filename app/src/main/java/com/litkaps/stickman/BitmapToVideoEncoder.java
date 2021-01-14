@@ -25,7 +25,7 @@ import io.reactivex.rxjava3.schedulers.Schedulers;
 import static android.media.MediaFormat.KEY_MIME;
 
 public class BitmapToVideoEncoder {
-    public int frameRate = 15; // Frames per second
+    public int frameRate = 15;
 
     private static final String TAG = BitmapToVideoEncoder.class.getSimpleName();
 
@@ -38,7 +38,7 @@ public class BitmapToVideoEncoder {
     private final Object mFrameSync = new Object();
     private CountDownLatch mNewFrameLatch;
 
-    private static final String MIME_TYPE = "video/avc"; // H.264 Advanced Video Coding
+    private static final String MIME_TYPE = "video/avc"; // H.264 Advanced Video Coding.
     private static final int BIT_RATE = 16000000;
 
     private static final int I_FRAME_INTERVAL = 1;
@@ -136,7 +136,7 @@ public class BitmapToVideoEncoder {
 
         mNoMoreFrames = true;
         mAbort = true;
-        mEncodeQueue = new ConcurrentLinkedQueue<>(); // Drop all frames
+        mEncodeQueue = new ConcurrentLinkedQueue<>(); // Drops all frames.
 
         synchronized (mFrameSync) {
             if ((mNewFrameLatch != null) && (mNewFrameLatch.getCount() > 0)) {
@@ -205,10 +205,10 @@ public class BitmapToVideoEncoder {
             MediaCodec.BufferInfo mBufferInfo = new MediaCodec.BufferInfo();
             int encoderStatus = mediaCodec.dequeueOutputBuffer(mBufferInfo, timeoutUsec);
             if (encoderStatus == MediaCodec.INFO_TRY_AGAIN_LATER) {
-                // no output available yet
+                // No output available yet.
                 Log.e(TAG, "No output from encoder available");
             } else if (encoderStatus == MediaCodec.INFO_OUTPUT_FORMAT_CHANGED) {
-                // not expected for an encoder
+                // Not expected for an encoder.
                 MediaFormat newFormat = mediaCodec.getOutputFormat();
                 mTrackIndex = mediaMuxer.addTrack(newFormat);
                 mediaMuxer.start();

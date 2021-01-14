@@ -3,19 +3,12 @@ package com.litkaps.stickman.posedetector;
 import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.graphics.Paint;
-import android.graphics.PointF;
 
 import androidx.annotation.NonNull;
 
-import com.google.mlkit.vision.pose.Pose;
-import com.google.mlkit.vision.pose.PoseLandmark;
 import com.litkaps.stickman.GraphicOverlay;
 import com.litkaps.stickman.ImageGraphic;
-import com.litkaps.stickman.MainActivity;
-import com.litkaps.stickman.R;
 import com.litkaps.stickman.VideoEncoder;
-
-import java.util.List;
 
 /**
  * The class {@code StickmanImageDrawer} draws a stickman image basing

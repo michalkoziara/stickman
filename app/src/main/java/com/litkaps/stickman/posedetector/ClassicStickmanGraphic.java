@@ -4,11 +4,8 @@ import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.graphics.PointF;
 
-import com.google.mlkit.vision.pose.Pose;
 import com.google.mlkit.vision.pose.PoseLandmark;
 import com.litkaps.stickman.GraphicOverlay;
-
-import java.util.List;
 
 public class ClassicStickmanGraphic extends StickmanGraphic {
 
@@ -59,7 +56,7 @@ public class ClassicStickmanGraphic extends StickmanGraphic {
         PointF pointBetweenMouthCorners = getPointBetween(leftMouth, rightMouth);
         PointF headCenterPoint = getPointBetween(pointBetweenEyes, pointBetweenMouthCorners);
 
-        // Adds the neck.
+        // Add the neck.
         drawLine(canvas, neckPoint, headCenterPoint, stickmanPaint);
 
         drawHead(canvas);
