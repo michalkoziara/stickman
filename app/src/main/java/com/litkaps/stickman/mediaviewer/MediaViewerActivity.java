@@ -112,5 +112,6 @@ public class MediaViewerActivity extends AppCompatActivity implements LoaderMana
     @Override
     protected void onResume() {
         super.onResume();
+        LoaderManager.getInstance(this).restartLoader(MEDIASTORE_LOADER_ID, null, this);
     }
 }

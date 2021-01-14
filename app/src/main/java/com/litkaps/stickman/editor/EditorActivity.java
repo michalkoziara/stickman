@@ -220,34 +220,42 @@ public class EditorActivity extends AppCompatActivity {
         }
 
         private void setFigure(String name) {
-            switch (name) {
-                case "classic_stickman": {
-                    stickmanData.get((int) frames.get(currentFramePreviewIndex).frameIndex).stickmanTypeId = 0;
-                    break;
-                }
-                case "comic_stickman": {
-                    stickmanData.get((int) frames.get(currentFramePreviewIndex).frameIndex).stickmanTypeId = 1;
-                    break;
-                }
-                case "flexible_comic_stickman": {
-                    stickmanData.get((int) frames.get(currentFramePreviewIndex).frameIndex).stickmanTypeId = 2;
-                    break;
+            if (currentFramePreviewIndex != -1) {
+                switch (name) {
+                    case "classic_stickman": {
+                        stickmanData.get((int) frames.get(currentFramePreviewIndex).frameIndex).stickmanTypeId = 0;
+                        break;
+                    }
+                    case "comic_stickman": {
+                        stickmanData.get((int) frames.get(currentFramePreviewIndex).frameIndex).stickmanTypeId = 1;
+                        break;
+                    }
+                    case "flexible_comic_stickman": {
+                        stickmanData.get((int) frames.get(currentFramePreviewIndex).frameIndex).stickmanTypeId = 2;
+                        break;
+                    }
                 }
             }
         }
 
         private void setFigureColor(int colorValue) {
-            stickmanData.get((int) frames.get(currentFramePreviewIndex).frameIndex).stickmanColor = colorValue;
+            if (currentFramePreviewIndex != -1) {
+                stickmanData.get((int) frames.get(currentFramePreviewIndex).frameIndex).stickmanColor = colorValue;
+            }
         }
 
         private void setFigureAccessory(int accessoryID, int accessoryType) {
-            stickmanData.get((int) frames.get(currentFramePreviewIndex).frameIndex).accessoryId = accessoryID;
-            stickmanData.get((int) frames.get(currentFramePreviewIndex).frameIndex).accessoryType = accessoryType;
+            if (currentFramePreviewIndex != -1) {
+                stickmanData.get((int) frames.get(currentFramePreviewIndex).frameIndex).accessoryId = accessoryID;
+                stickmanData.get((int) frames.get(currentFramePreviewIndex).frameIndex).accessoryType = accessoryType;
+            }
         }
 
         private void removeAccessory() {
-            stickmanData.get((int) frames.get(currentFramePreviewIndex).frameIndex).accessoryId = 0;
-            stickmanData.get((int) frames.get(currentFramePreviewIndex).frameIndex).accessoryType = -1;
+            if (currentFramePreviewIndex != -1) {
+                stickmanData.get((int) frames.get(currentFramePreviewIndex).frameIndex).accessoryId = 0;
+                stickmanData.get((int) frames.get(currentFramePreviewIndex).frameIndex).accessoryType = -1;
+            }
         }
 
         private void removeBackgroundColor() {
@@ -263,7 +271,9 @@ public class EditorActivity extends AppCompatActivity {
         }
 
         private void setBackgroundColor(int colorValue) {
-            stickmanData.get((int) frames.get(currentFramePreviewIndex).frameIndex).backgroundColor = colorValue;
+            if (currentFramePreviewIndex != -1) {
+                stickmanData.get((int) frames.get(currentFramePreviewIndex).frameIndex).backgroundColor = colorValue;
+            }
         }
 
     }
@@ -320,50 +330,64 @@ public class EditorActivity extends AppCompatActivity {
 
             @Override
             public void onClick(View v) {
-                int frameIndex = (int) frames.get(getAdapterPosition()).frameIndex;
-                Bitmap bmFrame = mediaMetadataRetriever.getFrameAtIndex(frameIndex);
-                drawStickmanData(graphicOverlay, bmFrame, frameIndex, stickmanImageDrawer);
-                previousFramePreviewIndex = currentFramePreviewIndex;
-                currentFramePreviewIndex = getAdapterPosition();
+                int adapterPosition = getAdapterPosition();
 
-                lineWidthBar.setProgress((int) stickmanData.get(currentFramePreviewIndex).stickmanLineThickness);
+                if (adapterPosition != -1) {
+                    int frameIndex = (int) frames.get(adapterPosition).frameIndex;
+                    Bitmap bmFrame = mediaMetadataRetriever.getFrameAtIndex(frameIndex);
+                    drawStickmanData(graphicOverlay, bmFrame, frameIndex, stickmanImageDrawer);
+                    previousFramePreviewIndex = currentFramePreviewIndex;
+                    currentFramePreviewIndex = getAdapterPosition();
 
-                View prevClickedView = framesRecyclerView.getLayoutManager().findViewByPosition(previousFramePreviewIndex);
-                if (prevClickedView != null)
-                    prevClickedView.setBackgroundColor(Color.WHITE);
-                v.setBackgroundColor(getColor(R.color.colorPrimaryDark));
+                    if (currentFramePreviewIndex != -1) {
+                        lineWidthBar.setProgress((int) stickmanData.get(currentFramePreviewIndex).stickmanLineThickness);
+                    }
+
+                    View prevClickedView = framesRecyclerView.getLayoutManager().findViewByPosition(previousFramePreviewIndex);
+                    if (prevClickedView != null)
+                        prevClickedView.setBackgroundColor(Color.WHITE);
+                    v.setBackgroundColor(getColor(R.color.colorPrimaryDark));
+                }
             }
         }
     }
 
     View.OnClickListener recordListener = view -> {
-        String uniqueName = "Stickman " + System.currentTimeMillis();
-        VideoEncoder videoEncoder = new VideoEncoder(
-                uniqueName,
-                targetResolution.getWidth(),
-                targetResolution.getHeight(),
-                getContentResolver(),
-                outputFile -> {
-                    String resultText = "Film został zapisany!";
+        if (!frameAdapter.frames.isEmpty()) {
+            Snackbar.make(view.getRootView(), "Film jest zapisywany, proszę czekać!", LENGTH_SHORT)
+                    .setAnchorView(framesRecyclerView)
+                    .show();
 
-                    Snackbar.make(view.getRootView(), resultText, LENGTH_SHORT)
-                            .setAnchorView(framesRecyclerView)
-                            .show();
-                },
-                userSetFrameRate
-        );
+            Schedulers.io().createWorker().schedule(() -> {
+                String uniqueName = "Stickman " + System.currentTimeMillis();
+                VideoEncoder videoEncoder = new VideoEncoder(
+                        uniqueName,
+                        targetResolution.getWidth(),
+                        targetResolution.getHeight(),
+                        getContentResolver(),
+                        outputFile -> {
+                            String resultText = "Film został zapisany!";
 
-        StickmanImageDrawer tempDrawer = new StickmanImageDrawer();
-        tempDrawer.setVideoEncoder(videoEncoder);
-        tempDrawer.setVideoEncoderFrameRate(userSetFrameRate);
-        tempDrawer.setEncodeStickmanData();
+                            Snackbar.make(view.getRootView(), resultText, LENGTH_SHORT)
+                                    .setAnchorView(framesRecyclerView)
+                                    .show();
+                        },
+                        userSetFrameRate
+                );
 
-        for (Frame frame : frameAdapter.frames) {
-            Bitmap bmFrame = mediaMetadataRetriever.getFrameAtIndex((int) frame.frameIndex);
-            drawStickmanData(backgroundGraphicOverlay, bmFrame, (int) frame.frameIndex, tempDrawer);
+                StickmanImageDrawer videoDrawer = new StickmanImageDrawer();
+                videoDrawer.setVideoEncoder(videoEncoder);
+                videoDrawer.setVideoEncoderFrameRate(userSetFrameRate);
+                videoDrawer.setEncodeStickmanData();
+
+                for (Frame frame : frameAdapter.frames) {
+                    Bitmap bmFrame = mediaMetadataRetriever.getFrameAtIndex((int) frame.frameIndex);
+                    drawStickmanData(backgroundGraphicOverlay, bmFrame, (int) frame.frameIndex, videoDrawer);
+                }
+
+                videoDrawer.clearVideoEncoder();
+            });
         }
-
-        tempDrawer.clearVideoEncoder();
     };
 
     View.OnClickListener deleteFrameListener = view -> {
@@ -462,8 +486,10 @@ public class EditorActivity extends AppCompatActivity {
         lineWidthBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
             public void onProgressChanged(SeekBar seekBar, int i, boolean b) {
-                stickmanData.get((int) frames.get(currentFramePreviewIndex).frameIndex).stickmanLineThickness = i;
-                updatePreview(currentFramePreviewIndex);
+                if (currentFramePreviewIndex != -1) {
+                    stickmanData.get((int) frames.get(currentFramePreviewIndex).frameIndex).stickmanLineThickness = i;
+                    updatePreview(currentFramePreviewIndex);
+                }
             }
 
             @Override
@@ -494,7 +520,8 @@ public class EditorActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 if (!frameRateEdit.getText().toString().isEmpty()) {
-                    userSetFrameRate = Integer.parseInt(frameRateEdit.getText().toString());
+                    userSetFrameRate = (int) Double.parseDouble(frameRateEdit.getText().toString());
+                    frameRateEdit.setText(String.valueOf(userSetFrameRate));
                     root.requestFocus();
                     hideSoftInput();
                     changeFrameRateView.setVisibility(View.GONE);
@@ -543,7 +570,7 @@ public class EditorActivity extends AppCompatActivity {
 
                     frameInterval = 1000 / userSetFrameRate;
 
-                    frameRateEdit.setText(userSetFrameRate + "");
+                    runOnUiThread(() -> frameRateEdit.setText(userSetFrameRate + ""));
 
                     ArrayList<Frame> frames = new ArrayList<>();
                     float secondsPerFrame = 1f / userSetFrameRate;
@@ -645,19 +672,23 @@ public class EditorActivity extends AppCompatActivity {
     }
 
     private void updatePreview(int frameIndex) {
-        Bitmap frameBitmap = mediaMetadataRetriever.getFrameAtIndex((int) frames.get(frameIndex).frameIndex);
-        frameAdapter.notifyItemChanged(frameIndex);
-        drawStickmanData(graphicOverlay, frameBitmap, (int) frames.get(frameIndex).frameIndex, stickmanImageDrawer);
+        if (frameIndex != -1) {
+            Bitmap frameBitmap = mediaMetadataRetriever.getFrameAtIndex((int) frames.get(frameIndex).frameIndex);
+            frameAdapter.notifyItemChanged(frameIndex);
+            drawStickmanData(graphicOverlay, frameBitmap, (int) frames.get(frameIndex).frameIndex, stickmanImageDrawer);
+        }
     }
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (requestCode == 0 && resultCode == RESULT_OK) {
-            stickmanData.get(currentFramePreviewIndex).imageUri = data.getData();
-            frameAdapter.notifyItemChanged(currentFramePreviewIndex);
-            Bitmap frameBitmap = mediaMetadataRetriever.getFrameAtIndex(currentFramePreviewIndex);
-            drawStickmanData(graphicOverlay, frameBitmap, currentFramePreviewIndex, stickmanImageDrawer);
+            if (currentFramePreviewIndex != -1) {
+                stickmanData.get(currentFramePreviewIndex).imageUri = data.getData();
+                frameAdapter.notifyItemChanged(currentFramePreviewIndex);
 
+                Bitmap frameBitmap = mediaMetadataRetriever.getFrameAtIndex(currentFramePreviewIndex);
+                drawStickmanData(graphicOverlay, frameBitmap, currentFramePreviewIndex, stickmanImageDrawer);
+            }
         } else {
             super.onActivityResult(requestCode, resultCode, data);
         }

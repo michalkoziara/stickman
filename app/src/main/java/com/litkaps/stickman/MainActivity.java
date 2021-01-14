@@ -61,6 +61,8 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
+import java.util.Timer;
+import java.util.TimerTask;
 
 import io.reactivex.rxjava3.core.SingleObserver;
 import io.reactivex.rxjava3.disposables.Disposable;
@@ -259,6 +261,18 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
             stickmanImageDrawer.clearVideoEncoder();
         } else {
             isRecording = true;
+
+            recordButton.setEnabled(false);
+
+            Timer secondTimer = new Timer();
+            TimerTask timerTask = new TimerTask() {
+                @Override
+                public void run() {
+                    runOnUiThread(() -> recordButton.setEnabled(true));
+                }
+            };
+            secondTimer.schedule(timerTask,1000);
+
             view.setBackground(
                     ContextCompat.getDrawable(getApplicationContext(),
                             R.drawable.stop_recording_button)
