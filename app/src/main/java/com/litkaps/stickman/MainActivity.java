@@ -819,5 +819,6 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
 
     private void rollOptions() {
         secondLevelControl.setVisibility(View.GONE);
+        lineWidthBar.setVisibility(View.GONE);
     }
 }

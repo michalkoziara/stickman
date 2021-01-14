@@ -665,6 +665,7 @@ public class EditorActivity extends AppCompatActivity {
 
     private void rollOptions() {
         secondLevelControl.setVisibility(View.GONE);
+        lineWidthBar.setVisibility(View.GONE);
     }
 
     private void hideSoftInput() {
