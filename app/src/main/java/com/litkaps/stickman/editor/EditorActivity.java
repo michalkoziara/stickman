@@ -614,6 +614,11 @@ public class EditorActivity extends AppCompatActivity {
                     videoLength = Integer.parseInt(mediaMetadataRetriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION));
                     frameCount = Integer.parseInt(mediaMetadataRetriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_VIDEO_FRAME_COUNT));
                     userSetFrameRate = (int) (frameCount / (videoLength / 1000f));
+
+                    if (userSetFrameRate == 0) {
+                        userSetFrameRate = 15;
+                    }
+
                     frameInterval = 1000 / userSetFrameRate;
 
                     frameRateEdit.setText(userSetFrameRate + "");
