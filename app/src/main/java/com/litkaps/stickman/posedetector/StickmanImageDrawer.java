@@ -38,6 +38,7 @@ public class StickmanImageDrawer {
     private float stickmanStrokeWidth = 12;
 
     private VideoEncoder encoder;
+    private int framesPerSecond = 15;
     private boolean encodeStickmanData = false;
 
     public StickmanImageDrawer() {
@@ -48,7 +49,9 @@ public class StickmanImageDrawer {
         poseDetectorProcessor.setPoseDetectCallback(this::draw);
     }
 
-    public void draw(@NonNull PosePositions posePositions, @NonNull GraphicOverlay graphicOverlay, Bitmap cameraImage) {
+    public void draw(@NonNull PosePositions posePositions, @NonNull GraphicOverlay graphicOverlay, Bitmap cameraImage, int framesPerSecond) {
+        this.framesPerSecond = framesPerSecond;
+
         if (backgroundImage != null) {
             if (isBackgroundImageUpdated) {
                 scaledBackgroundImage = Bitmap.createScaledBitmap(
@@ -156,6 +159,7 @@ public class StickmanImageDrawer {
     }
 
     public void setVideoEncoder(VideoEncoder encoder) {
+        encoder.setFrameRate(framesPerSecond);
         this.encoder = encoder;
     }
 

@@ -20,7 +20,7 @@ import com.litkaps.stickman.VisionProcessorBase;
  */
 public class PoseDetectorProcessor extends VisionProcessorBase<Pose> {
     protected interface PoseDetectCallback {
-        void onDetectionComplete(@NonNull PosePositions posePositions, @NonNull GraphicOverlay graphicOverlay, Bitmap cameraImage);
+        void onDetectionComplete(@NonNull PosePositions posePositions, @NonNull GraphicOverlay graphicOverlay, Bitmap cameraImage, int framesPerSecond);
     }
 
     private static final String TAG = "PoseDetectorProcessor";
@@ -46,8 +46,8 @@ public class PoseDetectorProcessor extends VisionProcessorBase<Pose> {
     }
 
     @Override
-    protected void onSuccess(@NonNull Pose pose, @NonNull GraphicOverlay graphicOverlay, Bitmap cameraImage) {
-        poseDetectCallback.onDetectionComplete(new PosePositions(pose), graphicOverlay, cameraImage);
+    protected void onSuccess(@NonNull Pose pose, @NonNull GraphicOverlay graphicOverlay, Bitmap cameraImage, int framesPerSecond) {
+        poseDetectCallback.onDetectionComplete(new PosePositions(pose), graphicOverlay, cameraImage, framesPerSecond);
     }
 
     @Override

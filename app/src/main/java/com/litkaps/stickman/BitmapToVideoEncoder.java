@@ -25,6 +25,8 @@ import io.reactivex.rxjava3.schedulers.Schedulers;
 import static android.media.MediaFormat.KEY_MIME;
 
 public class BitmapToVideoEncoder {
+    public int frameRate = 15; // Frames per second
+
     private static final String TAG = BitmapToVideoEncoder.class.getSimpleName();
 
     private final IBitmapToVideoEncoderCallback mCallback;
@@ -46,7 +48,6 @@ public class BitmapToVideoEncoder {
     private boolean mNoMoreFrames = false;
     private boolean mAbort = false;
     private int metadataTrackIndex;
-    private int frameRate = 5; // Frames per second
 
     public interface IBitmapToVideoEncoderCallback {
         void onEncodingComplete(File outputFile);

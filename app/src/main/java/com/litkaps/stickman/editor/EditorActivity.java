@@ -81,8 +81,7 @@ public class EditorActivity extends AppCompatActivity {
 
     private Uri mVideoUri;
     private ImageButton mPlayPauseButton;
-    final private int frameRate = 5;
-    private int userSetFrameRate = 5;
+    private int userSetFrameRate;
     private int frameCount;
     private int frameInterval = 200; // 1000 ms / frameRate
     private int videoLength;
@@ -614,9 +613,13 @@ public class EditorActivity extends AppCompatActivity {
 
                     videoLength = Integer.parseInt(mediaMetadataRetriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION));
                     frameCount = Integer.parseInt(mediaMetadataRetriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_VIDEO_FRAME_COUNT));
+                    userSetFrameRate = (int) (frameCount / (videoLength / 1000f));
+                    frameInterval = 1000 / userSetFrameRate;
+
+                    frameRateEdit.setText(userSetFrameRate + "");
 
                     ArrayList<Frame> frames = new ArrayList<>();
-                    float secondsPerFrame = 1f / frameRate;
+                    float secondsPerFrame = 1f / userSetFrameRate;
                     for (int i = 0; i < frameCount; i++) {
                         frames.add(new Frame(i, (long) (i * secondsPerFrame * 1000)));
                     }
@@ -696,7 +699,7 @@ public class EditorActivity extends AppCompatActivity {
                 new PosePositions(
                         stickmanData.get(index).poseLandmarkPositionX,
                         stickmanData.get(index).poseLandmarkPositionY),
-                graphicOverlay, frame
+                graphicOverlay, frame, userSetFrameRate
         );
 
         graphicOverlay.postInvalidate();

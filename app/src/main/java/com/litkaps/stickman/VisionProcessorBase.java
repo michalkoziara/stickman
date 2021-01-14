@@ -121,6 +121,7 @@ public abstract class VisionProcessorBase<T> implements VisionImageProcessor {
                             // Only log inference info once per second. When frameProcessedInOneSecondInterval is
                             // equal to 1, it means this is the first frame processed during the current second.
                             if (frameProcessedInOneSecondInterval == 1) {
+                                Log.d(TAG, "Framerate: " + framesPerSecond);
                                 Log.d(TAG, "Max latency is: " + maxRunMs);
                                 Log.d(TAG, "Min latency is: " + minRunMs);
                                 Log.d(TAG, "Num of Runs: " + numRuns + ", Avg latency is: " + totalRunMs / numRuns);
@@ -132,7 +133,7 @@ public abstract class VisionProcessorBase<T> implements VisionImageProcessor {
 
                             graphicOverlay.clear();
 
-                            VisionProcessorBase.this.onSuccess(results, graphicOverlay, originalCameraImage);
+                            VisionProcessorBase.this.onSuccess(results, graphicOverlay, originalCameraImage, framesPerSecond);
 
                             graphicOverlay.postInvalidate();
                         })
@@ -164,7 +165,7 @@ public abstract class VisionProcessorBase<T> implements VisionImageProcessor {
 
     protected abstract Task<T> detectInImage(InputImage image);
 
-    protected abstract void onSuccess(@NonNull T results, @NonNull GraphicOverlay graphicOverlay, Bitmap cameraImage);
+    protected abstract void onSuccess(@NonNull T results, @NonNull GraphicOverlay graphicOverlay, Bitmap cameraImage, int framesPerSecond);
 
     protected abstract void onFailure(@NonNull Exception e);
 }

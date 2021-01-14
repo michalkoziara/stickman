@@ -79,6 +79,10 @@ public class VideoEncoder {
         });
     }
 
+    public void setFrameRate(int frameRate) {
+        bitmapToVideoEncoder.frameRate = frameRate;
+    }
+
     public void queueFrame(StickmanImage frame) {
         if (frame != null && bitmapToVideoEncoder != null) {
             bitmapToVideoEncoder.queueFrame(frame);
